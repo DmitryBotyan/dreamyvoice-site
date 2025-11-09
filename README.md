@@ -77,9 +77,3 @@ project-root/
     cd backend  && pnpm run build
     cd frontend && pnpm run build
     ```
-
-## Дополнительно
-
-- `docker-compose.dev.yml` можно расширять дополнительными сервисами (например, локальный почтовый сервер), но без внешних облаков.
-- `data/postgres` и `data/minio` добавлены в `.gitignore`, чтобы не коммитить тома.
-- Для любых новых возможностей стремитесь к чистому Express + Prisma коду без лишних зависимостей.
