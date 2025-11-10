@@ -494,9 +494,7 @@ button:disabled {
 }
 
 .latest-empty {
-  padding: 16px 20px;
-  border-radius: 12px;
-  border: 1px dashed var(--border);
+  padding: 12px 0;
   color: var(--muted);
 }
 
@@ -809,31 +807,27 @@ button:disabled {
 
 .title-hero {
   display: grid;
-  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
-  gap: 32px;
-  padding: 32px;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--surface-primary);
-  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+  gap: 40px;
+  padding: 12px 0 0;
 }
 
 .title-cover {
   position: relative;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(5, 5, 10, 0.6);
+  border-radius: 10px;
+  border: none;
+  background: transparent;
   overflow: hidden;
   aspect-ratio: 3 / 4;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 16px;
+  padding: 0;
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .title-cover img {
@@ -841,12 +835,14 @@ button:disabled {
   height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 10px;
 }
 
 .title-hero-content {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  padding-top: 8px;
 }
 
 .title-badges {
@@ -861,11 +857,13 @@ button:disabled {
   gap: 6px;
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
 .title-badge--success {
@@ -886,7 +884,7 @@ button:disabled {
 }
 
 .title-hero-description {
-  font-size: 1rem;
+  font-size: 1.15rem;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);
 }
@@ -921,11 +919,11 @@ button:disabled {
 .title-genre {
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 1rem;
   text-transform: capitalize;
 }
 
@@ -939,6 +937,8 @@ button:disabled {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 16px 24px;
   margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .title-meta dt {
@@ -958,11 +958,8 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 32px;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--surface-secondary);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  padding: 32px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .episode-player-heading {
@@ -983,12 +980,11 @@ button:disabled {
 }
 
 .episode-player-frame {
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(2, 4, 9, 0.85);
   aspect-ratio: 16 / 9;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 35px 90px rgba(0, 0, 0, 0.65);
 }
 
 .episode-player-iframe {
@@ -1008,11 +1004,9 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-top: 16px;
-  padding: 20px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(6, 6, 10, 0.75);
+  margin-top: 12px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .episode-player-selector-label {
@@ -1031,16 +1025,17 @@ button:disabled {
 .episode-player-selector-button {
   padding: 14px 28px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--foreground);
   font-weight: 600;
   font-size: 0.95rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
-    box-shadow 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
 }
 
 .episode-player-selector-button:not(
@@ -1049,27 +1044,26 @@ button:disabled {
 .episode-player-selector-button:not(
     .episode-player-selector-button--active
   ):not(:disabled):focus-visible {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.9);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.35);
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
 .episode-player-selector-button--active {
   background: var(--accent-strong);
-  border-color: var(--accent-strong);
   color: #fefbff;
-  box-shadow: 0 16px 32px var(--accent-muted);
+  border-color: transparent;
+  box-shadow: 0 18px 38px var(--accent-muted);
   transform: translateY(0);
 }
 
 .episode-player-selector-button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.25);
-  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.5);
   box-shadow: none;
 }
 
@@ -1077,11 +1071,8 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 32px;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--surface-secondary);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  padding: 48px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .comments-heading {
@@ -1100,9 +1091,7 @@ button:disabled {
 }
 
 .comments-empty {
-  padding: 18px 20px;
-  border-radius: 16px;
-  border: 1px dashed var(--border);
+  padding: 18px 0;
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -1119,10 +1108,12 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(6, 6, 10, 0.8);
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comment-card:last-child {
+  border-bottom-color: transparent;
 }
 
 .comment-card-header {
@@ -1134,8 +1125,7 @@ button:disabled {
 .comment-card-avatar {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
@@ -1143,6 +1133,7 @@ button:disabled {
   overflow: hidden;
   font-weight: 600;
   letter-spacing: 0.08em;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
 .comment-card-avatar img {
@@ -1196,16 +1187,16 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 24px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(4, 4, 8, 0.85);
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
 }
 
 .comment-form--guest {
   font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.75);
-  border-style: dashed;
+  padding: 16px 0;
 }
 
 .comment-form-label {
@@ -1218,8 +1209,8 @@ button:disabled {
 .comment-form-textarea {
   min-height: 160px;
   padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.02);
   color: var(--foreground);
   font-size: 1rem;
@@ -1275,12 +1266,12 @@ button:disabled {
 
   .title-hero {
     grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
-    padding: 28px;
+    padding-top: 28px;
   }
 
   .episode-player,
   .comments-section {
-    padding: 28px;
+    padding-top: 28px;
   }
 }
 
@@ -1296,7 +1287,7 @@ button:disabled {
 
   .title-hero {
     grid-template-columns: 1fr;
-    padding: 24px;
+    padding-top: 24px;
   }
 
   .title-cover {
@@ -1352,11 +1343,7 @@ button:disabled {
 
   .episode-player,
   .comments-section {
-    padding: 24px 18px;
-  }
-
-  .comment-form {
-    padding: 18px;
+    padding-top: 24px;
   }
 
   .comment-form-actions {
