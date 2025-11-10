@@ -3,7 +3,7 @@ import Link from "next/link";
 export function SiteNav() {
   return (
     <nav className="site-nav">
-      <a href="#catalog">Каталог</a>
+      <Link href="/#catalog">Каталог</Link>
       <Link href="/team">Команда</Link>
       <Link href="/support">Поддержать</Link>
     </nav>
