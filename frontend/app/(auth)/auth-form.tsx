@@ -8,9 +8,10 @@ import { clientConfig } from '@/lib/client-config';
 type Props = {
   mode: 'login' | 'register';
   onSwitchMode?: (mode: 'login' | 'register') => void;
+  onSuccess?: () => void;
 };
 
-export function AuthForm({ mode, onSwitchMode }: Props) {
+export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -38,6 +39,7 @@ export function AuthForm({ mode, onSwitchMode }: Props) {
         throw new Error(payload?.message ?? 'Ошибка авторизации');
       }
 
+      onSuccess?.();
       router.push('/');
       router.refresh();
     } catch (submitError) {

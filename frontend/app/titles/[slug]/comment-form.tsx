@@ -1,8 +1,10 @@
 'use client';
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import { clientConfig } from "@/lib/client-config";
+import { useAuthModal } from "@/app/auth-modal-context";
 
 type Props = {
   titleSlug: string;
@@ -11,15 +13,24 @@ type Props = {
 
 export function CommentForm({ titleSlug, isAuthenticated }: Props) {
   const router = useRouter();
+  const { openModal } = useAuthModal();
   const [body, setBody] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleAuthLinkClick = (mode: 'login' | 'register') => (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    openModal(mode);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="comment-form comment-form--guest">
-        <p>Войдите или зарегистрируйтесь, чтобы оставить комментарий.</p>
+        <p>
+          <Link href="/login" onClick={handleAuthLinkClick('login')}>Войдите</Link> или{" "}
+          <Link href="/register" onClick={handleAuthLinkClick('register')}>зарегистрируйтесь</Link>, чтобы оставить комментарий.
+        </p>
       </div>
     );
   }

@@ -2,15 +2,18 @@ import Link from "next/link";
 import { HeaderSearch } from "./header-search";
 import { SiteNav } from "./site-nav";
 
+import { AdminLink } from "./admin-link";
+
 type SiteFooterProps = {
   titles: Array<{
     id: string;
     name: string;
     slug: string;
   }>;
+  isAuthenticated: boolean;
 };
 
-export function SiteFooter({ titles }: SiteFooterProps) {
+export function SiteFooter({ titles, isAuthenticated }: SiteFooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -48,7 +51,7 @@ export function SiteFooter({ titles }: SiteFooterProps) {
 
         <div className="site-footer-bottom-links">
           <Link href="/support">Поддержать проект</Link>
-          <Link href="/admin">Админ-панель</Link>
+          <AdminLink isAuthenticated={isAuthenticated} />
           <a href="#catalog">К каталогу ↑</a>
         </div>
       </div>

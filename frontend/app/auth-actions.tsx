@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
 import type { PublicUser } from '@/lib/types';
-import { AuthForm } from './(auth)/auth-form';
+import { useAuthModal } from './auth-modal-context';
 
 type Props = {
   currentUser: PublicUser | null;
@@ -15,7 +15,7 @@ export function AuthActions({ currentUser }: Props) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeModal, setActiveModal] = useState<'login' | 'register' | null>(null);
+  const { openModal } = useAuthModal();
   useEffect(() => {
     const header = document.querySelector<HTMLElement>('.site-header');
     const placeholder = document.querySelector<HTMLElement>('.site-header-placeholder');
@@ -55,37 +55,11 @@ export function AuthActions({ currentUser }: Props) {
 
   if (!currentUser) {
     return (
-      <>
-        <div className="auth-actions">
-          <button type="button" onClick={() => setActiveModal('login')}>
-            Войти или зарегистрироваться
-          </button>
-        </div>
-        {activeModal ? (
-          <div className="auth-modal-overlay" onClick={() => setActiveModal(null)}>
-            <div className="auth-modal" onClick={(event) => event.stopPropagation()}>
-              <div className="auth-modal-header">
-                <h2 className="auth-modal-title">
-                  {activeModal === 'login' ? 'Вход в аккаунт' : 'Создание аккаунта'}
-                </h2>
-                <button
-                  type="button"
-                  className="auth-modal-close"
-                  aria-label="Закрыть окно"
-                  onClick={() => setActiveModal(null)}
-                >
-                  ✕
-                </button>
-              </div>
-              <AuthForm
-                key={activeModal}
-                mode={activeModal}
-                onSwitchMode={(mode) => setActiveModal(mode)}
-              />
-            </div>
-          </div>
-        ) : null}
-      </>
+      <div className="auth-actions">
+        <button type="button" onClick={() => openModal('login')}>
+          Войти или зарегистрироваться
+        </button>
+      </div>
     );
   }
 

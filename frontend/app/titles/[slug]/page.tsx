@@ -59,7 +59,7 @@ export default async function TitlePage({ params }: Props) {
             ? parts.join(" ")
             : `${totalDurationMinutes} мин`;
         })()
-      : "—";
+      : "-";
   const formatDate = (value: string) =>
     new Intl.DateTimeFormat("ru-RU", {
       day: "2-digit",
@@ -164,7 +164,7 @@ export default async function TitlePage({ params }: Props) {
         </div>
         {comments.length === 0 ? (
           <p className="comments-empty">
-            Комментариев пока нет — станьте первым, чтобы поделиться
+            Комментариев пока нет - станьте первым, чтобы поделиться
             впечатлениями.
           </p>
         ) : (

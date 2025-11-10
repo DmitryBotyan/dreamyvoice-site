@@ -6,6 +6,7 @@ import { HeaderSearch } from "./header-search";
 import { SiteNav } from "./site-nav";
 import Link from "next/link";
 import { SiteFooter } from "./site-footer";
+import { AuthModalProvider } from "./auth-modal-context";
 
 export const metadata: Metadata = {
   title: "DreamyVoice",
@@ -28,19 +29,21 @@ export default async function RootLayout({
   return (
     <html lang="ru">
       <body className="app-body">
-        <header className="site-header">
-          <div className="site-header-left">
-            <Link href="/" className="site-logo">
-              DreamyVoice
-            </Link>
-            <HeaderSearch titles={headerSearchOptions} />
-          </div>
-          <SiteNav />
-          <AuthActions currentUser={currentUser} />
-        </header>
-        <div className="site-header-placeholder" aria-hidden="true" />
-        <main className="site-main">{children}</main>
-        <SiteFooter titles={headerSearchOptions} />
+        <AuthModalProvider>
+          <header className="site-header">
+            <div className="site-header-left">
+              <Link href="/" className="site-logo">
+                DreamyVoice
+              </Link>
+              <HeaderSearch titles={headerSearchOptions} />
+            </div>
+            <SiteNav />
+            <AuthActions currentUser={currentUser} />
+          </header>
+          <div className="site-header-placeholder" aria-hidden="true" />
+          <main className="site-main">{children}</main>
+          <SiteFooter titles={headerSearchOptions} isAuthenticated={Boolean(currentUser)} />
+        </AuthModalProvider>
       </body>
     </html>
   );
