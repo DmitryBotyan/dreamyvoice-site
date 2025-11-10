@@ -1,1 +1,1 @@
-docker compose -f docker-compose.dev.yml up --build frontend backend
+docker compose -f docker-compose.dev.yml up --build frontend backend adminer

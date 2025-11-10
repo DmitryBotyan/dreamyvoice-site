@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
-import { getCurrentUser } from "@/lib/server-api";
+import { getCurrentUser, getTitles } from "@/lib/server-api";
 import { AuthActions } from "./auth-actions";
+import { HeaderSearch } from "./header-search";
+import { SiteNav } from "./site-nav";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "DreamyVoice",
@@ -15,19 +17,28 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const currentUser = await getCurrentUser();
+  const titles = await getTitles();
+  const headerSearchOptions = titles.map((title) => ({
+    id: title.id,
+    name: title.name,
+    slug: title.slug,
+  }));
 
   return (
     <html lang="ru">
-      <body>
-        <header>
-          <Link href="/">DreamyVoice</Link>
-          <nav>
-            <Link href="/">Каталог</Link>
-            <Link href="/admin">Админка</Link>
-          </nav>
+      <body className="app-body">
+        <header className="site-header">
+          <div className="site-header-left">
+            <Link href="/" className="site-logo">
+              DreamyVoice
+            </Link>
+            <HeaderSearch titles={headerSearchOptions} />
+          </div>
+          <SiteNav />
           <AuthActions currentUser={currentUser} />
         </header>
-        <main>{children}</main>
+        <div className="site-header-placeholder" aria-hidden="true" />
+        <main className="site-main">{children}</main>
       </body>
     </html>
   );

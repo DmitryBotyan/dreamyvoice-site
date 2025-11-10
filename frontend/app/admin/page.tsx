@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { CreateTitleForm } from "./create-title-form";
 import { getCurrentUser, getTitles } from "@/lib/server-api";
 import type { Title } from "@/lib/types";
+import styles from "./styles.module.css";
 
 export default async function AdminPage() {
   const currentUser = await getCurrentUser();
@@ -29,45 +30,73 @@ export default async function AdminPage() {
   const titles: Title[] = await getTitles({ includeDrafts: true });
 
   return (
-    <section>
-      <h1>Управление контентом</h1>
-      <p>
-        Добавляйте новые тайтлы и следите за черновиками. Эпизоды и комментарии
-        появятся в следующих задачах.
-      </p>
+    <section className={styles.adminSection}>
+      <header className={styles.adminHero}>
+        <p className={styles.adminEyebrow}>Админ-панель</p>
+        <div>
+          <h1>Управление контентом</h1>
+        </div>
+      </header>
 
       <CreateTitleForm />
 
-      <h2>Все тайтлы ({titles.length})</h2>
-      {titles.length === 0 ? (
-        <p>Здесь появятся первые релизы после создания.</p>
-      ) : (
-        <ul>
-          {titles.map((title) => (
-            <li key={title.id}>
-              <article>
-                <header>
-                  <strong>{title.name}</strong>{" "}
-                  <span>{title.published ? "Опубликован" : "Черновик"}</span>
-                </header>
-                <p>Slug: {title.slug}</p>
-                {title.description ? <p>{title.description}</p> : null}
-                <p>Серий: {title.episodes.length}</p>
-                <p>
-                  Обновлён:{" "}
-                  {new Date(title.updatedAt).toLocaleString("ru-RU", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
-                </p>
-                <p>
-                  <Link href={`/admin/${title.slug}`}>Редактировать</Link>
-                </p>
-              </article>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className={styles.adminPanel}>
+        <div className={styles.panelHeader}>
+          <h2>Все тайтлы ({titles.length})</h2>
+        </div>
+        {titles.length === 0 ? (
+          <p className={styles.adminEmpty}>
+            Здесь появятся первые релизы после создания.
+          </p>
+        ) : (
+          <ul className={styles.adminListGrid}>
+            {titles.map((title) => (
+              <li key={title.id}>
+                <article className={styles.adminCard}>
+                  <header className={styles.adminCardHeader}>
+                    <strong className={styles.adminCardTitle}>
+                      {title.name}
+                    </strong>
+                    <span
+                      className={`${styles.adminBadge} ${
+                        title.published
+                          ? styles.adminBadgePublished
+                          : styles.adminBadgeDraft
+                      }`}
+                    >
+                      {title.published ? "Опубликован" : "Черновик"}
+                    </span>
+                  </header>
+                  <p className={styles.adminMeta}>Slug: {title.slug}</p>
+                  {title.description ? (
+                    <p className={styles.adminDescription}>
+                      {title.description}
+                    </p>
+                  ) : null}
+                  <p className={styles.adminMeta}>
+                    Серий: {title.episodes.length}
+                  </p>
+                  <p className={styles.adminMeta}>
+                    Обновлён:{" "}
+                    {new Date(title.updatedAt).toLocaleString("ru-RU", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })}
+                  </p>
+                  <div className={styles.adminActionsRow}>
+                    <Link
+                      className={styles.adminLink}
+                      href={`/admin/${title.slug}`}
+                    >
+                      Редактировать
+                    </Link>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }

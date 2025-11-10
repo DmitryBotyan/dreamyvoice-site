@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import type { CreateEpisodeFormState } from './actions';
+import { useEffect, useRef, useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import type { CreateEpisodeFormState } from "./actions";
+import styles from "../styles.module.css";
 
 const initialState: CreateEpisodeFormState = { success: false };
 
@@ -31,8 +32,8 @@ export function AddEpisodeForm({ action }: Props) {
   }, [state.success]);
 
   return (
-    <form ref={formRef} action={formAction}>
-      <fieldset>
+    <form ref={formRef} action={formAction} className={styles.formCard}>
+      <fieldset className={styles.adminFieldset}>
         <legend>Новая серия</legend>
         <label>
           Номер
@@ -50,14 +51,22 @@ export function AddEpisodeForm({ action }: Props) {
           Длительность в минутах
           <input type="number" name="durationMinutes" min={1} />
         </label>
-        <label>
+        <label className={styles.checkboxRow}>
           <input type="checkbox" name="episodePublished" />
           Опубликована
         </label>
       </fieldset>
-      <SubmitButton />
-      {state.error ? <p role="alert">{state.error}</p> : null}
-      {state.success ? <p>Серия добавлена.</p> : null}
+      <div className={styles.formFooter}>
+        <SubmitButton />
+        {state.error ? (
+          <p role="alert" className={`${styles.formStatus} ${styles.formStatusError}`}>
+            {state.error}
+          </p>
+        ) : null}
+        {state.success ? (
+          <p className={`${styles.formStatus} ${styles.formStatusSuccess}`}>Серия добавлена.</p>
+        ) : null}
+      </div>
     </form>
   );
 }

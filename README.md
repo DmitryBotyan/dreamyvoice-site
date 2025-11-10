@@ -24,7 +24,7 @@ project-root/
    - Скопируйте `backend/.env.example` → `backend/.env` и задайте:
      ```
      DATABASE_URL=postgresql://app:app_pass@db:5432/app?schema=public
-     PLAYER_ALLOWED_HOSTS=aniqit.com,aniqit.xyz
+     PLAYER_ALLOWED_HOSTS=aniqit.com,aniqit.xyz,anivod.com
      SESSION_* ...
      S3_ENDPOINT=http://minio:9000
      S3_ACCESS_KEY=...

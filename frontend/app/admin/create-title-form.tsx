@@ -73,9 +73,9 @@ export function CreateTitleForm() {
   }
 
   return (
-    <form ref={formRef} action={formAction}>
+    <form ref={formRef} action={formAction} className={styles.formCard}>
       <input type="hidden" name="coverKey" value={coverKey ?? ""} />
-      <fieldset className={styles.adminList}>
+      <fieldset className={styles.adminFieldset}>
         <legend>Новый тайтл</legend>
         <label>
           Название
@@ -108,10 +108,15 @@ export function CreateTitleForm() {
             accept="image/png,image/jpeg,image/webp"
             onChange={handleCoverChange}
           />
-          {isUploadingCover ? <span>Загрузка...</span> : null}
-          {uploadError ? <p role="alert">{uploadError}</p> : null}
+          {isUploadingCover ? <span className={styles.formHint}>Загрузка...</span> : null}
+          {uploadError ? (
+            <p role="alert" className={`${styles.formStatus} ${styles.formStatusError}`}>
+              {uploadError}
+            </p>
+          ) : null}
           {coverKey ? (
             <img
+              className={styles.coverPreview}
               src={buildMediaUrl("covers", coverKey)!}
               alt="Предпросмотр обложки"
               width={120}
@@ -119,14 +124,22 @@ export function CreateTitleForm() {
             />
           ) : null}
         </label>
-        <label>
+        <label className={styles.checkboxRow}>
           <input name="published" type="checkbox" />
           Опубликован сразу
         </label>
       </fieldset>
-      <SubmitButton />
-      {state.error ? <p role="alert">{state.error}</p> : null}
-      {state.success ? <p>Тайтл создан.</p> : null}
+      <div className={styles.formFooter}>
+        <SubmitButton />
+        {state.error ? (
+          <p role="alert" className={`${styles.formStatus} ${styles.formStatusError}`}>
+            {state.error}
+          </p>
+        ) : null}
+        {state.success ? (
+          <p className={`${styles.formStatus} ${styles.formStatusSuccess}`}>Тайтл создан.</p>
+        ) : null}
+      </div>
     </form>
   );
 }

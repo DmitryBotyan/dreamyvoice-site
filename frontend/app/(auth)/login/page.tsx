@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { AuthForm } from "../auth-form";
 
 export default function LoginPage() {
@@ -6,9 +5,6 @@ export default function LoginPage() {
     <section>
       <h1>Вход</h1>
       <AuthForm mode="login" />
-      <p>
-        Нет аккаунта? <Link href="/register">Зарегистрируйтесь</Link>
-      </p>
     </section>
   );
 }

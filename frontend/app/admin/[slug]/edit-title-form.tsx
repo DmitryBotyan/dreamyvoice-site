@@ -2,11 +2,12 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useActionState, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import type { UpdateTitleFormState } from './actions';
-import { clientConfig } from '@/lib/client-config';
-import { buildMediaUrl } from '@/lib/media';
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
+import type { UpdateTitleFormState } from "./actions";
+import { clientConfig } from "@/lib/client-config";
+import { buildMediaUrl } from "@/lib/media";
+import styles from "../styles.module.css";
 
 const initialState: UpdateTitleFormState = { success: false };
 
@@ -25,7 +26,7 @@ function SubmitButton() {
 
   return (
     <button type="submit" disabled={pending}>
-      {pending ? 'Сохраняем...' : 'Сохранить'}
+      {pending ? "Сохраняем..." : "Сохранить"}
     </button>
   );
 }
@@ -72,16 +73,28 @@ export function EditTitleForm({ action, initialValues }: Props) {
   }
 
   return (
-    <form action={formAction}>
-      <fieldset>
+    <form action={formAction} className={styles.formCard}>
+      <fieldset className={styles.adminFieldset}>
         <legend>Основная информация</legend>
         <label>
           Название
-          <input type="text" name="name" minLength={3} maxLength={128} defaultValue={initialValues.name} required />
+          <input
+            type="text"
+            name="name"
+            minLength={3}
+            maxLength={128}
+            defaultValue={initialValues.name}
+            required
+          />
         </label>
         <label>
           Описание
-          <textarea name="description" maxLength={5000} rows={5} defaultValue={initialValues.description ?? ''} />
+          <textarea
+            name="description"
+            maxLength={5000}
+            rows={5}
+            defaultValue={initialValues.description ?? ""}
+          />
         </label>
         <label>
           Ключ обложки
@@ -96,25 +109,38 @@ export function EditTitleForm({ action, initialValues }: Props) {
         <label>
           Загрузить новую обложку
           <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleCoverUpload} />
-          {isUploadingCover ? <span>Загрузка...</span> : null}
-          {coverUploadError ? <p role="alert">{coverUploadError}</p> : null}
+          {isUploadingCover ? <span className={styles.formHint}>Загрузка...</span> : null}
+          {coverUploadError ? (
+            <p role="alert" className={`${styles.formStatus} ${styles.formStatusError}`}>
+              {coverUploadError}
+            </p>
+          ) : null}
           {coverKey ? (
             <img
-              src={buildMediaUrl('covers', coverKey)!}
+              className={styles.coverPreview}
+              src={buildMediaUrl("covers", coverKey)!}
               alt="Текущая обложка"
               width={160}
               height={220}
             />
           ) : null}
         </label>
-        <label>
+        <label className={styles.checkboxRow}>
           <input type="checkbox" name="published" defaultChecked={initialValues.published} />
           Опубликован
         </label>
       </fieldset>
-      <SubmitButton />
-      {state.error ? <p role="alert">{state.error}</p> : null}
-      {state.success ? <p>Изменения сохранены.</p> : null}
+      <div className={styles.formFooter}>
+        <SubmitButton />
+        {state.error ? (
+          <p role="alert" className={`${styles.formStatus} ${styles.formStatusError}`}>
+            {state.error}
+          </p>
+        ) : null}
+        {state.success ? (
+          <p className={`${styles.formStatus} ${styles.formStatusSuccess}`}>Изменения сохранены.</p>
+        ) : null}
+      </div>
     </form>
   );
 }

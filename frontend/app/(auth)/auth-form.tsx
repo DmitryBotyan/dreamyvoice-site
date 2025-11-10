@@ -1,14 +1,16 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
 
 type Props = {
   mode: 'login' | 'register';
+  onSwitchMode?: (mode: 'login' | 'register') => void;
 };
 
-export function AuthForm({ mode }: Props) {
+export function AuthForm({ mode, onSwitchMode }: Props) {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -69,6 +71,39 @@ export function AuthForm({ mode }: Props) {
           required
         />
       </label>
+      <p className="auth-alt-action">
+        {mode === 'login' ? (
+          <>
+            Нет аккаунта?{' '}
+            {onSwitchMode ? (
+              <button
+                type="button"
+                className="text-link-button"
+                onClick={() => onSwitchMode('register')}
+              >
+                Зарегистрируйтесь
+              </button>
+            ) : (
+              <Link href="/register">Зарегистрируйтесь</Link>
+            )}
+          </>
+        ) : (
+          <>
+            Уже есть аккаунт?{' '}
+            {onSwitchMode ? (
+              <button
+                type="button"
+                className="text-link-button"
+                onClick={() => onSwitchMode('login')}
+              >
+                Войдите
+              </button>
+            ) : (
+              <Link href="/login">Войдите</Link>
+            )}
+          </>
+        )}
+      </p>
       <button type="submit" disabled={isSubmitting}>
         {mode === 'login' ? 'Войти' : 'Создать аккаунт'}
       </button>

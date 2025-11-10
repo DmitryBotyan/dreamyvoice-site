@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { PublicUser } from "@/lib/types";
 import { clientConfig } from "@/lib/client-config";
 import { buildMediaUrl } from "@/lib/media";
+import styles from "./profile.module.css";
 
 type Props = {
   user: PublicUser;
@@ -70,11 +71,18 @@ export function ProfileForm({ user }: Props) {
     router.refresh();
   }
 
+  const usernameFieldId = "profile-username";
+  const avatarFieldId = "profile-avatar";
+
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Никнейм
+    <form onSubmit={handleSubmit} className={styles.profileForm}>
+      <div className={styles.fieldGroup}>
+        <label htmlFor={usernameFieldId} className={styles.fieldLabel}>
+          Никнейм
+        </label>
         <input
+          id={usernameFieldId}
+          className={styles.textInput}
           type="text"
           value={username}
           onChange={(event) => setUsername(event.target.value)}
@@ -82,17 +90,45 @@ export function ProfileForm({ user }: Props) {
           maxLength={32}
           required
         />
-      </label>
-      <label>
-        Аватар (PNG/JPEG/WEBP, до 5 МБ)
-        <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAvatarChange} />
-      </label>
-      {avatarPreview ? <img src={avatarPreview} alt="Текущий аватар" width={96} height={96} /> : null}
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Сохраняем..." : "Сохранить"}
-      </button>
-      {status ? <p>{status}</p> : null}
-      {error ? <p role="alert">{error}</p> : null}
+      </div>
+      <div className={styles.fieldGroup}>
+        <label htmlFor={avatarFieldId} className={styles.fieldLabel}>
+          Аватар
+        </label>
+        <input
+          id={avatarFieldId}
+          className={styles.fileInput}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={handleAvatarChange}
+        />
+        <p className={styles.fieldHint}>PNG, JPEG или WEBP, размером до 5 МБ.</p>
+      </div>
+
+      <div className={styles.avatarPreview}>
+        <p className={styles.fieldLabel}>Предпросмотр</p>
+        {avatarPreview ? (
+          <img src={avatarPreview} alt="Текущий аватар" className={styles.avatarPreviewImage} width={96} height={96} />
+        ) : (
+          <p className={styles.avatarPreviewEmpty}>Изображение появится после выбора файла.</p>
+        )}
+      </div>
+
+      <div className={styles.formActions}>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Сохраняем..." : "Сохранить"}
+        </button>
+        {status ? (
+          <span className={`${styles.feedback} ${styles.feedbackSuccess}`} role="status" aria-live="polite">
+            {status}
+          </span>
+        ) : null}
+        {error ? (
+          <span className={`${styles.feedback} ${styles.feedbackError}`} role="alert">
+            {error}
+          </span>
+        ) : null}
+      </div>
     </form>
   );
 }
