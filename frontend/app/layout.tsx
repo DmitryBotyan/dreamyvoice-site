@@ -5,6 +5,7 @@ import { AuthActions } from "./auth-actions";
 import { HeaderSearch } from "./header-search";
 import { SiteNav } from "./site-nav";
 import Link from "next/link";
+import { SiteFooter } from "./site-footer";
 
 export const metadata: Metadata = {
   title: "DreamyVoice",
@@ -39,6 +40,7 @@ export default async function RootLayout({
         </header>
         <div className="site-header-placeholder" aria-hidden="true" />
         <main className="site-main">{children}</main>
+        <SiteFooter titles={headerSearchOptions} />
       </body>
     </html>
   );

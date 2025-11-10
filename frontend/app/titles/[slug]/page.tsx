@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCurrentUser, getTitle, getTitleComments } from "@/lib/server-api";
+import { getCurrentUser, getTitle, getTitleComments, getTitles } from "@/lib/server-api";
 import type { Comment } from "@/lib/types";
 import { EpisodePlayer } from "./episode-player";
 import { CommentForm } from "./comment-form";
@@ -16,15 +16,18 @@ type Props = {
 
 export default async function TitlePage({ params }: Props) {
   const { slug } = await params;
-  const [title, comments, currentUser] = await Promise.all([
+  const [title, comments, currentUser, titles] = await Promise.all([
     getTitle(slug),
     getTitleComments(slug),
     getCurrentUser(),
+    getTitles(),
   ]);
 
   if (!title) {
     notFound();
   }
+
+  const latestTitles = titles.filter((item) => item.slug !== title.slug).slice(0, 4);
 
   const publishedEpisodes = title.episodes.filter(
     (episode) => episode.published
@@ -178,6 +181,45 @@ export default async function TitlePage({ params }: Props) {
           titleSlug={title.slug}
           isAuthenticated={Boolean(currentUser)}
         />
+      </section>
+
+      <section className="latest-section">
+        <div className="latest-heading">
+          <p className="latest-eyebrow">Новинки</p>
+          <h2 className="latest-title">Последние релизы</h2>
+        </div>
+        {latestTitles.length === 0 ? (
+          <p className="latest-empty">
+            Как только появятся новые релизы, они сразу отобразятся здесь.
+          </p>
+        ) : (
+          <ul className="latest-grid" role="list">
+            {latestTitles.map((latestTitle) => (
+              <li key={latestTitle.id} className="latest-card">
+                <Link
+                  href={`/titles/${latestTitle.slug}`}
+                  className="latest-card-link"
+                  aria-label={`Открыть страницу тайтла ${latestTitle.name}`}
+                >
+                  <div
+                    className={`latest-cover${latestTitle.coverKey ? "" : " latest-cover--empty"}`}
+                  >
+                    {latestTitle.coverKey ? (
+                      <img
+                        src={buildMediaUrl("covers", latestTitle.coverKey)!}
+                        alt={`Обложка ${latestTitle.name}`}
+                        width={180}
+                        height={240}
+                      />
+                    ) : (
+                      <span className="sr-only">Обложка отсутствует</span>
+                    )}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </article>
   );
