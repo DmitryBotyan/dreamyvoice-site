@@ -747,7 +747,6 @@ button:disabled {
 .catalog-empty {
   padding: 24px;
   border-radius: 10px;
-  border: 1px dashed var(--border);
   color: var(--muted);
 }
 

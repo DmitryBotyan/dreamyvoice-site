@@ -41,7 +41,9 @@ export function CatalogFiltersForm({
 
       const query = nextParams.toString();
       startTransition(() => {
-        router.replace(query ? `${pathname}?${query}` : pathname);
+        router.replace(query ? `${pathname}?${query}` : pathname, {
+          scroll: false,
+        });
       });
     },
     [pathname, router, searchParams]
@@ -70,7 +72,7 @@ export function CatalogFiltersForm({
 
   const handleReset = () => {
     startTransition(() => {
-      router.replace(pathname);
+      router.replace(pathname, { scroll: false });
     });
   };
 

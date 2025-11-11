@@ -184,7 +184,9 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
       if (typeof ref === 'function') {
         ref(node);
       } else if (ref && typeof ref === 'object') {
-        (ref as { current: HTMLElement | null }).current = node;
+        const childRef = ref as { current: HTMLElement | null };
+        // eslint-disable-next-line react-hooks/immutability
+        childRef.current = node;
       }
     },
     style: {
