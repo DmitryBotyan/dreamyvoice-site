@@ -10,6 +10,8 @@ import { requireAdmin } from './middleware/require-admin';
 import { adminAuthRouter } from './routes/admin-auth';
 import { mediaRouter } from './routes/media';
 import { profileRouter } from './routes/profile';
+import { metadataRouter } from './routes/metadata';
+import { syncCatalogMetadata } from './services/catalog-metadata';
 
 async function bootstrap() {
   const app = express();
@@ -25,10 +27,12 @@ async function bootstrap() {
 
   app.use('/auth', authRouter);
   app.use('/titles', titlesRouter);
+  app.use('/metadata', metadataRouter);
   app.use('/admin/auth', adminAuthRouter);
   app.use('/media', mediaRouter);
   app.use('/profile', profileRouter);
 
+  await syncCatalogMetadata();
   const { admin, router } = await buildAdmin();
   app.use(admin.options.rootPath, requireAdmin, router);
 

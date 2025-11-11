@@ -27,6 +27,10 @@ export type Title = {
   createdAt: string;
   updatedAt: string;
   episodes: Episode[];
+  genres: string[];
+  tags: string[];
+  ageRating?: string | null;
+  originalReleaseDate?: string | null;
 };
 
 export type CommentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';

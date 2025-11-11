@@ -15,12 +15,14 @@ project-root/
 ## Быстрый старт
 
 1. **Зависимости**
+
    ```bash
    cd backend  && pnpm install
    cd ../frontend && pnpm install
    ```
 
 2. **Переменные окружения**
+
    - Скопируйте `backend/.env.example` → `backend/.env` и задайте:
      ```
      DATABASE_URL=postgresql://app:app_pass@db:5432/app?schema=public
@@ -35,12 +37,15 @@ project-root/
    - Для фронтенда достаточно `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000` (либо используйте значение по умолчанию).
 
 3. **Инфраструктура**
+
    ```bash
    docker compose -f docker-compose.dev.yml up -d
    ```
+
    Поднимаются Postgres, MinIO и Adminer. Данные лежат в `./data`.
 
 4. **Миграции / Prisma**
+
    ```bash
    cd backend
    pnpm db:push   # создаёт схему
@@ -48,6 +53,7 @@ project-root/
    ```
 
 5. **Запуск сервисов**
+
    ```bash
    cd backend  && pnpm dev   # API + AdminJS на http://localhost:4000
    cd frontend && pnpm dev   # Next.js на http://localhost:3000
@@ -58,12 +64,14 @@ project-root/
 ## Разработка
 
 - **Backend**
+
   - Роуты в `src/routes/*`; используйте `asyncHandler` и выбрасывайте `HttpError`.
   - `sessionMiddleware` добавляет `req.currentUser`. Для защиты эндпоинтов есть `requireAuth` и `requireAdmin`.
   - Минимальный S3-слой в `services/storage.ts` управляет MinIO (upload/get/delete). Медиа доступны через `/media/:bucket/:key`.
   - Комментарии обслуживаются маршрутом `/titles/:slug/comments` (GET/POST). Пользовательские посты уходят в статус `PENDING`, админы видят модерацию.
 
 - **Frontend**
+
   - App Router, SSR-запросы идут через `lib/server-api.ts`, который автоматически пробрасывает cookies.
   - Интерактивные элементы (форма входа, плеер, комментарии) реализованы клиентскими компонентами.
   - Стилизация минимальная — только базовые HTML-элементы.

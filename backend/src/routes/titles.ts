@@ -2,11 +2,14 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prisma';
 import { Prisma } from '@prisma/client';
-import type { Episode as EpisodeModel } from '@prisma/client';
+import type { Episode as EpisodeModel, Genre, Tag } from '@prisma/client';
 import { asyncHandler } from '../utils/async-handler';
 import { HttpError } from '../utils/http-error';
 import { requireAuth } from '../middleware/require-auth';
 import { requireAdmin } from '../middleware/require-admin';
+import { AGE_RATINGS } from '../constants/catalog-keywords';
+
+const titleAgeRatingEnum = z.enum(AGE_RATINGS);
 
 type TitleWithEpisodes = Prisma.TitleGetPayload<{ include: { episodes: true } }>;
 type CommentWithUser = Prisma.CommentGetPayload<{ include: { user: true } }>;
@@ -21,6 +24,66 @@ const titleQuerySchema = z.object({
     .optional()
     .transform((value) => value === '1'),
 });
+
+const parseReleaseDateInput = (value?: string | null): Date | null | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
+  const normalized = value.trim();
+  if (!normalized) {
+    return null;
+  }
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const normalizeStringList = (values?: string[] | null) =>
+  Array.from(
+    new Set(
+      (values ?? [])
+        .map((value) => value.trim())
+        .filter((value): value is string => Boolean(value)),
+    ),
+  );
+
+const ensureGenres = async (names?: string[] | null) => {
+  const normalized = normalizeStringList(names);
+  if (normalized.length === 0) {
+    return [];
+  }
+  const existing = await prisma.genre.findMany({
+    where: { name: { in: normalized } },
+  });
+  const existingNames = new Set(existing.map((genre) => genre.name));
+  const missing = normalized.filter((name) => !existingNames.has(name));
+  const created: Genre[] = [];
+  for (const name of missing) {
+    const genre = await prisma.genre.create({ data: { name } });
+    created.push(genre);
+  }
+  return [...existing, ...created];
+};
+
+const ensureTags = async (names?: string[] | null) => {
+  const normalized = normalizeStringList(names);
+  if (normalized.length === 0) {
+    return [];
+  }
+  const existing = await prisma.tag.findMany({
+    where: { name: { in: normalized } },
+  });
+  const existingNames = new Set(existing.map((tag) => tag.name));
+  const missing = normalized.filter((name) => !existingNames.has(name));
+  const created: Tag[] = [];
+  for (const name of missing) {
+    const tag = await prisma.tag.create({ data: { name } });
+    created.push(tag);
+  }
+  return [...existing, ...created];
+};
 
 const titleCreateSchema = z.object({
   slug: z
@@ -47,6 +110,19 @@ const titleCreateSchema = z.object({
     .max(255)
     .optional()
     .transform((value) => value || undefined),
+  genres: z
+    .array(z.string().trim().min(1))
+    .optional()
+    .transform((value) => normalizeStringList(value)),
+  tags: z
+    .array(z.string().trim().min(1))
+    .optional()
+    .transform((value) => normalizeStringList(value)),
+  originalReleaseDate: z
+    .string()
+    .optional()
+    .transform((value) => (value && value.trim() ? value.trim() : undefined)),
+  ageRating: titleAgeRatingEnum.optional(),
   published: z.boolean().optional().default(false),
 });
 
@@ -64,6 +140,10 @@ const titleUpdateSchema = z.object({
     .union([z.string().trim().max(255), z.null()])
     .optional(),
   published: z.boolean().optional(),
+  genres: z.array(z.string().trim().min(1)).optional().transform((value) => normalizeStringList(value)),
+  tags: z.array(z.string().trim().min(1)).optional().transform((value) => normalizeStringList(value)),
+  originalReleaseDate: z.union([z.string(), z.null()]).optional(),
+  ageRating: titleAgeRatingEnum.optional(),
 });
 
 const episodeCreateSchema = z.object({
@@ -106,6 +186,8 @@ router.get(
             number: 'asc',
           },
         },
+        genres: true,
+        tags: true,
       },
     });
 
@@ -131,6 +213,8 @@ router.get(
               },
           orderBy: { number: 'asc' },
         },
+        genres: true,
+        tags: true,
       },
     });
 
@@ -206,6 +290,9 @@ router.post(
   requireAdmin,
   asyncHandler(async (req: Request, res: Response) => {
     const data = titleCreateSchema.parse(req.body);
+    const parsedOriginalReleaseDate = parseReleaseDateInput(data.originalReleaseDate);
+    const genres = await ensureGenres(data.genres);
+    const tags = await ensureTags(data.tags);
 
     try {
       const title = await prisma.title.create({
@@ -215,8 +302,20 @@ router.post(
           description: data.description ?? null,
           coverKey: data.coverKey ?? null,
           published: data.published ?? false,
+          genres: {
+            connect: genres.map((genre) => ({ id: genre.id })),
+          },
+          tags: {
+            connect: tags.map((tag) => ({ id: tag.id })),
+          },
+          originalReleaseDate: parsedOriginalReleaseDate ?? null,
+          ageRating: data.ageRating ?? null,
         },
-        include: { episodes: true },
+        include: {
+          episodes: true,
+          genres: true,
+          tags: true,
+        },
       });
 
       res.status(201).json({ title: toTitleDto(true)(title) });
@@ -262,6 +361,24 @@ router.patch(
     if (updates.published !== undefined) {
       data.published = updates.published;
     }
+    if (updates.genres !== undefined) {
+      const genres = await ensureGenres(updates.genres);
+      data.genres = {
+        set: genres.map((genre) => ({ id: genre.id })),
+      };
+    }
+    if (updates.tags !== undefined) {
+      const tags = await ensureTags(updates.tags);
+      data.tags = {
+        set: tags.map((tag) => ({ id: tag.id })),
+      };
+    }
+    if (updates.originalReleaseDate !== undefined) {
+      data.originalReleaseDate = parseReleaseDateInput(updates.originalReleaseDate);
+    }
+    if (updates.ageRating !== undefined) {
+      data.ageRating = updates.ageRating;
+    }
 
     const updatedTitle = await prisma.title.update({
       where: { id: existing.id },
@@ -270,6 +387,8 @@ router.patch(
         episodes: {
           orderBy: { number: 'asc' },
         },
+        genres: true,
+        tags: true,
       },
     });
 
@@ -327,6 +446,10 @@ function toTitleDto(includeDrafts: boolean) {
     slug: title.slug,
     name: title.name,
     description: title.description,
+    genres: title.genres.map((genre) => genre.name),
+    tags: title.tags.map((tag) => tag.name),
+    ageRating: title.ageRating,
+    originalReleaseDate: title.originalReleaseDate,
     coverKey: title.coverKey,
     published: title.published,
     createdAt: title.createdAt,

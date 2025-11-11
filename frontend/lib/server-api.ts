@@ -64,6 +64,16 @@ export async function getTitles(options: { includeDrafts?: boolean } = {}) {
   return data.titles;
 }
 
+export async function getGenres() {
+  const data = await request<{ genres: string[] }>('/metadata/genres');
+  return data.genres;
+}
+
+export async function getTags() {
+  const data = await request<{ tags: string[] }>('/metadata/tags');
+  return data.tags;
+}
+
 export async function getTitle(slug: string) {
   const encodedSlug = encodeURIComponent(slug);
   try {
@@ -98,6 +108,10 @@ export type CreateTitleInput = {
   description?: string;
   coverKey?: string;
   published?: boolean;
+  genres?: string[];
+  tags?: string[];
+  ageRating?: string;
+  originalReleaseDate?: string;
 };
 
 export async function createTitle(input: CreateTitleInput) {
@@ -117,6 +131,10 @@ export type UpdateTitleInput = {
   description?: string | null;
   coverKey?: string | null;
   published?: boolean;
+  genres?: string[];
+  tags?: string[];
+  ageRating?: string | null;
+  originalReleaseDate?: string | null;
 };
 
 export async function updateTitle(slug: string, input: UpdateTitleInput) {

@@ -3,6 +3,16 @@
 import { revalidatePath } from 'next/cache';
 import { ApiError, createEpisode, updateTitle } from '@/lib/server-api';
 
+const collectList = (formData: FormData, key: string) =>
+  Array.from(
+    new Set(
+      formData
+        .getAll(key)
+        .map((value) => (typeof value === 'string' ? value.trim() : ''))
+        .filter(Boolean),
+    ),
+  );
+
 export type UpdateTitleFormState = {
   success: boolean;
   error?: string;
@@ -17,6 +27,20 @@ export async function updateTitleAction(
   const descriptionInput = formData.get('description');
   const coverKeyInput = formData.get('coverKey');
   const published = formData.get('published') === 'on';
+  const genres = collectList(formData, 'genres');
+  const tags = collectList(formData, 'tags');
+  const ageRatingInput = formData.get('ageRating');
+  const ageRating =
+    ageRatingInput && typeof ageRatingInput === 'string' && ageRatingInput.trim().length > 0
+      ? ageRatingInput.trim()
+      : undefined;
+  const originalReleaseDateInput = formData.get('originalReleaseDate');
+  const originalReleaseDate =
+    originalReleaseDateInput &&
+    typeof originalReleaseDateInput === 'string' &&
+    originalReleaseDateInput.trim().length > 0
+      ? originalReleaseDateInput.trim()
+      : undefined;
 
   if (name.length < 3) {
     return { success: false, error: 'Название должно содержать минимум 3 символа' };
@@ -41,6 +65,10 @@ export async function updateTitleAction(
       description,
       coverKey,
       published,
+      genres,
+      tags,
+      ageRating,
+      originalReleaseDate,
     });
   } catch (error) {
     if (error instanceof ApiError) {

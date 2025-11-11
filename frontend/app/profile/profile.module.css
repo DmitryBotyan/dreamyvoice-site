@@ -12,9 +12,6 @@
   gap: 28px;
   padding: 32px 36px;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: linear-gradient(145deg, rgba(33, 33, 44, 0.92), rgba(14, 14, 20, 0.9));
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.55);
 }
 
 .profileAvatarFrame {
@@ -87,8 +84,6 @@
 .profilePanel {
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: var(--surface-primary);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   padding: 32px 36px;
   display: flex;
   flex-direction: column;

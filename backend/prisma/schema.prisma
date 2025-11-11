@@ -45,12 +45,32 @@ model Title {
   description String?
   coverKey    String?    @map("cover_key")
   published   Boolean    @default(false)
+  originalReleaseDate DateTime? @map("original_release_date")
+  ageRating   String?    @map("age_rating")
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
   episodes    Episode[]
   comments    Comment[]
+  genres      Genre[]    @relation("TitleGenres")
+  tags        Tag[]      @relation("TitleTags")
 
   @@map("titles")
+}
+
+model Genre {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  titles Title[] @relation("TitleGenres")
+
+  @@map("genres")
+}
+
+model Tag {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  titles Title[] @relation("TitleTags")
+
+  @@map("tags")
 }
 
 model Episode {

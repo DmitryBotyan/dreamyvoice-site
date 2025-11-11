@@ -1,12 +1,20 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCurrentUser, getTitle, getTitleComments, getTitles } from "@/lib/server-api";
+import {
+  getCurrentUser,
+  getTitle,
+  getTitleComments,
+  getTitles,
+} from "@/lib/server-api";
 import type { Comment } from "@/lib/types";
 import { EpisodePlayer } from "./episode-player";
 import { CommentForm } from "./comment-form";
 import { buildMediaUrl } from "@/lib/media";
 import { detectGenres } from "@/lib/genres";
+import { detectTags, detectAgeRating } from "@/lib/catalog-keywords";
+import { getReleaseDate, sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
+import { TitleDescriptionExpander } from "./title-description";
 
 type Props = {
   params: Promise<{
@@ -27,7 +35,9 @@ export default async function TitlePage({ params }: Props) {
     notFound();
   }
 
-  const latestTitles = titles.filter((item) => item.slug !== title.slug).slice(0, 4);
+  const latestTitles = sortTitlesByReleaseDateDesc(titles)
+    .filter((item) => item.slug !== title.slug)
+    .slice(0, 4);
 
   const publishedEpisodes = title.episodes.filter(
     (episode) => episode.published
@@ -66,8 +76,21 @@ export default async function TitlePage({ params }: Props) {
       month: "long",
       year: "numeric",
     }).format(new Date(value));
-  const titleGenres = detectGenres(title.description);
-  const formatGenre = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+  const titleGenres =
+    title.genres && title.genres.length > 0
+      ? title.genres
+      : detectGenres(title.description);
+  const titleTags =
+    title.tags && title.tags.length > 0
+      ? title.tags
+      : detectTags(title.description);
+  const titleAgeRating = title.ageRating ?? detectAgeRating(title.description);
+  const formatGenre = (value: string) =>
+    value.charAt(0).toUpperCase() + value.slice(1);
+  const formatTag = (value: string) => `#${formatGenre(value)}`;
+  const releaseDate = getReleaseDate(title);
+  const descriptionText = title.description?.trim() ?? "";
+  const hasDescription = Boolean(descriptionText);
 
   return (
     <article className="title-page">
@@ -100,17 +123,21 @@ export default async function TitlePage({ params }: Props) {
               <span className="title-badge">Черновик</span>
             ) : null}
             <span className="title-badge">{playableEpisodes.length} серий</span>
+            {titleAgeRating ? (
+              <span className="title-badge title-badge--rating">
+                {titleAgeRating}
+              </span>
+            ) : null}
           </div>
           <h1 className="title-hero-name">{title.name}</h1>
-          <p
-            className={`title-hero-description${
-              title.description ? "" : " title-hero-description--muted"
-            }`}
-          >
-            {title.description ?? "Описание появится совсем скоро."}
-          </p>
+          {hasDescription ? (
+            <TitleDescriptionExpander description={descriptionText} />
+          ) : (
+            <p className="title-hero-description title-hero-description--muted">
+              Описание появится совсем скоро.
+            </p>
+          )}
           <div className="title-genres">
-            <span className="title-genres-label">Жанры</span>
             {titleGenres.length > 0 ? (
               <ul className="title-genres-list" role="list">
                 {titleGenres.map((genre) => (
@@ -121,31 +148,41 @@ export default async function TitlePage({ params }: Props) {
               </ul>
             ) : (
               <p className="title-genres-placeholder">
-                Упомяните жанры в описании, чтобы пользователям было проще ориентироваться.
+                Упомяните жанры в описании, чтобы пользователям было проще
+                ориентироваться.
+              </p>
+            )}
+          </div>
+          <div className="title-tags">
+            {titleTags.length > 0 ? (
+              <ul className="title-genres-list" role="list">
+                {titleTags.map((tag) => (
+                  <li key={tag}>
+                    <span className="title-genre">{formatTag(tag)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="title-genres-placeholder">
+                Теги помогут выделить релиз – добавьте их в админке или
+                описании.
               </p>
             )}
           </div>
           <dl className="title-meta">
             <div>
-              <dt>Всего серий</dt>
               <dd>
-                {title.episodes.length}
+                {title.episodes.length} серий
                 {publishedEpisodes.length !== title.episodes.length
                   ? ` / ${publishedEpisodes.length} опубликовано`
                   : ""}
               </dd>
             </div>
             <div>
-              <dt>Продолжительность</dt>
               <dd>{durationLabel}</dd>
             </div>
             <div>
-              <dt>Дата релиза</dt>
-              <dd>{formatDate(title.createdAt)}</dd>
-            </div>
-            <div>
-              <dt>Обновлено</dt>
-              <dd>{formatDate(title.updatedAt)}</dd>
+              <dd>{formatDate(releaseDate.toISOString())}</dd>
             </div>
           </dl>
         </div>
@@ -202,7 +239,9 @@ export default async function TitlePage({ params }: Props) {
                   aria-label={`Открыть страницу тайтла ${latestTitle.name}`}
                 >
                   <div
-                    className={`latest-cover${latestTitle.coverKey ? "" : " latest-cover--empty"}`}
+                    className={`latest-cover${
+                      latestTitle.coverKey ? "" : " latest-cover--empty"
+                    }`}
                   >
                     {latestTitle.coverKey ? (
                       <img

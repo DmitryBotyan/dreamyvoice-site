@@ -7,6 +7,9 @@ import { useFormStatus } from "react-dom";
 import { createTitleAction, type CreateTitleFormState } from "./actions";
 import { clientConfig } from "@/lib/client-config";
 import { buildMediaUrl } from "@/lib/media";
+import { AGE_RATINGS } from "@/lib/catalog-keywords";
+import { GENRE_KEYWORDS } from "@/lib/genres";
+import { TAG_KEYWORDS } from "@/lib/catalog-keywords";
 
 import styles from "./styles.module.css";
 
@@ -28,6 +31,12 @@ export function CreateTitleForm() {
   const [coverKey, setCoverKey] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [genreOptions] = useState<string[]>(GENRE_KEYWORDS);
+  const [tagOptions] = useState<string[]>(TAG_KEYWORDS);
+  const [selectedGenre, setSelectedGenre] = useState(genreOptions[0] ?? "");
+  const [selectedTag, setSelectedTag] = useState(tagOptions[0] ?? "");
+  const [addedGenres, setAddedGenres] = useState<string[]>([]);
+  const [addedTags, setAddedTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (state.success) {
@@ -36,6 +45,20 @@ export function CreateTitleForm() {
       setCoverKey(null);
     }
   }, [state.success]);
+
+  const handleAddGenre = () => {
+    if (!selectedGenre || addedGenres.includes(selectedGenre)) {
+      return;
+    }
+    setAddedGenres((prev) => [...prev, selectedGenre]);
+  };
+
+  const handleAddTag = () => {
+    if (!selectedTag || addedTags.includes(selectedTag)) {
+      return;
+    }
+    setAddedTags((prev) => [...prev, selectedTag]);
+  };
 
   async function handleCoverChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -124,6 +147,77 @@ export function CreateTitleForm() {
             />
           ) : null}
         </label>
+        <div className={styles.metadataGrid}>
+          <label>
+            Жанр
+            <div className={styles.inlineRow}>
+              <select
+                name="genrePicker"
+                value={selectedGenre}
+                onChange={(event) => setSelectedGenre(event.target.value)}
+              >
+                {genreOptions.map((genre) => (
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
+                ))}
+              </select>
+              <button type="button" onClick={handleAddGenre}>
+                Добавить
+              </button>
+            </div>
+          </label>
+          <label>
+            Тег
+            <div className={styles.inlineRow}>
+              <select
+                name="tagPicker"
+                value={selectedTag}
+                onChange={(event) => setSelectedTag(event.target.value)}
+              >
+                {tagOptions.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
+              <button type="button" onClick={handleAddTag}>
+                Добавить
+              </button>
+            </div>
+          </label>
+          <label>
+            Возрастной рейтинг
+            <select name="ageRating" defaultValue="">
+              <option value="">Не указан</option>
+              {AGE_RATINGS.map((rating) => (
+                <option key={rating} value={rating}>
+                  {rating}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Оригинальная дата релиза
+            <input type="date" name="originalReleaseDate" />
+          </label>
+        </div>
+        <div className={styles.chipRow}>
+          {addedGenres.map((genre) => (
+            <span className={styles.chip} key={`genre-chip-${genre}`}>
+              {genre}
+              <input type="hidden" name="genres" value={genre} />
+            </span>
+          ))}
+        </div>
+        <div className={styles.chipRow}>
+          {addedTags.map((tag) => (
+            <span className={styles.chip} key={`tag-chip-${tag}`}>
+              {tag}
+              <input type="hidden" name="tags" value={tag} />
+            </span>
+          ))}
+        </div>
         <label className={styles.checkboxRow}>
           <input name="published" type="checkbox" />
           Опубликован сразу

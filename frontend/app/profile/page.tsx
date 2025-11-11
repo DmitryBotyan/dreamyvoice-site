@@ -42,7 +42,7 @@ export default async function ProfilePage() {
           )}
         </div>
         <div className={styles.profileHeroContent}>
-          <h1>Профиль</h1>
+          <h1>{currentUser.username}</h1>
           <div className={styles.profileMetaRow}>
             <span className={styles.profileBadge}>{roleLabel}</span>
             <span>С нами с {joinedDate}</span>
@@ -53,7 +53,6 @@ export default async function ProfilePage() {
       <div className={styles.profilePanel}>
         <div className={styles.profilePanelHeader}>
           <h2>Основная информация</h2>
-          <p>Изменения применяются сразу после сохранения формы.</p>
         </div>
         <ProfileForm user={currentUser} />
       </div>

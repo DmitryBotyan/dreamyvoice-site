@@ -3,6 +3,16 @@
 import { revalidatePath } from 'next/cache';
 import { ApiError, createTitle } from '@/lib/server-api';
 
+const collectList = (formData: FormData, key: string) =>
+  Array.from(
+    new Set(
+      formData
+        .getAll(key)
+        .map((value) => (typeof value === 'string' ? value.trim() : ''))
+        .filter(Boolean),
+    ),
+  );
+
 export type CreateTitleFormState = {
   success: boolean;
   error?: string;
@@ -27,6 +37,20 @@ export async function createTitleAction(
       ? coverKeyInput.trim()
       : undefined;
   const published = formData.get('published') === 'on';
+  const genres = collectList(formData, 'genres');
+  const tags = collectList(formData, 'tags');
+  const ageRatingInput = formData.get('ageRating');
+  const ageRating =
+    ageRatingInput && typeof ageRatingInput === 'string' && ageRatingInput.trim().length > 0
+      ? ageRatingInput.trim()
+      : undefined;
+  const originalReleaseDateInput = formData.get('originalReleaseDate');
+  const originalReleaseDate =
+    originalReleaseDateInput &&
+    typeof originalReleaseDateInput === 'string' &&
+    originalReleaseDateInput.trim().length > 0
+      ? originalReleaseDateInput.trim()
+      : undefined;
 
   if (name.length < 3) {
     return { success: false, error: 'Название должно содержать минимум 3 символа' };
@@ -51,6 +75,10 @@ export async function createTitleAction(
       description,
       coverKey,
       published,
+      genres,
+      tags,
+      ageRating,
+      originalReleaseDate,
     });
   } catch (error) {
     if (error instanceof ApiError) {

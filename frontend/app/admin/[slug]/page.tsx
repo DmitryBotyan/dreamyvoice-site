@@ -52,6 +52,10 @@ export default async function AdminTitlePage({ params }: Props) {
           description: title.description ?? "",
           coverKey: title.coverKey ?? "",
           published: title.published,
+          genres: title.genres,
+          tags: title.tags,
+          ageRating: title.ageRating ?? null,
+          originalReleaseDate: title.originalReleaseDate ?? null,
         }}
       />
 

@@ -29,21 +29,21 @@ export default async function RootLayout({
   return (
     <html lang="ru">
       <body className="app-body">
-        <AuthModalProvider>
-          <header className="site-header">
-            <div className="site-header-left">
-              <Link href="/" className="site-logo">
-                DreamyVoice
-              </Link>
-              <HeaderSearch titles={headerSearchOptions} />
-            </div>
-            <SiteNav />
-            <AuthActions currentUser={currentUser} />
-          </header>
-          <div className="site-header-placeholder" aria-hidden="true" />
-          <main className="site-main">{children}</main>
-          <SiteFooter titles={headerSearchOptions} isAuthenticated={Boolean(currentUser)} />
-        </AuthModalProvider>
+          <AuthModalProvider>
+            <header className="site-header">
+              <div className="site-header-left">
+                <Link href="/" className="site-logo">
+                  DreamyVoice
+                </Link>
+                <HeaderSearch titles={headerSearchOptions} />
+              </div>
+              <SiteNav />
+              <AuthActions currentUser={currentUser} />
+            </header>
+            <div className="site-header-placeholder" aria-hidden="true" />
+            <main className="site-main">{children}</main>
+            <SiteFooter titles={headerSearchOptions} isAuthenticated={Boolean(currentUser)} />
+          </AuthModalProvider>
       </body>
     </html>
   );
