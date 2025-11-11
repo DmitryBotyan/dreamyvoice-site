@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect } from "react";
 import { useAuthModal } from "@/app/auth-modal-context";
+import styles from "./page.module.css";
 
 export function FavoritesLoginPrompt() {
   const { openModal } = useAuthModal();
@@ -12,17 +12,17 @@ export function FavoritesLoginPrompt() {
   }, [openModal]);
 
   return (
-    <section className="favorites-page">
-      <header className="favorites-heading">
+    <section className={styles.favoritesPage}>
+      <header className={styles.favoritesHeading}>
         <div>
-          <p className="favorites-eyebrow">Вход</p>
-          <h1 className="favorites-title">Ваши избранные</h1>
+          <p className={styles.favoritesEyebrow}>Вход</p>
+          <h1 className={styles.favoritesTitle}>Ваши избранные</h1>
         </div>
-        <p className="favorites-subtitle">
+        <p className={styles.favoritesSubtitle}>
           Войдите или зарегистрируйтесь, чтобы сохранять тайтлы.
         </p>
       </header>
-      <div className="favorites-empty">
+      <div className={styles.favoritesEmpty}>
         <p>Вы не авторизованы на нашем сайте</p>
       </div>
     </section>

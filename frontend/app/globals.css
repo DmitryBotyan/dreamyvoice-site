@@ -860,53 +860,6 @@ button:disabled {
   text-overflow: ellipsis;
 }
 
-.favorites-page {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  padding-top: 4px;
-}
-
-.favorites-heading {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.favorites-eyebrow {
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.favorites-title {
-  margin: 0;
-  font-size: clamp(2rem, 3vw, 2.4rem);
-  line-height: 1.2;
-}
-
-.favorites-subtitle {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 1rem;
-}
-
-.favorites-grid {
-  gap: 28px;
-}
-
-.favorites-empty {
-  border-radius: 12px;
-  padding: 28px;
-  color: var(--muted);
-  font-size: 1rem;
-  text-align: center;
-}
-
-.favorites-empty p {
-  margin-bottom: 16px;
-}
-
 .title-page {
   display: flex;
   flex-direction: column;

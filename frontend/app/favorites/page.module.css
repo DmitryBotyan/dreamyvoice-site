@@ -1,0 +1,46 @@
+.favoritesPage {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-top: 4px;
+}
+
+.favoritesHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.favoritesEyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.favoritesTitle {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 2.4rem);
+  line-height: 1.2;
+}
+
+.favoritesSubtitle {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 1rem;
+}
+
+.favoritesGrid {
+  gap: 28px;
+}
+
+.favoritesEmpty {
+  border-radius: 12px;
+  padding: 28px;
+  color: var(--muted);
+  font-size: 1rem;
+  text-align: center;
+}
+
+.favoritesEmpty p {
+  margin-bottom: 16px;
+}

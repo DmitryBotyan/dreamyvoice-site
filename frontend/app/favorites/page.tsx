@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentUser, getFavoriteTitles } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import { FavoritesLoginPrompt } from "./login-prompt";
+import styles from "./page.module.css";
 
 export default async function FavoritesPage() {
   const currentUser = await getCurrentUser();
@@ -13,22 +14,22 @@ export default async function FavoritesPage() {
   const favorites = await getFavoriteTitles();
 
   return (
-    <section className="favorites-page">
-      <header className="favorites-heading">
+    <section className={styles.favoritesPage}>
+      <header className={styles.favoritesHeading}>
         <div>
-          <h1 className="favorites-title">Ваши избранные</h1>
+          <h1 className={styles.favoritesTitle}>Ваши избранные</h1>
         </div>
-        <p className="favorites-subtitle">
+        <p className={styles.favoritesSubtitle}>
           Здесь хранятся тайтлы, которые вы отметили звёздочкой.
         </p>
       </header>
 
       {favorites.length === 0 ? (
-        <div className="favorites-empty">
+        <div className={styles.favoritesEmpty}>
           <p>Пока нет ни одного релиза. </p>
         </div>
       ) : (
-        <ul className="catalog-grid favorites-grid" role="list">
+        <ul className={`catalog-grid ${styles.favoritesGrid}`} role="list">
           {favorites.map((title) => {
             const coverUrl = title.coverKey
               ? buildMediaUrl("covers", title.coverKey)
