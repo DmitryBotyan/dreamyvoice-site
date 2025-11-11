@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { buildMediaUrl } from "@/lib/media";
 import { CatalogFiltersDock } from "./catalog-filters-dock";
 import { CatalogFiltersForm } from "./catalog-filters-form";
+import { CatalogSortControl } from "./catalog-sort-control";
 import {
   buildCatalogFiltersFromUrl,
   filterTitles,
@@ -42,6 +43,15 @@ export function CatalogSection({
 
   return (
     <div className="catalog-layout">
+      <div className="catalog-heading-block">
+        <div className="catalog-heading">
+          <h1 className="catalog-title">Каталог тайтлов</h1>
+          <p className="catalog-subtitle">
+            Подборка релизов команды DreamyVoice
+          </p>
+        </div>
+        <CatalogSortControl />
+      </div>
       <div className="catalog-results">
         {sortedTitles.length === 0 ? (
           <p className="catalog-empty catalog-empty--compact">

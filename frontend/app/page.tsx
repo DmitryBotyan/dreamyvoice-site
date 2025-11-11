@@ -62,12 +62,6 @@ export default async function HomePage() {
         )}
       </section>
       <section className="catalog-section" id="catalog">
-        <div className="catalog-heading">
-          <h1 className="catalog-title">Каталог тайтлов</h1>
-          <p className="catalog-subtitle">
-            Подборка релизов команды DreamyVoice
-          </p>
-        </div>
         {titles.length === 0 ? (
           <p className="catalog-empty">
             Пока ничего нет. Добавьте первый тайтл через админку.

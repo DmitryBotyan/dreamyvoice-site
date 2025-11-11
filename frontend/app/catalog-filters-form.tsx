@@ -82,18 +82,6 @@ export function CatalogFiltersForm({
       onSubmit={(event) => event.preventDefault()}
       role="search"
     >
-      <select
-        id="catalog-filter-sort"
-        name="sort"
-        value={filters.sort}
-        className="catalog-filter-select"
-        onChange={handleSelectChange("sort")}
-      >
-        <option value="name_asc">Название (А→Я)</option>
-        <option value="name_desc">Название (Я→А)</option>
-        <option value="created_desc">Сначала новые</option>
-        <option value="created_asc">Сначала старые</option>
-      </select>
       <div className="catalog-filter-body">
         <div className="catalog-filter-group">
           <input
