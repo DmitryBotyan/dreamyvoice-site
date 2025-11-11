@@ -195,6 +195,42 @@ router.get(
   }),
 );
 
+router.get(
+  '/random',
+  asyncHandler(async (_req: Request, res: Response) => {
+    const availableCount = await prisma.title.count({
+      where: {
+        published: true,
+      },
+    });
+
+    if (availableCount === 0) {
+      throw new HttpError(404, 'Нет опубликованных тайтлов');
+    }
+
+    const randomIndex = Math.floor(Math.random() * availableCount);
+    const [randomTitle] = await prisma.title.findMany({
+      where: {
+        published: true,
+      },
+      orderBy: {
+        id: 'asc',
+      },
+      skip: randomIndex,
+      take: 1,
+      select: {
+        slug: true,
+      },
+    });
+
+    if (!randomTitle) {
+      throw new HttpError(404, 'Тайтл не найден');
+    }
+
+    res.json({ title: randomTitle });
+  }),
+);
+
 const slugSchema = z.object({ slug: z.string().min(1).transform((value) => value.trim()) });
 
 router.get(

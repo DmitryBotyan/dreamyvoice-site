@@ -64,6 +64,11 @@ export async function getTitles(options: { includeDrafts?: boolean } = {}) {
   return data.titles;
 }
 
+export async function getRandomTitle() {
+  const data = await request<{ title: { slug: string } }>('/titles/random');
+  return data.title;
+}
+
 export async function getGenres() {
   const data = await request<{ genres: string[] }>('/metadata/genres');
   return data.genres;

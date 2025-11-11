@@ -122,7 +122,6 @@ export default async function TitlePage({ params }: Props) {
             {!title.published ? (
               <span className="title-badge">Черновик</span>
             ) : null}
-            <span className="title-badge">{playableEpisodes.length} серий</span>
             {titleAgeRating ? (
               <span className="title-badge title-badge--rating">
                 {titleAgeRating}
