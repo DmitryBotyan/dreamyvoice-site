@@ -15,6 +15,7 @@ import { detectGenres } from "@/lib/genres";
 import { detectTags, detectAgeRating } from "@/lib/catalog-keywords";
 import { getReleaseDate, sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
 import { TitleDescriptionExpander } from "./title-description";
+import { FavoriteToggle } from "./favorite-toggle";
 
 type Props = {
   params: Promise<{
@@ -128,7 +129,10 @@ export default async function TitlePage({ params }: Props) {
               </span>
             ) : null}
           </div>
-          <h1 className="title-hero-name">{title.name}</h1>
+          <div className="title-hero-heading">
+            <h1 className="title-hero-name">{title.name}</h1>
+            <FavoriteToggle slug={title.slug} />
+          </div>
           {hasDescription ? (
             <TitleDescriptionExpander description={descriptionText} />
           ) : (

@@ -2,6 +2,7 @@
 
 import {
   cloneElement,
+  type CSSProperties,
   type ReactElement,
   type ReactNode,
   useEffect,
@@ -177,6 +178,22 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
     };
   }, [isDocked, metrics.height]);
 
+  const childStyle = (children.props.style ?? {}) as CSSProperties;
+  const transitionParts = ['top 0.25s ease', 'left 0.25s ease', 'width 0.25s ease'];
+  const transitionValue = childStyle.transition
+    ? `${childStyle.transition}, ${transitionParts.join(', ')}`
+    : transitionParts.join(', ');
+
+  const dockStyle = isDocked
+    ? {
+        position: 'fixed',
+        top: `${metrics.top}px`,
+        left: `${metrics.left}px`,
+        width: metrics.width ? `${metrics.width}px` : undefined,
+        zIndex: 40,
+      }
+    : undefined;
+
   const mergedChild = cloneElement(children, {
     ref: (node: HTMLElement | null) => {
       panelRef.current = node;
@@ -190,16 +207,9 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
       }
     },
     style: {
-      ...(children.props.style ?? {}),
-      ...(isDocked
-        ? {
-            position: 'fixed',
-            top: `${metrics.top}px`,
-            left: `${metrics.left}px`,
-            width: metrics.width ? `${metrics.width}px` : undefined,
-            zIndex: 40,
-          }
-        : undefined),
+      ...childStyle,
+      transition: transitionValue,
+      ...dockStyle,
     },
   });
 

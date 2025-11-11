@@ -2,7 +2,7 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 import { serverConfig } from './server-config';
-import type { Comment, Episode, PublicUser, TeamMember, Title } from './types';
+import type { Comment, Episode, FavoriteTitle, PublicUser, TeamMember, Title } from './types';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -93,6 +93,18 @@ export async function getTitle(slug: string) {
       return null;
     }
 
+    throw error;
+  }
+}
+
+export async function getFavoriteTitles() {
+  try {
+    const data = await request<{ favorites: FavoriteTitle[] }>('/favorites');
+    return data.favorites;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      return [];
+    }
     throw error;
   }
 }

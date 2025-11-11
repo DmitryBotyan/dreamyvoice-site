@@ -34,6 +34,7 @@ model User {
   createdAt    DateTime   @default(now()) @map("created_at")
   comments     Comment[]
   sessions     Session[]
+  favorites    Favorite[]
 
   @@map("users")
 }
@@ -53,6 +54,7 @@ model Title {
   comments    Comment[]
   genres      Genre[]    @relation("TitleGenres")
   tags        Tag[]      @relation("TitleTags")
+  favorites   Favorite[]
 
   @@map("titles")
 }
@@ -121,4 +123,17 @@ model Session {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model Favorite {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  titleId   String    @map("title_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title Title @relation(fields: [titleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, titleId])
+  @@map("favorites")
 }

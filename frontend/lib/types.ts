@@ -41,6 +41,13 @@ export type Title = {
   originalReleaseDate?: string | null;
 };
 
+export type FavoriteTitle = {
+  id: string;
+  slug: string;
+  name: string;
+  coverKey?: string | null;
+};
+
 export type CommentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export type Comment = {
