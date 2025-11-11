@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ApiError, createTeamMember } from '@/lib/server-api';
+import { ApiError, createTeamMember, deleteTeamMember } from '@/lib/server-api';
 
 export type CreateTeamMemberFormState = {
   success: boolean;
@@ -45,4 +45,24 @@ export async function createTeamMemberAction(
   revalidatePath('/admin');
 
   return { success: true };
+}
+
+export async function deleteTeamMemberAction(formData: FormData) {
+  const id = (formData.get('id') ?? '').toString().trim();
+  if (!id) {
+    throw new Error('Не удалось определить участника');
+  }
+
+  try {
+    await deleteTeamMember(id);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+
+    throw new Error('Не удалось удалить участника');
+  }
+
+  revalidatePath('/team');
+  revalidatePath('/admin');
 }

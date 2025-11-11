@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ApiError, createEpisode, updateTitle } from '@/lib/server-api';
+import { ApiError, createEpisode, updateTitle, deleteEpisode } from '@/lib/server-api';
 
 const collectList = (formData: FormData, key: string) =>
   Array.from(
@@ -148,4 +148,24 @@ export async function createEpisodeAction(
   revalidatePath(`/admin/${slug}`);
 
   return { success: true };
+}
+
+export async function deleteEpisodeAction(slug: string, formData: FormData) {
+  const episodeId = (formData.get('episodeId') ?? '').toString().trim();
+  if (!episodeId) {
+    throw new Error('Не удалось определить серию');
+  }
+
+  try {
+    await deleteEpisode(slug, episodeId);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+
+    throw new Error('Не удалось удалить серию');
+  }
+
+  revalidatePath('/admin');
+  revalidatePath(`/admin/${slug}`);
 }

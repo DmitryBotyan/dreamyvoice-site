@@ -1,4 +1,5 @@
 import { prisma } from '../prisma';
+import { deleteObject } from './storage';
 
 export type CreateTeamMemberInput = {
   name: string;
@@ -20,4 +21,19 @@ export async function createTeamMember(input: CreateTeamMemberInput) {
       avatarKey: input.avatarKey?.trim() || null,
     },
   });
+}
+
+export async function deleteTeamMember(id: string) {
+  const member = await prisma.teamMember.findUnique({ where: { id } });
+  if (!member) {
+    return null;
+  }
+
+  await prisma.teamMember.delete({ where: { id } });
+
+  if (member.avatarKey) {
+    await deleteObject('avatars', member.avatarKey).catch(() => {});
+  }
+
+  return member;
 }

@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser, getTitle } from "@/lib/server-api";
 import { EditTitleForm } from "./edit-title-form";
 import { AddEpisodeForm } from "./add-episode-form";
-import { createEpisodeAction, updateTitleAction } from "./actions";
+import { DeleteLink } from "../delete-link";
+import { createEpisodeAction, updateTitleAction, deleteEpisodeAction } from "./actions";
 import styles from "../styles.module.css";
 
 type Props = {
@@ -111,6 +112,16 @@ export default async function AdminTitlePage({ params }: Props) {
                         "не указан"
                       )}
                     </p>
+                    <div className={styles.adminActionsRow}>
+                      <DeleteLink
+                        action={deleteEpisodeAction.bind(null, title.slug)}
+                        fields={[{ name: "episodeId", value: episode.id }]}
+                        formClassName={styles.deleteLinkForm}
+                        className={styles.adminLinkButton}
+                      >
+                        Удалить серию
+                      </DeleteLink>
+                    </div>
                   </article>
                 </li>
               ))}

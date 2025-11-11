@@ -2,6 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateTitleForm } from "./create-title-form";
 import { TeamMembersForm } from "./team-members-form";
+import { deleteTeamMemberAction } from "./team-members/actions";
+import { DeleteLink } from "./delete-link";
+import { deleteTitleAction } from "./actions";
 import { getCurrentUser, getTeamMembers, getTitles } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import type { TeamMember, Title } from "@/lib/types";
@@ -56,7 +59,7 @@ export default async function AdminPage() {
               Участники ещё не добавлены. Создайте первую карточку.
             </p>
           ) : (
-            <ul className={styles.teamAdminList}>
+          <ul className={styles.teamAdminList}>
             {teamMembers.map((member) => {
               const initials = member.name
                 .split(" ")
@@ -79,9 +82,21 @@ export default async function AdminPage() {
                       initials
                     )}
                   </div>
-                  <div className={styles.teamAdminMeta}>
-                    <p className={styles.teamAdminName}>{member.name}</p>
-                    <p className={styles.teamAdminRole}>{member.role}</p>
+                  <div className={styles.teamAdminMetaWrapper}>
+                    <div className={styles.teamAdminMeta}>
+                      <p className={styles.teamAdminName}>{member.name}</p>
+                      <p className={styles.teamAdminRole}>{member.role}</p>
+                    </div>
+                    <div className={styles.teamAdminActions}>
+                      <DeleteLink
+                        action={deleteTeamMemberAction}
+                        fields={[{ name: "id", value: member.id }]}
+                        formClassName={styles.deleteLinkForm}
+                        className={styles.adminLinkButton}
+                      >
+                        Удалить
+                      </DeleteLink>
+                    </div>
                   </div>
                 </li>
               );
@@ -134,12 +149,17 @@ export default async function AdminPage() {
                     })}
                   </p>
                   <div className={styles.adminActionsRow}>
-                    <Link
-                      className={styles.adminLink}
-                      href={`/admin/${title.slug}`}
-                    >
+                    <Link className={styles.adminLink} href={`/admin/${title.slug}`}>
                       Редактировать
                     </Link>
+                    <DeleteLink
+                      action={deleteTitleAction}
+                      fields={[{ name: "slug", value: title.slug }]}
+                      formClassName={styles.deleteLinkForm}
+                      className={styles.adminLinkButton}
+                    >
+                      Удалить тайтл
+                    </DeleteLink>
                   </div>
                 </article>
               </li>

@@ -43,6 +43,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(response.status, message);
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return (await response.json()) as T;
 }
 
@@ -206,4 +210,26 @@ export async function createTeamMember(input: CreateTeamMemberInput) {
   });
 
   return data.teamMember;
+}
+
+export async function deleteTitle(slug: string) {
+  const encodedSlug = encodeURIComponent(slug);
+  await request<void>(`/titles/${encodedSlug}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function deleteEpisode(slug: string, episodeId: string) {
+  const encodedSlug = encodeURIComponent(slug);
+  const encodedEpisodeId = encodeURIComponent(episodeId);
+  await request<void>(`/titles/${encodedSlug}/episodes/${encodedEpisodeId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function deleteTeamMember(id: string) {
+  const encodedId = encodeURIComponent(id);
+  await request<void>(`/team-members/${encodedId}`, {
+    method: 'DELETE',
+  });
 }

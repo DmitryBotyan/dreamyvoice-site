@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 import { GENRE_KEYWORDS, TAG_KEYWORDS, AGE_RATINGS } from './constants/catalog-keywords';
+import { deleteObject, type MediaBucket } from './services/storage';
 
 const prismaModels = Object.fromEntries(Prisma.dmmf.datamodel.models.map((model) => [model.name, model]));
 
@@ -22,6 +23,27 @@ export async function buildAdmin() {
       label: toLabel(value),
     }));
 
+  const createDeleteCleanup = (bucket: MediaBucket, keyField: string) => ({
+    actions: {
+      delete: {
+        after: async (response: any, _request: any, context: any) => {
+          const key = context?.record?.params?.[keyField];
+          if (typeof key !== 'string' || !key) {
+            return response;
+          }
+
+          try {
+            await deleteObject(bucket, key);
+          } catch (error) {
+            console.warn(`Failed to delete ${bucket} object ${key}:`, error);
+          }
+
+          return response;
+        },
+      },
+    },
+  });
+
   const titleResourceOptions = {
     navigation: 'Контент',
     properties: {
@@ -40,6 +62,12 @@ export async function buildAdmin() {
         type: 'date',
       },
     },
+    ...createDeleteCleanup('covers', 'coverKey'),
+  };
+
+  const teamResourceOptions = {
+    navigation: 'Контент',
+    ...createDeleteCleanup('avatars', 'avatarKey'),
   };
 
   const admin = new AdminJS({
@@ -50,6 +78,7 @@ export async function buildAdmin() {
     resources: [
       { resource: { model: prismaModels.User, client: prisma }, options: { navigation: 'Контент' } },
       { resource: { model: prismaModels.Title, client: prisma }, options: titleResourceOptions },
+      { resource: { model: prismaModels.TeamMember, client: prisma }, options: teamResourceOptions },
       { resource: { model: prismaModels.Genre, client: prisma }, options: { navigation: 'Словари' } },
       { resource: { model: prismaModels.Tag, client: prisma }, options: { navigation: 'Словари' } },
       { resource: { model: prismaModels.Episode, client: prisma }, options: { navigation: 'Контент' } },

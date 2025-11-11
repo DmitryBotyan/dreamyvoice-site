@@ -10,7 +10,11 @@
   padding: 32px 36px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: linear-gradient(145deg, rgba(33, 33, 44, 0.95), rgba(23, 23, 32, 0.92));
+  background: linear-gradient(
+    145deg,
+    rgba(33, 33, 44, 0.95),
+    rgba(23, 23, 32, 0.92)
+  );
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.55);
   display: flex;
   flex-direction: column;
@@ -131,6 +135,32 @@
 .adminLink {
   color: var(--accent-strong);
   font-weight: 600;
+}
+
+.adminLinkButton {
+  background: none;
+  border: none;
+  color: #ff8686;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+}
+
+.adminLinkButton:focus-visible {
+  outline: 2px solid rgba(255, 134, 134, 0.7);
+  outline-offset: 2px;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+.deleteLinkForm {
+  display: contents;
 }
 
 .adminEmpty {
@@ -389,4 +419,16 @@
   color: var(--muted);
   font-size: 0.9rem;
   letter-spacing: 0.04em;
+}
+
+.teamAdminMetaWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.teamAdminActions {
+  display: flex;
+  justify-content: flex-end;
 }

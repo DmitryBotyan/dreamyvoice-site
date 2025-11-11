@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ApiError, createTitle } from '@/lib/server-api';
+import { ApiError, createTitle, deleteTitle } from '@/lib/server-api';
 
 const collectList = (formData: FormData, key: string) =>
   Array.from(
@@ -92,4 +92,24 @@ export async function createTitleAction(
   revalidatePath('/admin');
 
   return { success: true };
+}
+
+export async function deleteTitleAction(formData: FormData) {
+  const slug = (formData.get('slug') ?? '').toString().trim().toLowerCase();
+  if (!slug || !SLUG_REGEX.test(slug)) {
+    throw new Error('Неверный slug');
+  }
+
+  try {
+    await deleteTitle(slug);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+
+    throw new Error('Не удалось удалить тайтл');
+  }
+
+  revalidatePath('/');
+  revalidatePath('/admin');
 }

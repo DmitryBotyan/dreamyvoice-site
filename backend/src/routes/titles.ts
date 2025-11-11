@@ -8,6 +8,7 @@ import { HttpError } from '../utils/http-error';
 import { requireAuth } from '../middleware/require-auth';
 import { requireAdmin } from '../middleware/require-admin';
 import { AGE_RATINGS } from '../constants/catalog-keywords';
+import { deleteObject } from '../services/storage';
 
 const titleAgeRatingEnum = z.enum(AGE_RATINGS);
 
@@ -232,6 +233,7 @@ router.get(
 );
 
 const slugSchema = z.object({ slug: z.string().min(1).transform((value) => value.trim()) });
+const episodeIdSchema = z.object({ episodeId: z.string().min(1) });
 
 router.get(
   '/:slug',
@@ -467,6 +469,66 @@ episodesRouter.post(
 
       throw error;
     }
+  }),
+);
+
+episodesRouter.delete(
+  '/:episodeId',
+  requireAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { slug } = slugSchema.parse(req.params);
+    const { episodeId } = episodeIdSchema.parse(req.params);
+    const title = await prisma.title.findFirst({
+      where: buildSlugWhere(slug),
+      select: { id: true },
+    });
+
+    if (!title) {
+      throw new HttpError(404, 'Title not found');
+    }
+
+    const episode = await prisma.episode.findFirst({
+      where: {
+        id: episodeId,
+        titleId: title.id,
+      },
+    });
+
+    if (!episode) {
+      throw new HttpError(404, 'Episode not found');
+    }
+
+    await prisma.episode.delete({
+      where: { id: episode.id },
+    });
+
+    res.status(204).send();
+  }),
+);
+
+router.delete(
+  '/:slug',
+  requireAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { slug } = slugSchema.parse(req.params);
+    const title = await prisma.title.findFirst({
+      where: buildSlugWhere(slug),
+      select: { id: true, coverKey: true },
+    });
+
+    if (!title) {
+      throw new HttpError(404, 'Title not found');
+    }
+
+    await prisma.title.delete({
+      where: { id: title.id },
+    });
+
+    if (title.coverKey) {
+      await deleteObject('covers', title.coverKey).catch(() => {});
+    }
+
+    res.status(204).send();
   }),
 );
 
