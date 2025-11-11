@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateTitleForm } from "./create-title-form";
-import { getCurrentUser, getTitles } from "@/lib/server-api";
-import type { Title } from "@/lib/types";
+import { TeamMembersForm } from "./team-members-form";
+import { getCurrentUser, getTeamMembers, getTitles } from "@/lib/server-api";
+import { buildMediaUrl } from "@/lib/media";
+import type { TeamMember, Title } from "@/lib/types";
 import styles from "./styles.module.css";
 
 export default async function AdminPage() {
@@ -28,6 +30,7 @@ export default async function AdminPage() {
   }
 
   const titles: Title[] = await getTitles({ includeDrafts: true });
+  const teamMembers: TeamMember[] = await getTeamMembers();
 
   return (
     <section className={styles.adminSection}>
@@ -39,6 +42,53 @@ export default async function AdminPage() {
       </header>
 
       <CreateTitleForm />
+
+      <div className={styles.adminPanel}>
+        <div className={styles.panelHeader}>
+          <h2>Участники команды ({teamMembers.length})</h2>
+          <p>Добавляйте участников, чтобы они отображались на странице команды.</p>
+        </div>
+
+        <TeamMembersForm />
+
+          {teamMembers.length === 0 ? (
+            <p className={styles.adminEmpty}>
+              Участники ещё не добавлены. Создайте первую карточку.
+            </p>
+          ) : (
+            <ul className={styles.teamAdminList}>
+            {teamMembers.map((member) => {
+              const initials = member.name
+                .split(" ")
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((part) => part[0]?.toUpperCase() ?? "")
+                .join("");
+              const avatarUrl = member.avatarKey ? buildMediaUrl("avatars", member.avatarKey) : null;
+
+              return (
+                <li key={member.id} className={styles.teamAdminCard}>
+                  <div
+                    className={styles.teamAdminAvatar}
+                    style={avatarUrl ? { background: "transparent" } : undefined}
+                    aria-hidden="true"
+                  >
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={`Фото ${member.name}`} />
+                    ) : (
+                      initials
+                    )}
+                  </div>
+                  <div className={styles.teamAdminMeta}>
+                    <p className={styles.teamAdminName}>{member.name}</p>
+                    <p className={styles.teamAdminRole}>{member.role}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
 
       <div className={styles.adminPanel}>
         <div className={styles.panelHeader}>

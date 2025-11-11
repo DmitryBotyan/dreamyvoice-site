@@ -73,6 +73,16 @@ model Tag {
   @@map("tags")
 }
 
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  avatarKey String?  @map("avatar_key")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("team_members")
+}
+
 model Episode {
   id              String    @id @default(cuid())
   titleId         String    @map("title_id")

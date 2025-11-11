@@ -8,6 +8,14 @@ export type PublicUser = {
   createdAt: string;
 };
 
+export type TeamMember = {
+  id: string;
+  name: string;
+  role: string;
+  avatarKey?: string | null;
+  createdAt: string;
+};
+
 export type Episode = {
   id: string;
   number: number;

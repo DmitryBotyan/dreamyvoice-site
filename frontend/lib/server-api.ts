@@ -2,7 +2,7 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 import { serverConfig } from './server-config';
-import type { Comment, Episode, PublicUser, Title } from './types';
+import type { Comment, Episode, PublicUser, TeamMember, Title } from './types';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -174,4 +174,36 @@ export async function createEpisode(slug: string, input: CreateEpisodeInput) {
   });
 
   return data.episode;
+}
+
+export async function getTeamMembers() {
+  const data = await request<{ teamMembers: TeamMember[] }>('/team-members');
+  return data.teamMembers;
+}
+
+export type CreateTeamMemberInput = {
+  name: string;
+  role: string;
+  avatarKey?: string;
+};
+
+export async function createTeamMember(input: CreateTeamMemberInput) {
+  const payload: Record<string, string> = {
+    name: input.name,
+    role: input.role,
+  };
+
+  if (input.avatarKey) {
+    payload.avatarKey = input.avatarKey;
+  }
+
+  const data = await request<{ teamMember: TeamMember }>('/team-members', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return data.teamMember;
 }

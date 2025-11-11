@@ -277,6 +277,15 @@
   height: auto;
 }
 
+.avatarPreview {
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
 .formFooter {
   display: flex;
   flex-wrap: wrap;
@@ -315,4 +324,69 @@
 
 .adminEpisodeTitle {
   font-weight: 600;
+}
+
+.teamAdminList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 1000px) {
+  .teamAdminList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .teamAdminList {
+    grid-template-columns: 1fr;
+  }
+}
+
+.teamAdminCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-secondary);
+}
+
+.teamAdminAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.teamAdminAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.teamAdminMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.teamAdminName {
+  font-weight: 600;
+}
+
+.teamAdminRole {
+  color: var(--muted);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
 }

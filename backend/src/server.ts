@@ -11,6 +11,7 @@ import { adminAuthRouter } from './routes/admin-auth';
 import { mediaRouter } from './routes/media';
 import { profileRouter } from './routes/profile';
 import { metadataRouter } from './routes/metadata';
+import { teamMembersRouter } from './routes/team-members';
 import { syncCatalogMetadata } from './services/catalog-metadata';
 
 async function bootstrap() {
@@ -28,6 +29,7 @@ async function bootstrap() {
   app.use('/auth', authRouter);
   app.use('/titles', titlesRouter);
   app.use('/metadata', metadataRouter);
+  app.use('/team-members', teamMembersRouter);
   app.use('/admin/auth', adminAuthRouter);
   app.use('/media', mediaRouter);
   app.use('/profile', profileRouter);
