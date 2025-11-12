@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { buildMediaUrl } from '@/lib/media';
-import { clientConfig } from '@/lib/client-config';
-import type { PublicUser } from '@/lib/types';
-import { useAuthModal } from './auth-modal-context';
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { buildMediaUrl } from "@/lib/media";
+import { clientConfig } from "@/lib/client-config";
+import type { PublicUser } from "@/lib/types";
+import { useAuthModal } from "./auth-modal-context";
 
 type Props = {
   currentUser: PublicUser | null;
@@ -19,66 +19,70 @@ export function AuthActions({ currentUser }: Props) {
   const [error, setError] = useState<string | null>(null);
   const { openModal } = useAuthModal();
   useEffect(() => {
-    const header = document.querySelector<HTMLElement>('.site-header');
-    const placeholder = document.querySelector<HTMLElement>('.site-header-placeholder');
-
-    if (!header || !placeholder) {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    if (!header) {
       return;
     }
 
-    function syncPlaceholderHeight(isStuck: boolean) {
-      placeholder.style.height = isStuck ? `${header.offsetHeight}px` : '0px';
-    }
+    const updateHeaderHeightProperty = () => {
+      const headerHeight = header.offsetHeight;
+      document.documentElement.style.setProperty(
+        "--site-header-height",
+        `${headerHeight}px`
+      );
+    };
 
     function handleScroll() {
-      const isStuck = window.scrollY > 16;
-      header.classList.toggle('site-header--stuck', isStuck);
-      syncPlaceholderHeight(isStuck);
+      const isStuck = window.scrollY > 10;
+      header.classList.toggle("site-header--stuck", isStuck);
     }
 
     const handleResize = () => {
-      if (header.classList.contains('site-header--stuck')) {
-        placeholder.style.height = `${header.offsetHeight}px`;
-      } else {
-        placeholder.style.height = '0px';
-      }
+      updateHeaderHeightProperty();
     };
 
+    updateHeaderHeightProperty();
     handleScroll();
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+      document.documentElement.style.removeProperty("--site-header-height");
     };
   }, []);
 
   if (!currentUser) {
     return (
       <div className="auth-actions">
-        <button type="button" onClick={() => openModal('login')}>
+        <button type="button" onClick={() => openModal("login")}>
           Войти или зарегистрироваться
         </button>
       </div>
     );
   }
 
-  const avatarUrl = currentUser.avatarKey ? buildMediaUrl('avatars', currentUser.avatarKey) : null;
+  const avatarUrl = currentUser.avatarKey
+    ? buildMediaUrl("avatars", currentUser.avatarKey)
+    : null;
   const avatarInitial = currentUser.username.charAt(0).toUpperCase();
 
   async function handleLogout() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${clientConfig.apiProxyBasePath}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${clientConfig.apiProxyBasePath}/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Не удалось выйти');
+        throw new Error("Не удалось выйти");
       }
 
       router.refresh();

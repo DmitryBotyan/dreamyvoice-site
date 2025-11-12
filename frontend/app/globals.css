@@ -10,6 +10,7 @@
   --accent: #8f63ff;
   --accent-strong: #a97cff;
   --accent-muted: rgba(143, 99, 255, 0.2);
+  --site-header-height: 96px;
 }
 
 ::selection {
@@ -19,8 +20,10 @@
 html,
 body {
   max-width: 100vw;
+  padding-top: 36px;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  scroll-padding-top: var(--site-header-height);
 }
 
 body {
@@ -48,8 +51,11 @@ a {
 }
 
 .site-header {
-  position: relative;
+  position: fixed;
+  width: 100%;
+  top: 0;
   display: flex;
+  z-index: 10;
   align-items: center;
   justify-content: space-between;
   gap: 32px;
@@ -72,10 +78,10 @@ a {
   backdrop-filter: blur(16px);
 }
 
-.site-header-placeholder {
+/* .site-header-placeholder {
   width: 100%;
   height: 0;
-}
+} */
 
 .site-header-left {
   display: flex;
@@ -724,7 +730,7 @@ button:disabled {
 }
 
 .catalog-filters-wrapper > * {
-  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease;
+  transition: top 0 ease, left 0.25s ease, width 0.25s ease;
   will-change: top, left, width;
 }
 

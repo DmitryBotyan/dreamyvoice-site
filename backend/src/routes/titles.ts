@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
+import slugify from 'slugify';
 import { prisma } from '../prisma';
 import { Prisma } from '@prisma/client';
 import type { Episode as EpisodeModel, Genre, Tag } from '@prisma/client';
@@ -86,14 +87,53 @@ const ensureTags = async (names?: string[] | null) => {
   return [...existing, ...created];
 };
 
+const SLUG_MIN_LENGTH = 3;
+const SLUG_MAX_LENGTH = 64;
+const slugifyOptions = {
+  lower: true,
+  strict: true,
+  trim: true,
+  locale: 'ru',
+} as const;
+
+const trimSlugEdges = (value: string) => value.replace(/^-+|-+$/g, '');
+
+const buildBaseSlug = (value: string) => {
+  const generated = slugify(value, slugifyOptions);
+  const trimmed = trimSlugEdges(generated);
+  return trimSlugEdges(trimmed.slice(0, SLUG_MAX_LENGTH));
+};
+
+const ensureSlugMinLength = (value: string) => {
+  if (value.length >= SLUG_MIN_LENGTH) {
+    return value;
+  }
+
+  return `${value}${'x'.repeat(SLUG_MIN_LENGTH - value.length)}`;
+};
+
+const getUniqueSlug = async (baseSlug: string) => {
+  let candidate = baseSlug;
+  let counter = 1;
+
+  while (await prisma.title.findUnique({ where: { slug: candidate } })) {
+    const suffix = `-${counter}`;
+    const maxBaseLength = Math.max(0, SLUG_MAX_LENGTH - suffix.length);
+    const truncatedBase = trimSlugEdges(baseSlug.slice(0, maxBaseLength));
+    candidate = `${truncatedBase}${suffix}`;
+    counter += 1;
+  }
+
+  return candidate;
+};
+
+const generateUniqueTitleSlug = async (name: string) => {
+  const rawSlug = buildBaseSlug(name);
+  const ensured = ensureSlugMinLength(rawSlug || 'title');
+  return getUniqueSlug(ensured);
+};
+
 const titleCreateSchema = z.object({
-  slug: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .min(3)
-    .max(64)
-    .regex(/^[a-z0-9-]+$/, 'Slug может содержать только латинские буквы, цифры и дефис'),
   name: z
     .string()
     .trim()
@@ -328,6 +368,7 @@ router.post(
   requireAdmin,
   asyncHandler(async (req: Request, res: Response) => {
     const data = titleCreateSchema.parse(req.body);
+    const slug = await generateUniqueTitleSlug(data.name);
     const parsedOriginalReleaseDate = parseReleaseDateInput(data.originalReleaseDate);
     const genres = await ensureGenres(data.genres);
     const tags = await ensureTags(data.tags);
@@ -335,7 +376,7 @@ router.post(
     try {
       const title = await prisma.title.create({
         data: {
-          slug: data.slug,
+          slug,
           name: data.name,
           description: data.description ?? null,
           coverKey: data.coverKey ?? null,

@@ -111,16 +111,6 @@ export function CreateTitleForm() {
           />
         </label>
         <label>
-          Slug (латиница, цифры, дефис)
-          <input
-            name="slug"
-            type="text"
-            minLength={3}
-            maxLength={64}
-            required
-          />
-        </label>
-        <label>
           Описание
           <textarea name="description" maxLength={5000} rows={4} />
         </label>

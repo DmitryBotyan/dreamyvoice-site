@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { type MouseEvent } from 'react';
-import { useAuthModal } from './auth-modal-context';
+import Link from "next/link";
+import { type MouseEvent } from "react";
+import { useAuthModal } from "./auth-modal-context";
 
 type Props = {
   isAuthenticated: boolean;
@@ -14,7 +14,7 @@ export function SiteNav({ isAuthenticated }: Props) {
   const handleFavoritesClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (!isAuthenticated) {
       event.preventDefault();
-      openModal('login');
+      openModal("login");
     }
   };
 
@@ -26,7 +26,6 @@ export function SiteNav({ isAuthenticated }: Props) {
         Избранное
       </Link>
       <Link href="/team">Команда</Link>
-      <Link href="/support">Поддержать</Link>
     </nav>
   );
 }

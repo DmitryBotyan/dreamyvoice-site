@@ -150,10 +150,7 @@ export default async function TitlePage({ params }: Props) {
                 ))}
               </ul>
             ) : (
-              <p className="title-genres-placeholder">
-                Упомяните жанры в описании, чтобы пользователям было проще
-                ориентироваться.
-              </p>
+              ""
             )}
           </div>
           <div className="title-tags">
@@ -166,10 +163,7 @@ export default async function TitlePage({ params }: Props) {
                 ))}
               </ul>
             ) : (
-              <p className="title-genres-placeholder">
-                Теги помогут выделить релиз – добавьте их в админке или
-                описании.
-              </p>
+              ""
             )}
           </div>
           <dl className="title-meta">

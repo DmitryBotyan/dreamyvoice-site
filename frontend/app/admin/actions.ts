@@ -25,7 +25,6 @@ export async function createTitleAction(
   formData: FormData,
 ): Promise<CreateTitleFormState> {
   const name = (formData.get('name') ?? '').toString().trim();
-  const slug = (formData.get('slug') ?? '').toString().trim().toLowerCase();
   const descriptionInput = formData.get('description');
   const description =
     descriptionInput && typeof descriptionInput === 'string' && descriptionInput.trim().length > 0
@@ -60,10 +59,6 @@ export async function createTitleAction(
     return { success: false, error: 'Название слишком длинное' };
   }
 
-  if (slug.length < 3 || slug.length > 64 || !SLUG_REGEX.test(slug)) {
-    return { success: false, error: 'Slug может содержать 3-64 символа: латиница, цифры, дефис' };
-  }
-
   if (description && description.length > 5000) {
     return { success: false, error: 'Описание слишком длинное' };
   }
@@ -71,7 +66,6 @@ export async function createTitleAction(
   try {
     await createTitle({
       name,
-      slug,
       description,
       coverKey,
       published,

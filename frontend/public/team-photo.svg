@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-labelledby="title desc">
+  <title id="title">DreamVoice team</title>
+  <desc id="desc">Abstract illustration of a studio team</desc>
+  <rect width="640" height="480" fill="#111318" rx="24" />
+  <circle cx="170" cy="170" r="78" fill="#2a2f3a" />
+  <circle cx="320" cy="150" r="90" fill="#1d212b" />
+  <circle cx="470" cy="170" r="78" fill="#2f3440" />
+  <rect x="100" y="270" width="440" height="160" rx="40" fill="#181c24" />
+  <circle cx="200" cy="300" r="36" fill="#3e4561" />
+  <circle cx="320" cy="300" r="36" fill="#505872" />
+  <circle cx="440" cy="300" r="36" fill="#3e4561" />
+  <rect x="170" y="340" width="300" height="16" fill="#2b3040" rx="8" />
+  <rect x="210" y="370" width="220" height="12" fill="#2b3040" rx="6" />
+</svg>

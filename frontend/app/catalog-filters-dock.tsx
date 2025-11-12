@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   cloneElement,
@@ -8,29 +8,30 @@ import {
   useEffect,
   useRef,
   useState,
-} from 'react';
+} from "react";
 
 type DockMetrics = {
   width: number;
-  height: number;
   left: number;
-  top: number;
 };
 
 type CatalogFiltersDockProps = {
   children: ReactElement;
 };
 
-export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): ReactNode {
+const STICKY_TOP_OFFSET = 0;
+
+export function CatalogFiltersDock({
+  children,
+}: CatalogFiltersDockProps): ReactNode {
   const placeholderRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement | null>(null);
   const [isDocked, setIsDocked] = useState(false);
   const [metrics, setMetrics] = useState<DockMetrics>({
     width: 0,
-    height: 0,
     left: 0,
-    top: 24,
   });
+  const [dockedTop, setDockedTop] = useState(STICKY_TOP_OFFSET);
 
   const syncPlaceholderMetrics = () => {
     const placeholder = placeholderRef.current;
@@ -51,19 +52,19 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
   };
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return;
     }
     syncPlaceholderMetrics();
 
-    window.addEventListener('resize', syncPlaceholderMetrics);
+    window.addEventListener("resize", syncPlaceholderMetrics);
     return () => {
-      window.removeEventListener('resize', syncPlaceholderMetrics);
+      window.removeEventListener("resize", syncPlaceholderMetrics);
     };
   }, []);
 
   useEffect(() => {
-    if (typeof ResizeObserver === 'undefined') {
+    if (typeof ResizeObserver === "undefined") {
       return;
     }
     const placeholder = placeholderRef.current;
@@ -78,52 +79,21 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
   }, []);
 
   useEffect(() => {
-    if (typeof ResizeObserver === 'undefined') {
+    if (typeof window === "undefined") {
       return;
     }
-    const panel = panelRef.current;
-    if (!panel) {
-      return;
-    }
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      const nextHeight = Math.round(entry?.contentRect?.height ?? panel.offsetHeight);
-      setMetrics((prev) => {
-        if (prev.height === nextHeight) {
-          return prev;
-        }
-        return {
-          ...prev,
-          height: nextHeight,
-        };
-      });
-    });
-    observer.observe(panel);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const placeholder = placeholderRef.current;
-    if (!placeholder) {
-      return;
-    }
-    placeholder.style.minHeight = isDocked && metrics.height ? `${metrics.height}px` : '';
-  }, [isDocked, metrics.height]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    const catalogSection = document.getElementById('catalog');
+    const catalogSection = document.getElementById("catalog");
     if (!catalogSection) {
       return;
     }
 
     const computeTopOffset = () => {
-      const header = document.querySelector<HTMLElement>('.site-header');
+      const header = document.querySelector<HTMLElement>(".site-header");
       const headerHeight =
-        header && header.classList.contains('site-header--stuck') ? header.offsetHeight : 0;
-      return headerHeight + 24;
+        header && header.classList.contains("site-header--stuck")
+          ? header.offsetHeight
+          : 0;
+      return headerHeight + 0;
     };
 
     const handleScroll = () => {
@@ -140,12 +110,15 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
 
       const topOffset = computeTopOffset();
       const sectionRect = catalogSection.getBoundingClientRect();
-      const catalogResults = catalogSection.querySelector<HTMLElement>('.catalog-results');
+      const catalogResults =
+        catalogSection.querySelector<HTMLElement>(".catalog-results");
       const resultsRect = catalogResults?.getBoundingClientRect();
       const topBoundary = resultsRect?.top ?? sectionRect.top;
       const bottomBoundary = resultsRect?.bottom ?? sectionRect.bottom;
+      const panelHeight = panelRef.current?.offsetHeight ?? 0;
       const shouldDock =
-        topBoundary <= topOffset && bottomBoundary >= topOffset + metrics.height + 32;
+        topBoundary <= topOffset &&
+        bottomBoundary >= topOffset + panelHeight + 32;
 
       if (shouldDock) {
         const placeholderRect = placeholderRef.current.getBoundingClientRect();
@@ -154,17 +127,15 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
             ...prev,
             left: placeholderRect.left,
             width: placeholderRect.width,
-            top: topOffset,
           };
-          if (
-            prev.left === next.left &&
-            prev.width === next.width &&
-            prev.top === next.top
-          ) {
+          if (prev.left === next.left && prev.width === next.width) {
             return prev;
           }
           return next;
         });
+        if (!isDocked) {
+          setDockedTop(topOffset);
+        }
       }
 
       if (shouldDock !== isDocked) {
@@ -174,24 +145,30 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
 
     handleScroll();
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
     };
-  }, [isDocked, metrics.height]);
+  }, [isDocked]);
+
+  useEffect(() => {
+    if (!isDocked) {
+      setDockedTop(STICKY_TOP_OFFSET);
+    }
+  }, [isDocked]);
 
   const childStyle = (children.props.style ?? {}) as CSSProperties;
-  const transitionParts = ['top 0.25s ease', 'left 0.25s ease', 'width 0.25s ease'];
+  const transitionParts = ["top 0 ease", "left 0.25s ease", "width 0.25s ease"];
   const transitionValue = childStyle.transition
-    ? `${childStyle.transition}, ${transitionParts.join(', ')}`
-    : transitionParts.join(', ');
+    ? `${childStyle.transition}, ${transitionParts.join(", ")}`
+    : transitionParts.join(", ");
 
   const dockStyle = isDocked
     ? {
-        position: 'fixed',
-        top: `${metrics.top}px`,
+        position: "fixed",
+        top: `${dockedTop}px`,
         left: `${metrics.left}px`,
         width: metrics.width ? `${metrics.width}px` : undefined,
         zIndex: 40,
@@ -202,9 +179,9 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
     ref: (node: HTMLElement | null) => {
       panelRef.current = node;
       const { ref } = children as { ref?: unknown };
-      if (typeof ref === 'function') {
+      if (typeof ref === "function") {
         ref(node);
-      } else if (ref && typeof ref === 'object') {
+      } else if (ref && typeof ref === "object") {
         const childRef = ref as { current: HTMLElement | null };
         // eslint-disable-next-line react-hooks/immutability
         childRef.current = node;
@@ -221,7 +198,7 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
     <div
       ref={placeholderRef}
       className="catalog-filters-wrapper"
-      data-fixed={isDocked ? 'true' : 'false'}
+      data-fixed={isDocked ? "true" : "false"}
     >
       {mergedChild}
     </div>

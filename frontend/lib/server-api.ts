@@ -124,7 +124,6 @@ export async function getTitleComments(slug: string) {
 }
 
 export type CreateTitleInput = {
-  slug: string;
   name: string;
   description?: string;
   coverKey?: string;
