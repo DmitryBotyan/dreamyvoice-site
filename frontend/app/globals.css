@@ -119,7 +119,12 @@ a {
 
 .header-search {
   position: relative;
-  width: min(260px, 40vw);
+  width: min(220px, 40vw);
+  transition: width 0.25s ease;
+}
+
+.header-search:focus-within {
+  width: min(360px, 72vw);
 }
 
 .header-search--open .header-search-input {
@@ -129,11 +134,12 @@ a {
 .header-search-input {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   color: var(--foreground);
-  padding: 8px 16px;
-  font-size: 0.9rem;
+  padding: 12px 18px;
+  font-size: 1rem;
+  min-height: 48px;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
@@ -237,8 +243,12 @@ a {
 }
 
 .site-footer-search .header-search {
-  width: 100%;
+  width: min(220px, 72vw);
   max-width: 360px;
+}
+
+.site-footer-search .header-search:focus-within {
+  width: min(360px, 90vw);
 }
 
 .site-footer-nav .site-nav {
@@ -303,18 +313,55 @@ a {
 
 .auth-actions {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   font-size: 0.9rem;
 }
 
-.auth-actions span {
+.auth-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(143, 99, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.auth-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.auth-avatar span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--foreground);
+  letter-spacing: 0.04em;
+}
+
+.auth-greeting {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: var(--muted);
 }
 
-.auth-actions a {
+.auth-greeting a {
+  color: var(--foreground);
   font-size: 1rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.auth-greeting a:hover,
+.auth-greeting a:focus-visible {
+  color: var(--accent-strong);
+  text-decoration: none;
 }
 
 button {
@@ -1077,10 +1124,24 @@ button:disabled {
 
 .title-meta {
   display: flex;
-  gap: 16px 24px;
+  align-items: center;
+  gap: 0;
   margin-top: 8px;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.title-meta > div {
+  display: flex;
+  align-items: center;
+}
+
+.title-meta > div + div::before {
+  content: "•";
+  margin: 0 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .title-meta dt {

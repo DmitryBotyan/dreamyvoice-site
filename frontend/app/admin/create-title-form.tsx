@@ -147,9 +147,9 @@ export function CreateTitleForm() {
             />
           ) : null}
         </label>
-        <div className={styles.metadataGrid}>
-          <label>
-            Жанр
+        <div className={styles.selectorRow}>
+          <label className={styles.selectorField}>
+            <span>Жанр</span>
             <div className={styles.inlineRow}>
               <select
                 name="genrePicker"
@@ -166,9 +166,23 @@ export function CreateTitleForm() {
                 Добавить
               </button>
             </div>
+            <div className={styles.previewBlock}>
+              {addedGenres.length === 0 ? (
+                <span className={styles.previewPlaceholder}>Жанры пока не добавлены</span>
+              ) : (
+                <div className={styles.chipRow}>
+                  {addedGenres.map((genre) => (
+                    <span className={styles.chip} key={`genre-chip-${genre}`}>
+                      {genre}
+                      <input type="hidden" name="genres" value={genre} />
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </label>
-          <label>
-            Тег
+          <label className={styles.selectorField}>
+            <span>Тег</span>
             <div className={styles.inlineRow}>
               <select
                 name="tagPicker"
@@ -185,7 +199,23 @@ export function CreateTitleForm() {
                 Добавить
               </button>
             </div>
+            <div className={styles.previewBlock}>
+              {addedTags.length === 0 ? (
+                <span className={styles.previewPlaceholder}>Теги пока не добавлены</span>
+              ) : (
+                <div className={styles.chipRow}>
+                  {addedTags.map((tag) => (
+                    <span className={`${styles.chip} ${styles.hashtagChip}`} key={`tag-chip-${tag}`}>
+                      #{tag}
+                      <input type="hidden" name="tags" value={tag} />
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </label>
+        </div>
+        <div className={styles.metadataGrid}>
           <label>
             Возрастной рейтинг
             <select name="ageRating" defaultValue="">
@@ -201,22 +231,6 @@ export function CreateTitleForm() {
             Оригинальная дата релиза
             <input type="date" name="originalReleaseDate" />
           </label>
-        </div>
-        <div className={styles.chipRow}>
-          {addedGenres.map((genre) => (
-            <span className={styles.chip} key={`genre-chip-${genre}`}>
-              {genre}
-              <input type="hidden" name="genres" value={genre} />
-            </span>
-          ))}
-        </div>
-        <div className={styles.chipRow}>
-          {addedTags.map((tag) => (
-            <span className={styles.chip} key={`tag-chip-${tag}`}>
-              {tag}
-              <input type="hidden" name="tags" value={tag} />
-            </span>
-          ))}
         </div>
         <label className={styles.checkboxRow}>
           <input name="published" type="checkbox" />

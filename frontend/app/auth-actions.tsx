@@ -1,8 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { buildMediaUrl } from '@/lib/media';
 import { clientConfig } from '@/lib/client-config';
 import type { PublicUser } from '@/lib/types';
 import { useAuthModal } from './auth-modal-context';
@@ -63,6 +65,9 @@ export function AuthActions({ currentUser }: Props) {
     );
   }
 
+  const avatarUrl = currentUser.avatarKey ? buildMediaUrl('avatars', currentUser.avatarKey) : null;
+  const avatarInitial = currentUser.username.charAt(0).toUpperCase();
+
   async function handleLogout() {
     setIsLoading(true);
     setError(null);
@@ -86,7 +91,20 @@ export function AuthActions({ currentUser }: Props) {
 
   return (
     <div className="auth-actions">
-      <span>
+      <div className="auth-avatar">
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={`${currentUser.username} avatar`}
+            width={36}
+            height={36}
+            priority
+          />
+        ) : (
+          <span>{avatarInitial}</span>
+        )}
+      </div>
+      <span className="auth-greeting">
         Привет, <Link href="/profile">{currentUser.username}</Link>
       </span>
       <button onClick={handleLogout} disabled={isLoading}>

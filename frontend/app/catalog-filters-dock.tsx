@@ -140,8 +140,12 @@ export function CatalogFiltersDock({ children }: CatalogFiltersDockProps): React
 
       const topOffset = computeTopOffset();
       const sectionRect = catalogSection.getBoundingClientRect();
+      const catalogResults = catalogSection.querySelector<HTMLElement>('.catalog-results');
+      const resultsRect = catalogResults?.getBoundingClientRect();
+      const topBoundary = resultsRect?.top ?? sectionRect.top;
+      const bottomBoundary = resultsRect?.bottom ?? sectionRect.bottom;
       const shouldDock =
-        sectionRect.top <= topOffset && sectionRect.bottom >= topOffset + metrics.height + 32;
+        topBoundary <= topOffset && bottomBoundary >= topOffset + metrics.height + 32;
 
       if (shouldDock) {
         const placeholderRect = placeholderRef.current.getBoundingClientRect();

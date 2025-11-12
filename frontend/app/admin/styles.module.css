@@ -23,7 +23,6 @@
 
 .adminEyebrow {
   font-size: 0.8rem;
-  text-transform: uppercase;
   letter-spacing: 0.2em;
   color: rgba(255, 255, 255, 0.6);
 }
@@ -93,7 +92,6 @@
   border-radius: 10px;
   border: 1px solid var(--border);
   font-size: 0.7rem;
-  text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
@@ -224,12 +222,51 @@
   gap: 14px;
 }
 
+.selectorRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.selectorRow label {
+  gap: 6px;
+}
+
+.selectorField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.selectorField span {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.previewBlock {
+  min-height: 56px;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.previewPlaceholder {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .metadataGrid label {
   gap: 6px;
 }
 
 .metadataGrid select,
-.metadataGrid input {
+.metadataGrid input,
+.inlineRow select {
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.03);
@@ -245,6 +282,19 @@
   align-items: center;
 }
 
+.inlineRow select {
+  flex: 1;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--foreground);
+  padding: 10px 12px;
+  padding-right: 36px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
 .inlineRow button {
   padding: 8px 14px;
   border-radius: 10px;
@@ -252,12 +302,22 @@
   background: rgba(255, 255, 255, 0.04);
   color: var(--foreground);
   font-size: 0.9rem;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.inlineRow button:hover,
+.inlineRow button:focus-visible {
+  border-color: rgba(143, 99, 255, 0.65);
+  background: rgba(143, 99, 255, 0.12);
 }
 
 .chipRow {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  width: 100%;
 }
 
 .chip {
@@ -269,6 +329,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.hashtagChip {
+  font-weight: 500;
 }
 
 .adminFieldset textarea {
