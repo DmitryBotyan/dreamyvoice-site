@@ -889,6 +889,15 @@ button:disabled {
   gap: 32px;
 }
 
+.catalog-load-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .catalog-card {
   height: 100%;
 }
