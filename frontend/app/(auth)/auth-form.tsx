@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
 
 type Props = {
@@ -15,11 +15,21 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [repeatPassword, setRepeatPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  useEffect(() => {
+    setRepeatPassword('');
+    setError(null);
+  }, [mode]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (mode === 'register' && password !== repeatPassword) {
+      setError('Пароли должны совпадать');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
 
@@ -73,6 +83,19 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
           required
         />
       </label>
+      {mode === 'register' ? (
+        <label>
+          Повторите пароль
+          <input
+            type="password"
+            value={repeatPassword}
+            onChange={(event) => setRepeatPassword(event.target.value)}
+            minLength={6}
+            maxLength={128}
+            required
+          />
+        </label>
+      ) : null}
       <p className="auth-alt-action">
         {mode === 'login' ? (
           <>
