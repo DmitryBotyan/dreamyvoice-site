@@ -90,7 +90,7 @@ export function SiteFooter({ titles, isAuthenticated }: SiteFooterProps) {
         <span>© {currentYear} DreamyVoice</span>
 
         <div className="site-footer-bottom-links">
-          <Link href="/support">Поддержать проект</Link>
+          <Link href="/team#support">Поддержать проект</Link>
           <AdminLink isAuthenticated={isAuthenticated} />
           <Link href="/#catalog">К каталогу ↑</Link>
         </div>

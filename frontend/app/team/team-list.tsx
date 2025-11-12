@@ -180,6 +180,7 @@ export function TeamList({ teamMembers }: Props) {
         )}
       </section>
       <section
+        id="support"
         className={styles.supportSection}
         aria-labelledby="support-title"
       >
