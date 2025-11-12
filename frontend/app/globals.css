@@ -276,6 +276,42 @@ a {
   color: #fff;
 }
 
+.site-footer-cta-links {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+}
+
+.site-footer-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  user-select: none;
+}
+
+.site-footer-icon-graphic {
+  width: 32px;
+  height: 32px;
+  display: block;
+  fill: currentColor;
+}
+
+.site-footer-icon--telegram {
+  color: #fff;
+}
+
+.site-footer-icon--vk {
+  color: #fff;
+}
+
+.site-footer-icon:hover,
+.site-footer-icon:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
 .site-footer-bottom {
   padding-top: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
