@@ -271,6 +271,15 @@
   .aboutSection {
     grid-template-columns: 1fr;
   }
+
+  .aboutContent {
+    align-items: center;
+    text-align: center;
+  }
+
+  .socialLinks {
+    justify-content: center;
+  }
 }
 
 @media (max-width: 700px) {
