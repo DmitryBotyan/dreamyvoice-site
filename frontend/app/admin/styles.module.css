@@ -71,6 +71,7 @@
   flex-direction: column;
   gap: 12px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  min-width: 0;
 }
 
 .adminCardHeader {
@@ -78,10 +79,13 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .adminCardTitle {
   font-size: 1.05rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .adminBadge {
@@ -110,6 +114,8 @@
 .adminMeta {
   font-size: 0.92rem;
   color: var(--muted);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .adminDescription {
@@ -120,6 +126,8 @@
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .adminActionsRow {
@@ -133,6 +141,8 @@
 .adminLink {
   color: var(--accent-strong);
   font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .adminLinkButton {
@@ -399,6 +409,87 @@
   color: #fca5a5;
 }
 
+@media (max-width: 900px) {
+  .adminHero,
+  .adminPanel,
+  .formCard {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .adminSection {
+    padding: 0 16px 32px;
+  }
+
+  .adminHero,
+  .adminPanel,
+  .formCard,
+  .adminFieldset,
+  .adminList {
+    padding: 20px;
+  }
+
+  .adminActionsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .adminCardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .adminHero,
+  .adminPanel,
+  .formCard,
+  .adminFieldset,
+  .adminList {
+    padding: 18px;
+  }
+
+  .adminSection {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 360px) {
+  .adminSection {
+    padding: 0 12px 24px;
+  }
+
+  .adminListGrid,
+  .metadataGrid,
+  .selectorRow {
+    grid-template-columns: 1fr;
+  }
+
+  .inlineRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .inlineRow select {
+    width: 100%;
+  }
+
+  .inlineRow button {
+    width: 100%;
+  }
+
+  .formFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .adminActionsRow {
+    gap: 6px;
+  }
+}
+
 .adminBreadcrumb {
   color: var(--muted);
 }
@@ -490,6 +581,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .teamAdminActions {

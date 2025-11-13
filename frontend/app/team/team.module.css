@@ -272,3 +272,29 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 700px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .roleSearch {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .aboutSection {
+    gap: 1.5rem;
+  }
+
+  .aboutVisual {
+    padding: 0.5rem;
+  }
+
+  .supportSection {
+    gap: 1.25rem;
+  }
+}

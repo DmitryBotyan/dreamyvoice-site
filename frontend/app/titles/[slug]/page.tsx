@@ -130,8 +130,10 @@ export default async function TitlePage({ params }: Props) {
             ) : null}
           </div>
           <div className="title-hero-heading">
-            <h1 className="title-hero-name">{title.name}</h1>
-            <FavoriteToggle slug={title.slug} />
+            <h1 className="title-hero-name">
+              <span>{title.name}</span>
+              <FavoriteToggle slug={title.slug} />
+            </h1>
           </div>
           {hasDescription ? (
             <TitleDescriptionExpander description={descriptionText} />

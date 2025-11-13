@@ -44,3 +44,31 @@
 .favoritesEmpty p {
   margin-bottom: 16px;
 }
+
+@media (max-width: 640px) {
+  .favoritesPage {
+    gap: 24px;
+  }
+
+  .favoritesTitle {
+    font-size: clamp(1.8rem, 6vw, 2.1rem);
+  }
+
+  .favoritesGrid {
+    gap: 18px;
+  }
+
+  .favoritesEmpty {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .favoritesSubtitle {
+    font-size: 0.95rem;
+  }
+
+  .favoritesEmpty {
+    font-size: 0.95rem;
+  }
+}

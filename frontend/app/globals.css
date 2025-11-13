@@ -1395,9 +1395,18 @@ button:disabled {
 }
 
 .title-hero-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.15;
   margin: 0;
+}
+
+.title-hero-name .favorite-toggle {
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 0.9em;
 }
 
 .favorite-toggle {
@@ -1995,6 +2004,38 @@ button:disabled {
   .catalog-heading-sort-select {
     width: 100%;
     min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header {
+    padding: 16px 18px;
+    gap: 10px;
+  }
+
+  .site-main {
+    padding: 32px 16px 48px;
+  }
+
+  .site-footer {
+    padding: 32px 16px;
+    gap: 24px;
+  }
+
+  .site-footer-top {
+    gap: 20px;
+  }
+
+  .catalog-heading {
+    gap: 8px;
+  }
+
+  .title-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .episode-player-selector-button {
+    font-size: 0.85rem;
   }
 }
 

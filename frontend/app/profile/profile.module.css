@@ -199,14 +199,40 @@
   color: #fca5a5;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .profileHero {
     flex-direction: column;
     align-items: flex-start;
+    text-align: left;
+  }
+
+  .profileHeroContent {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .profileHero {
     padding: 24px;
+    gap: 20px;
   }
 
   .profilePanel {
     padding: 24px;
+  }
+
+  .formActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .profileHero {
+    padding: 20px;
+  }
+
+  .profilePanel {
+    padding: 20px;
   }
 }
