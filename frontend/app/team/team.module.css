@@ -230,11 +230,12 @@
 
 .supportItem {
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
+  border-radius: 10px;
   padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  width: fit-content;
 }
 
 .supportItem dt {

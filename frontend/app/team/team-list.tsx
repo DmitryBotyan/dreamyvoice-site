@@ -39,25 +39,8 @@ const SOCIAL_LINKS = [
 
 const SUPPORT_REQUISITES = [
   {
-    label: "Тинькофф",
-    value: "5536 9141 4567 0025",
-    description: "Карта для быстрых переводов внутри РФ",
-  },
-  {
     label: "ЮMoney",
-    value: "4100 1234 5678 901",
-    description: "Поддержка в несколько кликов с комиссий банка",
-  },
-  {
-    label: "Boosty",
-    value: "boosty.to/dreamyvoice",
-    description: "Подписка на закрытые посты и превью релизов",
-    href: "https://boosty.to/dreamyvoice",
-  },
-  {
-    label: "USDT",
-    value: "TRC20 · TDV8hQyXfU9G3Gh7A6E6qDYQpJb7",
-    description: "Для переводов из других стран",
+    value: "4100 1478 5320 537",
   },
 ];
 
@@ -149,8 +132,7 @@ export function TeamList({ teamMembers }: Props) {
       <section aria-label="Команда DreamyVoice">
         {filteredMembers.length === 0 ? (
           <p className={styles.teamEmpty}>
-            Участники команды пока не добавлены. После публикации они появятся
-            здесь.
+            Участники команды пока не добавлены
           </p>
         ) : (
           <ul className={styles.teamGrid} role="list">
@@ -185,7 +167,6 @@ export function TeamList({ teamMembers }: Props) {
         aria-labelledby="support-title"
       >
         <div className={styles.supportIntro}>
-          <p className={styles.supportEyebrow}>Поддержать нас</p>
           <h2 id="support-title" className={styles.supportTitle}>
             Каждая помощь приближает новый релиз
           </h2>
@@ -209,11 +190,6 @@ export function TeamList({ teamMembers }: Props) {
                   item.value
                 )}
               </dd>
-              {item.description ? (
-                <dd className={styles.supportDescription}>
-                  {item.description}
-                </dd>
-              ) : null}
             </div>
           ))}
         </dl>
