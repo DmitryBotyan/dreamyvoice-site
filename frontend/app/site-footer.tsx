@@ -36,7 +36,7 @@ export function SiteFooter({ titles, isAuthenticated }: SiteFooterProps) {
 
         <div className="site-footer-nav">
           <h2>Навигация</h2>
-          <SiteNav />
+          <SiteNav variant="footer" isAuthenticated={isAuthenticated} />
         </div>
 
         <div className="site-footer-cta">

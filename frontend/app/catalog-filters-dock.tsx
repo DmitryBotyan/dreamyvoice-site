@@ -20,6 +20,7 @@ type CatalogFiltersDockProps = {
 };
 
 const STICKY_TOP_OFFSET = 0;
+const STACK_BREAKPOINT = 1110;
 
 export function CatalogFiltersDock({
   children,
@@ -101,7 +102,7 @@ export function CatalogFiltersDock({
         return;
       }
 
-      if (window.innerWidth < 900) {
+      if (window.innerWidth < STACK_BREAKPOINT) {
         if (isDocked) {
           setIsDocked(false);
         }

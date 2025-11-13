@@ -37,7 +37,11 @@ export default async function RootLayout({
               <SiteLogo />
               <HeaderSearch titles={headerSearchOptions} />
             </div>
-            <SiteNav isAuthenticated={Boolean(currentUser)} />
+            <SiteNav
+              currentUser={currentUser}
+              isAuthenticated={Boolean(currentUser)}
+              searchOptions={headerSearchOptions}
+            />
             <AuthActions currentUser={currentUser} />
           </header>
           {/* <div className="site-header-placeholder" aria-hidden="true" /> */}
