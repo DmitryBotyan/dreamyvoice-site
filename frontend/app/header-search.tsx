@@ -29,13 +29,30 @@ export function HeaderSearch({ titles }: HeaderSearchProps) {
   const showResults = isFocused && normalizedQuery.length > 0;
 
   return (
-    <div className={`header-search${showResults ? " header-search--open" : ""}`}>
+    <div
+      className={`header-search${showResults ? " header-search--open" : ""}`}
+    >
       <label className="header-search-label">
+        <span className="header-search-icon" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            width="20"
+            height="20"
+          >
+            <circle cx="11" cy="11" r="7.5" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </span>
         <span className="sr-only">Поиск по тайтлам</span>
         <input
           type="search"
           className="header-search-input"
-          placeholder="Поиск серии"
+          placeholder=""
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onFocus={() => setIsFocused(true)}

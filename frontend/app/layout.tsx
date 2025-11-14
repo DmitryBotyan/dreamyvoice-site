@@ -45,7 +45,9 @@ export default async function RootLayout({
             <AuthActions currentUser={currentUser} />
           </header>
           {/* <div className="site-header-placeholder" aria-hidden="true" /> */}
-          <main className="site-main">{children}</main>
+          <main className="site-main">
+            <div className="site-main-inner">{children}</div>
+          </main>
           <SiteFooter
             titles={headerSearchOptions}
             isAuthenticated={Boolean(currentUser)}
