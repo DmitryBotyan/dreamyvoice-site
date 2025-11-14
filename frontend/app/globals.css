@@ -11,6 +11,7 @@
   --accent-strong: #a97cff;
   --accent-muted: rgba(143, 99, 255, 0.2);
   --site-header-height: 96px;
+  --site-content-horizontal-padding: clamp(1.75rem, 6vw, 7rem);
 }
 
 ::selection {
@@ -571,7 +572,7 @@ a {
 .site-main-inner {
   width: min(1600px, 100%);
   margin-inline: auto;
-  padding: 0 clamp(1rem, 6vw, 6.5rem);
+  padding: 0 var(--site-content-horizontal-padding);
 }
 
 .site-footer {
@@ -1984,7 +1985,7 @@ button:disabled {
   }
 
   .site-main-inner {
-    padding: 0 16px;
+    padding: 0 var(--site-content-horizontal-padding);
   }
 
   .site-footer {
@@ -2054,7 +2055,7 @@ button:disabled {
   }
 
   .site-main-inner {
-    padding: 0 12px;
+    padding: 0 var(--site-content-horizontal-padding);
   }
 
   .site-footer {
