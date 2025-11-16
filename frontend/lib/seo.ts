@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+type OpenGraphImages = NonNullable<Metadata["openGraph"]>["images"];
+
 /**
  * Получает базовый URL сайта из переменных окружения или использует localhost
  */
@@ -207,7 +209,7 @@ export function createTitleMetadata(
 
   // Для обложек тайтлов не указываем фиксированные размеры,
   // так как они могут быть разными. Социальные сети сами определят размеры.
-  const ogImage: Metadata["openGraph"]["images"] = title.coverKey
+  const ogImage: OpenGraphImages = title.coverKey
     ? [
         {
           url: image,
@@ -363,4 +365,3 @@ export function createWebsiteJsonLd(): object {
     },
   };
 }
-
