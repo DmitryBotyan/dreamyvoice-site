@@ -83,9 +83,9 @@ export function EpisodePlayer({ episodes }: Props) {
           <div className="episode-player-frame">
             <iframe
               className="episode-player-iframe"
-              title={`${getEpisodeDisplayName(
-                currentEpisode
-              )} (серия ${currentEpisode.number})`}
+              title={`${getEpisodeDisplayName(currentEpisode)} (серия ${
+                currentEpisode.number
+              })`}
               src={currentEpisode.playerSrc}
               allowFullScreen
             />
@@ -117,9 +117,6 @@ export function EpisodePlayer({ episodes }: Props) {
               >
                 <span className="episode-player-selector-button-number">
                   Серия {episode.number}
-                </span>
-                <span className="episode-player-selector-button-name">
-                  {getEpisodeDisplayName(episode)}
                 </span>
               </button>
             );

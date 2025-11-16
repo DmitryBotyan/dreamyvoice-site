@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useRef, useActionState } from "react";
 import { useFormStatus } from "react-dom";
@@ -8,7 +8,10 @@ import styles from "../styles.module.css";
 const initialState: CreateEpisodeFormState = { success: false };
 
 type Props = {
-  action: (state: CreateEpisodeFormState, formData: FormData) => Promise<CreateEpisodeFormState>;
+  action: (
+    state: CreateEpisodeFormState,
+    formData: FormData
+  ) => Promise<CreateEpisodeFormState>;
 };
 
 function SubmitButton() {
@@ -16,7 +19,7 @@ function SubmitButton() {
 
   return (
     <button type="submit" disabled={pending}>
-      {pending ? 'Добавляем...' : 'Добавить серию'}
+      {pending ? "Добавляем..." : "Добавить серию"}
     </button>
   );
 }
@@ -35,10 +38,6 @@ export function AddEpisodeForm({ action }: Props) {
     <form ref={formRef} action={formAction} className={styles.formCard}>
       <fieldset className={styles.adminFieldset}>
         <legend>Новая серия</legend>
-        <label>
-          Название
-          <input type="text" name="name" minLength={3} maxLength={128} required />
-        </label>
         <label>
           Номер
           <input type="number" name="number" min={1} required />
@@ -59,12 +58,17 @@ export function AddEpisodeForm({ action }: Props) {
       <div className={styles.formFooter}>
         <SubmitButton />
         {state.error ? (
-          <p role="alert" className={`${styles.formStatus} ${styles.formStatusError}`}>
+          <p
+            role="alert"
+            className={`${styles.formStatus} ${styles.formStatusError}`}
+          >
             {state.error}
           </p>
         ) : null}
         {state.success ? (
-          <p className={`${styles.formStatus} ${styles.formStatusSuccess}`}>Серия добавлена.</p>
+          <p className={`${styles.formStatus} ${styles.formStatusSuccess}`}>
+            Серия добавлена.
+          </p>
         ) : null}
       </div>
     </form>
