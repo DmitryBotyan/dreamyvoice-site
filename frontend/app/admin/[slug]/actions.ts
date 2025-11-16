@@ -108,23 +108,10 @@ export async function createEpisodeAction(
   _prevState: CreateEpisodeFormState,
   formData: FormData,
 ): Promise<CreateEpisodeFormState> {
-  const nameInput = formData.get('name');
-  const name =
-    nameInput && typeof nameInput === 'string'
-      ? nameInput.trim()
-      : '';
   const numberValue = formData.get('number');
   const playerSrc = (formData.get('playerSrc') ?? '').toString().trim();
   const durationInput = formData.get('durationMinutes');
   const published = formData.get('episodePublished') === 'on';
-
-  if (name.length < 3) {
-    return { success: false, error: 'Название серии должно содержать минимум 3 символа' };
-  }
-
-  if (name.length > 128) {
-    return { success: false, error: 'Название серии слишком длинное' };
-  }
 
   const number = Number(numberValue);
   if (!Number.isInteger(number) || number <= 0) {
@@ -152,7 +139,6 @@ export async function createEpisodeAction(
 
   try {
     await createEpisode(slug, {
-      name,
       number,
       playerSrc,
       durationMinutes,
