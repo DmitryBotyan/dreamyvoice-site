@@ -83,7 +83,7 @@ export default async function AdminTitlePage({ params }: Props) {
                   <article className={styles.adminCard}>
                     <header className={styles.adminCardHeader}>
                       <strong className={styles.adminEpisodeTitle}>
-                        {episode.number}. {episode.name}
+                        Серия {episode.number}
                       </strong>
                       <span
                         className={`${styles.adminBadge} ${

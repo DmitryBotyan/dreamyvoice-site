@@ -70,7 +70,7 @@ export function EpisodePlayer({ episodes }: Props) {
           <div className="episode-player-frame">
             <iframe
               className="episode-player-iframe"
-              title={currentEpisode.name}
+              title={`Серия ${currentEpisode.number}`}
               src={currentEpisode.playerSrc}
               allowFullScreen
             />

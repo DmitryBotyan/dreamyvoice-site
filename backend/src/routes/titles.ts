@@ -195,11 +195,6 @@ const titleUpdateSchema = z.object({
 
 const episodeCreateSchema = z.object({
   number: z.coerce.number().int().positive().max(10000),
-  name: z
-    .string()
-    .trim()
-    .min(3)
-    .max(128),
   playerSrc: z.string().url(),
   durationMinutes: z
     .union([z.coerce.number().int().positive().max(2000), z.literal(null)])
@@ -538,7 +533,6 @@ episodesRouter.post(
         data: {
           titleId: title.id,
           number: data.number,
-          name: data.name,
           playerSrc: data.playerSrc,
           durationMinutes: data.durationMinutes ?? null,
           published: data.published ?? false,
@@ -647,7 +641,6 @@ function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
   return {
     id: episode.id,
     number: episode.number,
-    name: episode.name,
     durationMinutes: episode.durationMinutes,
     playerSrc: includeDrafts || episode.published ? episode.playerSrc : undefined,
     published: episode.published,

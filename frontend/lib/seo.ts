@@ -287,7 +287,7 @@ export function createTitleJsonLd(
     description?: string | null;
     coverKey?: string | null;
     slug: string;
-    episodes: Array<{ number: number; published: boolean; name?: string | null }>;
+    episodes: Array<{ number: number; published: boolean }>;
     genres?: string[] | null;
     tags?: string[] | null;
   }
@@ -322,7 +322,7 @@ export function createTitleJsonLd(
           episode: publishedEpisodes.map((ep, idx) => ({
             "@type": "TVEpisode",
             episodeNumber: ep.number,
-            name: ep.name || `Серия ${ep.number}`,
+            name: `Серия ${ep.number}`,
             url: `${url}#episode-${ep.number}`,
           })),
         }

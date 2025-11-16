@@ -151,7 +151,6 @@ export default async function TitlePage({ params }: Props) {
     episodes: title.episodes.map((ep) => ({
       number: ep.number,
       published: ep.published,
-      name: ep.name,
     })),
     genres: titleGenresForJsonLd,
     tags: titleTagsForJsonLd,
