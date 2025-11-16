@@ -61,6 +61,22 @@ project-root/
 
    Первый зарегистрированный пользователь получает роль `ADMIN`.
 
+## Деплой на сервер
+
+1. Обновите код и зависимости:
+   ```bash
+   git pull
+   cd backend && pnpm install
+   cd ../frontend && pnpm install
+   ```
+2. Примените миграции в базе (контейнер Postgres должен быть доступен):
+   ```bash
+   cd backend
+   pnpm prisma migrate deploy
+   ```
+3. Запускайте API командой `pnpm start`. Перед стартом автоматически выполнятся `prisma generate` и `pnpm build`, поэтому в `dist/` всегда окажется актуальная сборка без ручных шагов.
+4. Для фронтенда по-прежнему требуется `pnpm build && pnpm start` (Next.js хранит результат в `.next`). После обновления кода обязательно пересоберите перед `pnpm start`.
+
 ## Разработка
 
 - **Backend**

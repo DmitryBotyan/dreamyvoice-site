@@ -647,7 +647,6 @@ function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
   return {
     id: episode.id,
     number: episode.number,
-    name: episode.name,
     durationMinutes: episode.durationMinutes,
     playerSrc: includeDrafts || episode.published ? episode.playerSrc : undefined,
     published: episode.published,
