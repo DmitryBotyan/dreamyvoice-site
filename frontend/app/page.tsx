@@ -1,10 +1,19 @@
 /* eslint-disable @next/next/no-img-element */
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTitles, getGenres, getTags } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import { sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
 import { CatalogSection } from "./catalog-section";
 import { enrichTitles } from "./catalog-filter-utils";
+import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
+
+export const metadata: Metadata = createBaseMetadata({
+  title: "DreamyVoice — Каталог аниме в озвучке команды",
+  description:
+    "Смотрите аниме в профессиональной озвучке команды DreamyVoice. Каталог тайтлов с сериями, комментариями и удобным просмотром. Все релизы доступны онлайн.",
+  url: getAbsoluteUrl("/"),
+});
 
 export default async function HomePage() {
   const [titles, genreOptions, tagOptions] = await Promise.all([

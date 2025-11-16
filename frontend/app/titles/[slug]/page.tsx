@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { notFound } from "next/navigation";
 import {
   getCurrentUser,
@@ -21,12 +23,35 @@ import {
   extractStatusFromTags,
   stripStatusTags,
 } from "@/lib/title-status";
+import { createTitleMetadata, createTitleJsonLd } from "@/lib/seo";
 
 type Props = {
   params: Promise<{
     slug: string;
   }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const title = await getTitle(slug);
+
+  if (!title) {
+    return {
+      title: "Тайтл не найден",
+    };
+  }
+
+  return createTitleMetadata({
+    name: title.name,
+    description: title.description,
+    coverKey: title.coverKey,
+    slug: title.slug,
+    episodes: title.episodes.map((ep) => ({
+      number: ep.number,
+      published: ep.published,
+    })),
+  });
+}
 
 export default async function TitlePage({ params }: Props) {
   const { slug } = await params;
@@ -108,8 +133,40 @@ export default async function TitlePage({ params }: Props) {
   const descriptionText = title.description?.trim() ?? "";
   const hasDescription = Boolean(descriptionText);
 
+  // Определяем жанры и теги для JSON-LD
+  const titleGenresForJsonLd =
+    title.genres && title.genres.length > 0
+      ? title.genres
+      : detectGenres(title.description);
+  const titleTagsForJsonLd =
+    title.tags && title.tags.length > 0
+      ? title.tags
+      : detectTags(title.description);
+
+  const titleJsonLd = createTitleJsonLd({
+    name: title.name,
+    description: title.description,
+    coverKey: title.coverKey,
+    slug: title.slug,
+    episodes: title.episodes.map((ep) => ({
+      number: ep.number,
+      published: ep.published,
+      name: ep.name,
+    })),
+    genres: titleGenresForJsonLd,
+    tags: titleTagsForJsonLd,
+  });
+
   return (
-    <article className="title-page">
+    <>
+      <Script
+        id="title-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(titleJsonLd),
+        }}
+      />
+      <article className="title-page">
       <Link className="title-page-back" href="/">
         ← Назад к каталогу
       </Link>
@@ -275,6 +332,7 @@ export default async function TitlePage({ params }: Props) {
         )}
       </section>
     </article>
+    </>
   );
 }
 

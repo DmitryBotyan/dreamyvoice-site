@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { getCurrentUser, getTitles } from "@/lib/server-api";
 import { AuthActions } from "./auth-actions";
@@ -8,11 +9,13 @@ import { SiteLogo } from "./site-logo";
 import { SiteFooter } from "./site-footer";
 import { AuthModalProvider } from "./auth-modal-context";
 import { ScrollTopOnNavigation } from "./scroll-top";
+import {
+  createBaseMetadata,
+  createOrganizationJsonLd,
+  createWebsiteJsonLd,
+} from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "DreamyVoice",
-  description: "Self-hosted каталог релизов команды DreamyVoice",
-};
+export const metadata: Metadata = createBaseMetadata();
 
 export default async function RootLayout({
   children,
@@ -27,9 +30,26 @@ export default async function RootLayout({
     slug: title.slug,
   }));
 
+  const organizationJsonLd = createOrganizationJsonLd();
+  const websiteJsonLd = createWebsiteJsonLd();
+
   return (
     <html lang="ru">
       <body className="app-body">
+        <Script
+          id="organization-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
+        <Script
+          id="website-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd),
+          }}
+        />
         <ScrollTopOnNavigation />
         <AuthModalProvider>
           <header className="site-header">

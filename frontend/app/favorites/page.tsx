@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUser, getFavoriteTitles } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import { FavoritesLoginPrompt } from "./login-prompt";
 import styles from "./page.module.css";
+import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
+
+export const metadata: Metadata = createBaseMetadata({
+  title: "Избранные тайтлы",
+  description:
+    "Ваша коллекция избранных аниме тайтлов. Быстрый доступ к любимым релизам команды DreamyVoice.",
+  url: getAbsoluteUrl("/favorites"),
+});
 
 export default async function FavoritesPage() {
   const currentUser = await getCurrentUser();

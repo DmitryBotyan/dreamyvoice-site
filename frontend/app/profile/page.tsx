@@ -1,9 +1,22 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import { ProfileForm } from "./profile-form";
 import styles from "./profile.module.css";
+import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
+
+export const metadata: Metadata = createBaseMetadata({
+  title: "Профиль пользователя",
+  description:
+    "Управление профилем на DreamyVoice. Измените аватар, никнейм и другие настройки аккаунта.",
+  url: getAbsoluteUrl("/profile"),
+  robots: {
+    index: false,
+    follow: false,
+  },
+});
 
 export default async function ProfilePage() {
   const currentUser = await getCurrentUser();
