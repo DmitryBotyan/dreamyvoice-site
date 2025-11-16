@@ -2,19 +2,29 @@ import type { Metadata } from "next";
 
 type OpenGraphImages = NonNullable<Metadata["openGraph"]>["images"];
 
+function normalizeSiteUrl(url?: string | null): string {
+  const fallback = "https://dreamyvoice.net";
+  if (!url) {
+    return fallback;
+  }
+  const trimmed = url.trim();
+  const withProtocol = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+  return withProtocol.replace(/\/+$/, "");
+}
+
 /**
- * Получает базовый URL сайта из переменных окружения или использует localhost
+ * Получает базовый URL сайта из переменных окружения или возвращает production-домен
  */
 export function getSiteUrl(): string {
   if (typeof window !== "undefined") {
     // Клиентская сторона
-    return window.location.origin;
+    return normalizeSiteUrl(window.location.origin);
   }
-  // Серверная сторона
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.SITE_URL ||
-    "http://localhost:3000"
+  // Серверная сторона — используем переменные окружения или production-домен по умолчанию
+  return normalizeSiteUrl(
+    process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://dreamyvoice.net"
   );
 }
 
