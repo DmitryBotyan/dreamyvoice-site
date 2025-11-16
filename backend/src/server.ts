@@ -5,9 +5,6 @@ import { sessionMiddleware } from './middleware/session';
 import { authRouter } from './routes/auth';
 import { titlesRouter } from './routes/titles';
 import { errorHandler } from './middleware/error-handler';
-import { buildAdmin } from './admin';
-import { requireAdmin } from './middleware/require-admin';
-import { adminAuthRouter } from './routes/admin-auth';
 import { mediaRouter } from './routes/media';
 import { profileRouter } from './routes/profile';
 import { metadataRouter } from './routes/metadata';
@@ -32,13 +29,10 @@ async function bootstrap() {
   app.use('/favorites', favoritesRouter);
   app.use('/metadata', metadataRouter);
   app.use('/team-members', teamMembersRouter);
-  app.use('/admin/auth', adminAuthRouter);
   app.use('/media', mediaRouter);
   app.use('/profile', profileRouter);
 
   await syncCatalogMetadata();
-  const { admin, router } = await buildAdmin();
-  app.use(admin.options.rootPath, requireAdmin, router);
 
   app.use(errorHandler);
 

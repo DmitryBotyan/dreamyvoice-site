@@ -7,7 +7,7 @@ Self-hosted платформа для команды озвучки: катал�
 ```
 project-root/
 ├─ frontend/   # Next.js 16 (App Router)
-├─ backend/    # Express + Prisma + AdminJS
+├─ backend/    # Express + Prisma
 ├─ data/       # тома для postgres/minio
 └─ docker-compose.dev.yml
 ```
@@ -55,11 +55,11 @@ project-root/
 5. **Запуск сервисов**
 
    ```bash
-   cd backend  && pnpm dev   # API + AdminJS на http://localhost:4000
+   cd backend  && pnpm dev   # API на http://localhost:4000
    cd frontend && pnpm dev   # Next.js на http://localhost:3000
    ```
 
-   Первый зарегистрированный пользователь получает роль `ADMIN` и доступ в `/admin`.
+   Первый зарегистрированный пользователь получает роль `ADMIN`.
 
 ## Разработка
 
