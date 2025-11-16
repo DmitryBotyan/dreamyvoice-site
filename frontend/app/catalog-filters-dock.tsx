@@ -6,6 +6,7 @@ import {
   type ReactElement,
   type ReactNode,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -15,8 +16,12 @@ type DockMetrics = {
   left: number;
 };
 
+type DockedChildProps = {
+  style?: CSSProperties;
+};
+
 type CatalogFiltersDockProps = {
-  children: ReactElement;
+  children: ReactElement<DockedChildProps>;
 };
 
 const STICKY_TOP_OFFSET = 0;
@@ -33,6 +38,19 @@ export function CatalogFiltersDock({
     left: 0,
   });
   const [dockedTop, setDockedTop] = useState(STICKY_TOP_OFFSET);
+
+  useLayoutEffect(() => {
+    const node = placeholderRef.current?.firstElementChild as HTMLElement | null;
+    panelRef.current = node;
+    const { ref } = children as { ref?: unknown };
+    if (typeof ref === "function") {
+      ref(node);
+    } else if (ref && typeof ref === "object") {
+      const childRef = ref as { current: HTMLElement | null };
+      // eslint-disable-next-line react-hooks/immutability
+      childRef.current = node;
+    }
+  }, [children]);
 
   const syncPlaceholderMetrics = () => {
     const placeholder = placeholderRef.current;
@@ -166,7 +184,7 @@ export function CatalogFiltersDock({
     ? `${childStyle.transition}, ${transitionParts.join(", ")}`
     : transitionParts.join(", ");
 
-  const dockStyle = isDocked
+  const dockStyle: CSSProperties | undefined = isDocked
     ? {
         position: "fixed",
         top: `${dockedTop}px`,
@@ -177,17 +195,6 @@ export function CatalogFiltersDock({
     : undefined;
 
   const mergedChild = cloneElement(children, {
-    ref: (node: HTMLElement | null) => {
-      panelRef.current = node;
-      const { ref } = children as { ref?: unknown };
-      if (typeof ref === "function") {
-        ref(node);
-      } else if (ref && typeof ref === "object") {
-        const childRef = ref as { current: HTMLElement | null };
-        // eslint-disable-next-line react-hooks/immutability
-        childRef.current = node;
-      }
-    },
     style: {
       ...childStyle,
       transition: transitionValue,

@@ -7,7 +7,6 @@ import { CatalogFilterState } from "./catalog-filter-config";
 
 type CatalogFiltersFormProps = {
   filters: CatalogFilterState;
-  availableYears: number[];
   genreOptions: string[];
   tagOptions: string[];
 };
@@ -19,7 +18,6 @@ const formatLabel = (value: string) =>
 
 export function CatalogFiltersForm({
   filters,
-  availableYears,
   genreOptions,
   tagOptions,
 }: CatalogFiltersFormProps) {
@@ -102,13 +100,8 @@ export function CatalogFiltersForm({
                 name="yearFrom"
                 type="number"
                 placeholder="Напр. 2015"
-                value={filters.yearFrom?.toString() ?? ""}
+                value={filters.yearFromInput}
                 className="catalog-filter-input"
-                list={
-                  availableYears.length > 0
-                    ? "catalog-filter-year-options"
-                    : undefined
-                }
                 onChange={handleYearInput("yearFrom")}
               />
             </label>
@@ -118,24 +111,12 @@ export function CatalogFiltersForm({
                 name="yearTo"
                 type="number"
                 placeholder="Напр. 2024"
-                value={filters.yearTo?.toString() ?? ""}
+                value={filters.yearToInput}
                 className="catalog-filter-input"
-                list={
-                  availableYears.length > 0
-                    ? "catalog-filter-year-options"
-                    : undefined
-                }
                 onChange={handleYearInput("yearTo")}
               />
             </label>
           </div>
-          {availableYears.length > 0 ? (
-            <datalist id="catalog-filter-year-options">
-              {availableYears.map((year) => (
-                <option key={`year-option-${year}`} value={year} />
-              ))}
-            </datalist>
-          ) : null}
         </div>
         <div className="catalog-filter-group">
           <select

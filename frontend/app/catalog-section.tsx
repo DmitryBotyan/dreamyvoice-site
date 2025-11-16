@@ -19,14 +19,12 @@ const LOAD_STEP = 8;
 
 type CatalogSectionProps = {
   titles: EnrichedTitle[];
-  availableYears: number[];
   genreOptions: string[];
   tagOptions: string[];
 };
 
 export function CatalogSection({
   titles,
-  availableYears,
   genreOptions,
   tagOptions,
 }: CatalogSectionProps) {
@@ -139,7 +137,6 @@ export function CatalogSection({
         <aside className="catalog-filters">
           <CatalogFiltersForm
             filters={catalogFilters}
-            availableYears={availableYears}
             genreOptions={genreOptions}
             tagOptions={tagOptions}
           />

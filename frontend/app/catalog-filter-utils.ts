@@ -1,3 +1,4 @@
+import type { ReadonlyURLSearchParams } from "next/navigation";
 import type { Title } from "@/lib/types";
 import { detectGenres } from "@/lib/genres";
 import { getReleaseDate } from "@/lib/title-utils";
@@ -13,6 +14,11 @@ import {
   SortOption,
   SORT_OPTIONS,
 } from "./catalog-filter-config";
+import {
+  extractStatusFromTags,
+  stripStatusTags,
+  titleStatusToProgress,
+} from "@/lib/title-status";
 
 export type HomePageSearchParams = {
   query?: string | string[];
@@ -59,8 +65,8 @@ export const buildCatalogFilters = (
 ): CatalogFilterState => {
   const rawQuery = getParamValue(searchParams?.query)?.trim() ?? "";
   const rawYear = getParamValue(searchParams?.year) ?? "all";
-  const rawYearFrom = getParamValue(searchParams?.yearFrom) ?? "";
-  const rawYearTo = getParamValue(searchParams?.yearTo) ?? "";
+  const rawYearFrom = getParamValue(searchParams?.yearFrom)?.trim() ?? "";
+  const rawYearTo = getParamValue(searchParams?.yearTo)?.trim() ?? "";
   const rawStatus =
     getParamValue(searchParams?.status) ??
     getParamValue(searchParams?.progress) ??
@@ -72,6 +78,18 @@ export const buildCatalogFilters = (
   const fallbackYear = rawYear !== "all" ? parseYear(rawYear) : undefined;
   const yearFrom = parseYear(rawYearFrom) ?? fallbackYear;
   const yearTo = parseYear(rawYearTo) ?? fallbackYear;
+  const yearFromInput =
+    rawYearFrom.length > 0
+      ? rawYearFrom
+      : fallbackYear !== undefined
+      ? fallbackYear.toString()
+      : "";
+  const yearToInput =
+    rawYearTo.length > 0
+      ? rawYearTo
+      : fallbackYear !== undefined
+      ? fallbackYear.toString()
+      : "";
   const status: CatalogFilterState["status"] =
     rawStatus === "ongoing"
       ? "ongoing"
@@ -93,6 +111,8 @@ export const buildCatalogFilters = (
     query: rawQuery,
     yearFrom,
     yearTo,
+    yearFromInput,
+    yearToInput,
     genre,
     tag,
     status,
@@ -124,7 +144,7 @@ export const buildCatalogFiltersFromUrl = (
   searchParams: ReadonlyURLSearchParams
 ): CatalogFilterState => buildCatalogFilters(buildHomePageSearchParamsFromUrl(searchParams));
 
-const detectProgress = (title: Title): EnrichedTitle["progress"] => {
+const detectEpisodeProgress = (title: Title): EnrichedTitle["progress"] => {
   const hasUnreleasedEpisodes = title.episodes.some(
     (episode) => !episode.published
   );
@@ -137,6 +157,11 @@ const detectProgress = (title: Title): EnrichedTitle["progress"] => {
 export const enrichTitles = (titles: Title[]): EnrichedTitle[] =>
   titles.map((title) => {
     const releaseYear = getReleaseDate(title).getFullYear();
+    const explicitStatus = extractStatusFromTags(title.tags);
+    const progress = explicitStatus
+      ? titleStatusToProgress(explicitStatus)
+      : detectEpisodeProgress(title);
+    const publicTags = stripStatusTags(title.tags ?? []);
     return {
       ...title,
       releaseYear,
@@ -144,10 +169,10 @@ export const enrichTitles = (titles: Title[]): EnrichedTitle[] =>
         title.genres && title.genres.length > 0
           ? title.genres
           : detectGenres(title.description),
-      progress: detectProgress(title),
+      progress,
       tags:
-        title.tags && title.tags.length > 0
-          ? title.tags
+        publicTags.length > 0
+          ? publicTags
           : detectTags(title.description),
       ageRating:
         title.ageRating && AGE_RATING_SET.has(title.ageRating)

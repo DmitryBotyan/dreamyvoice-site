@@ -1,7 +1,14 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ApiError, createEpisode, updateTitle, deleteEpisode } from '@/lib/server-api';
+import { ApiError, createEpisode, updateTitle, deleteEpisode, updateCommentStatus } from '@/lib/server-api';
+import type { CommentStatus } from '@/lib/types';
+import {
+  DEFAULT_TITLE_STATUS,
+  encodeStatusTag,
+  normalizeStatusValue,
+  stripStatusTags,
+} from '@/lib/title-status';
 
 const collectList = (formData: FormData, key: string) =>
   Array.from(
@@ -28,7 +35,7 @@ export async function updateTitleAction(
   const coverKeyInput = formData.get('coverKey');
   const published = formData.get('published') === 'on';
   const genres = collectList(formData, 'genres');
-  const tags = collectList(formData, 'tags');
+  const tagsWithStatus = collectList(formData, 'tags');
   const ageRatingInput = formData.get('ageRating');
   const ageRating =
     ageRatingInput && typeof ageRatingInput === 'string' && ageRatingInput.trim().length > 0
@@ -58,6 +65,13 @@ export async function updateTitleAction(
     coverKeyInput && typeof coverKeyInput === 'string' && coverKeyInput.trim().length > 0
       ? coverKeyInput.trim()
       : null;
+
+  const statusInput = (formData.get('titleStatus') ?? '').toString();
+  const normalizedStatus = normalizeStatusValue(statusInput) ?? DEFAULT_TITLE_STATUS;
+  const tags = stripStatusTags(tagsWithStatus);
+  if (normalizedStatus) {
+    tags.push(encodeStatusTag(normalizedStatus));
+  }
 
   try {
     await updateTitle(slug, {
@@ -95,7 +109,6 @@ export async function createEpisodeAction(
   formData: FormData,
 ): Promise<CreateEpisodeFormState> {
   const numberValue = formData.get('number');
-  const name = (formData.get('episodeName') ?? '').toString().trim();
   const playerSrc = (formData.get('playerSrc') ?? '').toString().trim();
   const durationInput = formData.get('durationMinutes');
   const published = formData.get('episodePublished') === 'on';
@@ -103,10 +116,6 @@ export async function createEpisodeAction(
   const number = Number(numberValue);
   if (!Number.isInteger(number) || number <= 0) {
     return { success: false, error: 'Номер серии должен быть положительным целым' };
-  }
-
-  if (name.length < 3) {
-    return { success: false, error: 'Название серии слишком короткое' };
   }
 
   if (!playerSrc) {
@@ -131,7 +140,6 @@ export async function createEpisodeAction(
   try {
     await createEpisode(slug, {
       number,
-      name,
       playerSrc,
       durationMinutes,
       published,
@@ -168,4 +176,40 @@ export async function deleteEpisodeAction(slug: string, formData: FormData) {
 
   revalidatePath('/admin');
   revalidatePath(`/admin/${slug}`);
+}
+
+export type UpdateCommentStatusFormState = {
+  success: boolean;
+  error?: string;
+};
+
+export async function updateCommentStatusAction(
+  slug: string,
+  _prevState: UpdateCommentStatusFormState,
+  formData: FormData,
+): Promise<UpdateCommentStatusFormState> {
+  const commentId = (formData.get('commentId') ?? '').toString().trim();
+  const statusValue = (formData.get('status') ?? '').toString().trim().toUpperCase();
+
+  if (!commentId) {
+    return { success: false, error: 'Не удалось определить комментарий' };
+  }
+
+  const allowedStatuses: CommentStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
+  if (!allowedStatuses.includes(statusValue as CommentStatus)) {
+    return { success: false, error: 'Некорректный статус' };
+  }
+
+  try {
+    await updateCommentStatus(slug, commentId, statusValue as CommentStatus);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: 'Не удалось обновить статус' };
+  }
+
+  revalidatePath(`/admin/${slug}`);
+
+  return { success: true };
 }

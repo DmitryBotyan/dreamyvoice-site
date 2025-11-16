@@ -40,10 +40,6 @@ export function AddEpisodeForm({ action }: Props) {
           <input type="number" name="number" min={1} required />
         </label>
         <label>
-          Название
-          <input type="text" name="episodeName" minLength={3} maxLength={128} required />
-        </label>
-        <label>
           Ссылка на плеер (iframe src)
           <input type="url" name="playerSrc" required />
         </label>

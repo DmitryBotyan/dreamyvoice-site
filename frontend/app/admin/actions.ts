@@ -2,6 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { ApiError, createTitle, deleteTitle } from '@/lib/server-api';
+import {
+  DEFAULT_TITLE_STATUS,
+  encodeStatusTag,
+  normalizeStatusValue,
+  stripStatusTags,
+} from '@/lib/title-status';
 
 const collectList = (formData: FormData, key: string) =>
   Array.from(
@@ -37,7 +43,7 @@ export async function createTitleAction(
       : undefined;
   const published = formData.get('published') === 'on';
   const genres = collectList(formData, 'genres');
-  const tags = collectList(formData, 'tags');
+  const tagsWithStatus = collectList(formData, 'tags');
   const ageRatingInput = formData.get('ageRating');
   const ageRating =
     ageRatingInput && typeof ageRatingInput === 'string' && ageRatingInput.trim().length > 0
@@ -61,6 +67,13 @@ export async function createTitleAction(
 
   if (description && description.length > 5000) {
     return { success: false, error: 'Описание слишком длинное' };
+  }
+
+  const statusInput = (formData.get('titleStatus') ?? '').toString();
+  const normalizedStatus = normalizeStatusValue(statusInput) ?? DEFAULT_TITLE_STATUS;
+  const tags = stripStatusTags(tagsWithStatus);
+  if (normalizedStatus) {
+    tags.push(encodeStatusTag(normalizedStatus));
   }
 
   try {

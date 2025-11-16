@@ -226,6 +226,18 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.adminFieldset select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--foreground);
+  padding: 12px 14px;
+  padding-right: 44px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
 .metadataGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -274,9 +286,7 @@
   gap: 6px;
 }
 
-.metadataGrid select,
-.metadataGrid input,
-.inlineRow select {
+.metadataGrid input {
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.03);
@@ -300,7 +310,7 @@
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   padding: 10px 12px;
-  padding-right: 36px;
+  padding-right: 44px;
   font-size: 0.9rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
@@ -350,10 +360,25 @@
 }
 
 .adminFieldset input:focus,
-.adminFieldset textarea:focus {
+.adminFieldset textarea:focus,
+.adminFieldset select:focus {
   outline: none;
   border-color: rgba(143, 99, 255, 0.65);
   box-shadow: 0 0 0 2px rgba(143, 99, 255, 0.2);
+}
+
+.adminStatusControl {
+  gap: 8px;
+}
+
+.adminStatusControl span {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.adminStatusControl small {
+  font-size: 0.8rem;
+  color: var(--muted);
 }
 
 .checkboxRow {
@@ -508,6 +533,212 @@
 }
 
 .adminEpisodeTitle {
+  font-weight: 600;
+}
+
+.adminCommentList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.adminCommentCard {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  background: var(--surface-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.adminCommentHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.adminCommentAuthor {
+  margin: 0;
+  font-weight: 600;
+}
+
+.adminCommentDate {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.adminCommentBody {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.adminCommentControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.adminCommentStatusControl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 220px;
+  min-width: 200px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.adminCommentStatusControl span {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.adminCommentStatusControl select {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--foreground);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.adminCommentStatusBadge {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+}
+
+.adminCommentStatusApproved {
+  background: rgba(103, 221, 177, 0.12);
+  border-color: rgba(103, 221, 177, 0.5);
+  color: #7ef1c3;
+}
+
+.adminCommentStatusPending {
+  background: rgba(255, 196, 115, 0.12);
+  border-color: rgba(255, 196, 115, 0.4);
+  color: #ffd9a4;
+}
+
+.adminCommentStatusRejected {
+  background: rgba(255, 134, 134, 0.12);
+  border-color: rgba(255, 134, 134, 0.4);
+  color: #ffb4b4;
+}
+
+.pendingCommentsSection {
+  padding: 28px 30px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface-primary);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pendingCommentsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pendingCommentsEyebrow {
+  letter-spacing: 0.18em;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 6px;
+}
+
+.pendingCommentsHeader h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.pendingCommentsCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #ffd9a4;
+  background: rgba(255, 196, 115, 0.1);
+}
+
+.pendingCommentsEmpty {
+  margin: 0;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  text-align: center;
+}
+
+.pendingCommentsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pendingCommentCard {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-secondary);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pendingCommentCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pendingCommentTitle {
+  margin: 0;
+  font-weight: 600;
+}
+
+.pendingCommentMeta {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pendingCommentBody {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.pendingCommentLink {
+  font-size: 0.85rem;
+  color: var(--accent-strong);
   font-weight: 600;
 }
 

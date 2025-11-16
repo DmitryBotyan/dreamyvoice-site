@@ -16,6 +16,11 @@ import { detectTags, detectAgeRating } from "@/lib/catalog-keywords";
 import { getReleaseDate, sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
 import { TitleDescriptionExpander } from "./title-description";
 import { FavoriteToggle } from "./favorite-toggle";
+import {
+  TITLE_STATUS_LABELS,
+  extractStatusFromTags,
+  stripStatusTags,
+} from "@/lib/title-status";
 
 type Props = {
   params: Promise<{
@@ -39,6 +44,7 @@ export default async function TitlePage({ params }: Props) {
   const latestTitles = sortTitlesByReleaseDateDesc(titles)
     .filter((item) => item.slug !== title.slug)
     .slice(0, 4);
+  const explicitStatus = extractStatusFromTags(title.tags);
 
   const publishedEpisodes = title.episodes.filter(
     (episode) => episode.published
@@ -46,10 +52,18 @@ export default async function TitlePage({ params }: Props) {
   const playableEpisodes = title.episodes.filter(
     (episode) => episode.playerSrc
   );
-  const completed =
+  const derivedCompleted =
     title.published &&
     publishedEpisodes.length > 0 &&
     publishedEpisodes.length === title.episodes.length;
+  const completed = explicitStatus
+    ? explicitStatus === "completed"
+    : derivedCompleted;
+  const statusBadgeLabel = explicitStatus
+    ? TITLE_STATUS_LABELS[explicitStatus]
+    : derivedCompleted
+    ? "Завершен"
+    : "Онгоинг";
   const totalDurationMinutes = publishedEpisodes.reduce(
     (sum, episode) => sum + (episode.durationMinutes ?? 0),
     0
@@ -81,10 +95,11 @@ export default async function TitlePage({ params }: Props) {
     title.genres && title.genres.length > 0
       ? title.genres
       : detectGenres(title.description);
-  const titleTags =
+  const titleTagsSource =
     title.tags && title.tags.length > 0
       ? title.tags
       : detectTags(title.description);
+  const titleTags = stripStatusTags(titleTagsSource);
   const titleAgeRating = title.ageRating ?? detectAgeRating(title.description);
   const formatGenre = (value: string) =>
     value.charAt(0).toUpperCase() + value.slice(1);
@@ -118,7 +133,7 @@ export default async function TitlePage({ params }: Props) {
                 completed ? "title-badge--success" : "title-badge--warning"
               }`}
             >
-              {completed ? "Завершен" : "Онгоинг"}
+              {statusBadgeLabel}
             </span>
             {!title.published ? (
               <span className="title-badge">Черновик</span>

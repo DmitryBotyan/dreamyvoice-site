@@ -10,6 +10,13 @@ import { buildMediaUrl } from "@/lib/media";
 import { AGE_RATINGS, TAG_KEYWORDS } from "@/lib/catalog-keywords";
 import styles from "../styles.module.css";
 import { GENRE_KEYWORDS } from "@/lib/genres";
+import {
+  DEFAULT_TITLE_STATUS,
+  TITLE_STATUS_OPTIONS,
+  extractStatusFromTags,
+  stripStatusTags,
+  type TitleStatus,
+} from "@/lib/title-status";
 
 const initialState: UpdateTitleFormState = { success: false };
 
@@ -42,12 +49,18 @@ export function EditTitleForm({ action, initialValues }: Props) {
   const [coverKey, setCoverKey] = useState(initialValues.coverKey ?? '');
   const [coverUploadError, setCoverUploadError] = useState<string | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
-  const [genreOptions] = useState<string[]>(GENRE_KEYWORDS);
-  const [tagOptions] = useState<string[]>(TAG_KEYWORDS);
+  const [genreOptions] = useState<string[]>(() => [...GENRE_KEYWORDS]);
+  const [tagOptions] = useState<string[]>(() => [...TAG_KEYWORDS]);
   const [selectedGenre, setSelectedGenre] = useState(genreOptions[0] ?? "");
   const [selectedTag, setSelectedTag] = useState(tagOptions[0] ?? "");
   const [addedGenres, setAddedGenres] = useState<string[]>(initialValues.genres);
-  const [addedTags, setAddedTags] = useState<string[]>(initialValues.tags);
+  const initialStatus =
+    extractStatusFromTags(initialValues.tags) ?? DEFAULT_TITLE_STATUS;
+  const [titleStatus, setTitleStatus] =
+    useState<TitleStatus>(initialStatus);
+  const [addedTags, setAddedTags] = useState<string[]>(
+    stripStatusTags(initialValues.tags)
+  );
   const [, setMetadataError] = useState<string | null>(null);
   const releaseDateValue = initialValues.originalReleaseDate
     ? initialValues.originalReleaseDate.split('T')[0]
@@ -83,8 +96,11 @@ export function EditTitleForm({ action, initialValues }: Props) {
         if (genres.length > 0) {
           setSelectedGenre((prev) => (genres.includes(prev) ? prev : genres[0]));
         }
-        if (tags.length > 0) {
-          setSelectedTag((prev) => (tags.includes(prev) ? prev : tags[0]));
+        const filteredTags = stripStatusTags(tags);
+        if (filteredTags.length > 0) {
+          setSelectedTag((prev) =>
+            filteredTags.includes(prev) ? prev : filteredTags[0]
+          );
         }
       } catch (error) {
         if (active) {
@@ -156,6 +172,23 @@ export function EditTitleForm({ action, initialValues }: Props) {
             rows={5}
             defaultValue={initialValues.description ?? ""}
           />
+        </label>
+        <label className={styles.adminStatusControl}>
+          <span>Статус сериала</span>
+          <select
+            name="titleStatus"
+            value={titleStatus}
+            onChange={(event) =>
+              setTitleStatus(event.target.value as TitleStatus)
+            }
+          >
+            {TITLE_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <small>Показывается в карточке и влияет на фильтры каталога.</small>
         </label>
         <div className={styles.selectorRow}>
           <label className={styles.selectorField}>

@@ -2,7 +2,15 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 import { serverConfig } from './server-config';
-import type { Comment, Episode, FavoriteTitle, PublicUser, TeamMember, Title } from './types';
+import type {
+  Comment,
+  CommentStatus,
+  Episode,
+  FavoriteTitle,
+  PublicUser,
+  TeamMember,
+  Title,
+} from './types';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -123,6 +131,20 @@ export async function getTitleComments(slug: string) {
   }
 }
 
+export async function updateCommentStatus(slug: string, commentId: string, status: CommentStatus) {
+  const encodedSlug = encodeURIComponent(slug);
+  const encodedCommentId = encodeURIComponent(commentId);
+  const data = await request<{ comment: Comment }>(`/titles/${encodedSlug}/comments/${encodedCommentId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ status }),
+  });
+
+  return data.comment;
+}
+
 export type CreateTitleInput = {
   name: string;
   description?: string;
@@ -172,7 +194,6 @@ export async function updateTitle(slug: string, input: UpdateTitleInput) {
 
 export type CreateEpisodeInput = {
   number: number;
-  name: string;
   playerSrc: string;
   durationMinutes?: number | null;
   published?: boolean;

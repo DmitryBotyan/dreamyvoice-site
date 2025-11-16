@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getCurrentUser, getTitle } from "@/lib/server-api";
+import { getCurrentUser, getTitle, getTitleComments } from "@/lib/server-api";
 import { EditTitleForm } from "./edit-title-form";
 import { AddEpisodeForm } from "./add-episode-form";
 import { DeleteLink } from "../delete-link";
-import { createEpisodeAction, updateTitleAction, deleteEpisodeAction } from "./actions";
+import { createEpisodeAction, updateTitleAction, deleteEpisodeAction, updateCommentStatusAction } from "./actions";
+import { CommentModerationPanel } from "./comment-moderation-panel";
 import styles from "../styles.module.css";
 
 type Props = {
@@ -33,6 +34,8 @@ export default async function AdminTitlePage({ params }: Props) {
 
   const updateAction = updateTitleAction.bind(null, slug);
   const addEpisodeAction = createEpisodeAction.bind(null, slug);
+  const updateCommentStatus = updateCommentStatusAction.bind(null, slug);
+  const comments = await getTitleComments(slug);
 
   return (
     <section className={styles.adminSection}>
@@ -128,6 +131,7 @@ export default async function AdminTitlePage({ params }: Props) {
           </ul>
         )}
       </div>
+      <CommentModerationPanel comments={comments} action={updateCommentStatus} />
     </section>
   );
 }

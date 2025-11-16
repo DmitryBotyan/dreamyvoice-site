@@ -13,7 +13,13 @@ import { deleteObject } from '../services/storage';
 
 const titleAgeRatingEnum = z.enum(AGE_RATINGS);
 
-type TitleWithEpisodes = Prisma.TitleGetPayload<{ include: { episodes: true } }>;
+type TitleWithEpisodes = Prisma.TitleGetPayload<{
+  include: {
+    episodes: true;
+    genres: true;
+    tags: true;
+  };
+}>;
 type CommentWithUser = Prisma.CommentGetPayload<{ include: { user: true } }>;
 
 const router = Router();
@@ -311,6 +317,12 @@ const commentBodySchema = z.object({
     .min(3, 'Комментарий слишком короткий')
     .max(2000, 'Комментарий слишком длинный'),
 });
+const commentStatusSchema = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']),
+});
+const commentParamsSchema = slugSchema.extend({
+  commentId: z.string().min(1),
+});
 
 commentsRouter.get(
   '/',
@@ -360,6 +372,37 @@ commentsRouter.post(
     });
 
     res.status(201).json({ comment: toCommentDto(user.role === 'ADMIN')(comment) });
+  }),
+);
+
+commentsRouter.patch(
+  '/:commentId',
+  requireAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { slug, commentId } = commentParamsSchema.parse(req.params);
+    const { status } = commentStatusSchema.parse(req.body);
+    const title = await prisma.title.findFirst({ where: buildSlugWhere(slug) });
+
+    if (!title) {
+      throw new HttpError(404, 'Title not found');
+    }
+
+    const comment = await prisma.comment.findFirst({
+      where: { id: commentId, titleId: title.id },
+      include: { user: true },
+    });
+
+    if (!comment) {
+      throw new HttpError(404, 'Comment not found');
+    }
+
+    const updated = await prisma.comment.update({
+      where: { id: comment.id },
+      data: { status },
+      include: { user: true },
+    });
+
+    res.json({ comment: toCommentDto(true)(updated) });
   }),
 );
 

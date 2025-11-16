@@ -22,7 +22,7 @@ export function HeaderSearch({ titles }: HeaderSearchProps) {
     }
 
     return titles
-      .filter((title) => title.name.toLowerCase().startsWith(normalizedQuery))
+      .filter((title) => title.name.toLowerCase().includes(normalizedQuery))
       .slice(0, 6);
   }, [titles, normalizedQuery]);
 

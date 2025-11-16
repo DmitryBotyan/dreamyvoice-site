@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Episode } from "@/lib/types";
 
 type Props = {
@@ -12,8 +13,46 @@ export function EpisodePlayer({ episodes }: Props) {
     () => episodes.filter((episode) => Boolean(episode.playerSrc)),
     [episodes]
   );
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const initialEpisodeId = useMemo(() => {
+    const param = searchParams?.get("episode");
+    if (!param) {
+      return playableEpisodes[0]?.id;
+    }
+
+    const byId = playableEpisodes.find((episode) => episode.id === param);
+    if (byId) {
+      return byId.id;
+    }
+
+    const byNumber = playableEpisodes.find(
+      (episode) => episode.number.toString() === param
+    );
+    return byNumber?.id ?? playableEpisodes[0]?.id;
+  }, [playableEpisodes, searchParams]);
+
   const [currentEpisodeId, setCurrentEpisodeId] = useState(
-    playableEpisodes[0]?.id
+    () => initialEpisodeId
+  );
+
+  useEffect(() => {
+    setCurrentEpisodeId(initialEpisodeId);
+  }, [initialEpisodeId]);
+
+  const handleEpisodeChange = useCallback(
+    (episode: Episode) => {
+      setCurrentEpisodeId(episode.id);
+      const params = new URLSearchParams(searchParams?.toString());
+      params.set("episode", episode.number.toString());
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams]
   );
 
   const currentEpisode =
@@ -55,7 +94,7 @@ export function EpisodePlayer({ episodes }: Props) {
                 className={`episode-player-selector-button${
                   isActive ? " episode-player-selector-button--active" : ""
                 }`}
-                onClick={() => setCurrentEpisodeId(episode.id)}
+                onClick={() => handleEpisodeChange(episode)}
                 disabled={isDisabled}
               >
                 Серия {episode.number}

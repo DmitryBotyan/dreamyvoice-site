@@ -5,9 +5,9 @@ import { TeamMembersForm } from "./team-members-form";
 import { deleteTeamMemberAction } from "./team-members/actions";
 import { DeleteLink } from "./delete-link";
 import { deleteTitleAction } from "./actions";
-import { getCurrentUser, getTeamMembers, getTitles } from "@/lib/server-api";
+import { getCurrentUser, getTeamMembers, getTitles, getTitleComments } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
-import type { TeamMember, Title } from "@/lib/types";
+import type { Comment, TeamMember, Title } from "@/lib/types";
 import styles from "./styles.module.css";
 
 export default async function AdminPage() {
@@ -34,6 +34,29 @@ export default async function AdminPage() {
 
   const titles: Title[] = await getTitles({ includeDrafts: true });
   const teamMembers: TeamMember[] = await getTeamMembers();
+  const pendingByTitle = await Promise.all(
+    titles.map(async (title) => {
+      try {
+        const comments = await getTitleComments(title.slug);
+        return comments
+          .filter((comment) => comment.status === "PENDING")
+          .map((comment) => ({
+            comment,
+            titleName: title.name,
+            titleSlug: title.slug,
+          }));
+      } catch {
+        return [];
+      }
+    })
+  );
+  const pendingComments = pendingByTitle
+    .flat()
+    .sort(
+      (a, b) =>
+        new Date(b.comment.createdAt).getTime() -
+        new Date(a.comment.createdAt).getTime()
+    );
 
   return (
     <section className={styles.adminSection}>
@@ -43,6 +66,11 @@ export default async function AdminPage() {
           <h1>Управление контентом</h1>
         </div>
       </header>
+
+      <PendingCommentsPanel
+        comments={pendingComments.slice(0, 5)}
+        totalCount={pendingComments.length}
+      />
 
       <CreateTitleForm />
 
@@ -54,11 +82,11 @@ export default async function AdminPage() {
 
         <TeamMembersForm />
 
-          {teamMembers.length === 0 ? (
-            <p className={styles.adminEmpty}>
-              Участники ещё не добавлены. Создайте первую карточку.
-            </p>
-          ) : (
+        {teamMembers.length === 0 ? (
+          <p className={styles.adminEmpty}>
+            Участники ещё не добавлены. Создайте первую карточку.
+          </p>
+        ) : (
           <ul className={styles.teamAdminList}>
             {teamMembers.map((member) => {
               const initials = member.name
@@ -167,6 +195,71 @@ export default async function AdminPage() {
           </ul>
         )}
       </div>
+    </section>
+  );
+}
+
+type PendingCommentItem = {
+  comment: Comment;
+  titleName: string;
+  titleSlug: string;
+};
+
+const pendingFormatter = new Intl.DateTimeFormat("ru-RU", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Europe/Moscow",
+});
+
+function PendingCommentsPanel({
+  comments,
+  totalCount,
+}: {
+  comments: PendingCommentItem[];
+  totalCount: number;
+}) {
+  return (
+    <section className={styles.pendingCommentsSection}>
+      <div className={styles.pendingCommentsHeader}>
+        <div>
+          <p className={styles.pendingCommentsEyebrow}>Модерация</p>
+          <h2>Новые комментарии</h2>
+        </div>
+        <span className={styles.pendingCommentsCount}>{totalCount}</span>
+      </div>
+      {totalCount === 0 ? (
+        <p className={styles.pendingCommentsEmpty}>
+          Все комментарии рассмотрены. Новых сообщений нет.
+        </p>
+      ) : (
+        <ul className={styles.pendingCommentsList} role="list">
+          {comments.map(({ comment, titleName, titleSlug }) => (
+            <li key={comment.id}>
+              <article className={styles.pendingCommentCard}>
+                <header className={styles.pendingCommentCardHeader}>
+                  <div>
+                    <p className={styles.pendingCommentTitle}>{titleName}</p>
+                    <p className={styles.pendingCommentMeta}>
+                      {comment.author.username} ·{" "}
+                      {pendingFormatter.format(new Date(comment.createdAt))}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/admin/${titleSlug}`}
+                    className={styles.pendingCommentLink}
+                  >
+                    Перейти к тайтлу
+                  </Link>
+                </header>
+                <p className={styles.pendingCommentBody}>{comment.body}</p>
+              </article>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

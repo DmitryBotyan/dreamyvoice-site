@@ -15,10 +15,6 @@ export default async function HomePage() {
   const latestTitles = sortTitlesByReleaseDateDesc(titles).slice(0, 4);
   const enrichedTitles = enrichTitles(titles);
 
-  const availableYears = Array.from(
-    new Set(enrichedTitles.map((title) => title.releaseYear))
-  ).sort((a, b) => b - a);
-
   return (
     <>
       <section className="latest-section">
@@ -69,7 +65,6 @@ export default async function HomePage() {
         ) : (
           <CatalogSection
             titles={enrichedTitles}
-            availableYears={availableYears}
             genreOptions={genreOptions}
             tagOptions={tagOptions}
           />

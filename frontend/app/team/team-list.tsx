@@ -37,7 +37,13 @@ const SOCIAL_LINKS = [
   },
 ];
 
-const SUPPORT_REQUISITES = [
+type SupportRequisite = {
+  label: string;
+  value: string;
+  href?: string;
+};
+
+const SUPPORT_REQUISITES: SupportRequisite[] = [
   {
     label: "ЮMoney",
     value: "4100 1478 5320 537",

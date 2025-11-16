@@ -19,13 +19,14 @@ export function AuthActions({ currentUser }: Props) {
   const [error, setError] = useState<string | null>(null);
   const { openModal } = useAuthModal();
   useEffect(() => {
-    const header = document.querySelector<HTMLElement>(".site-header");
-    if (!header) {
+    const headerElement = document.querySelector<HTMLElement>(".site-header");
+    if (!headerElement) {
       return;
     }
+    const stickyHeader = headerElement;
 
     const updateHeaderHeightProperty = () => {
-      const headerHeight = header.offsetHeight;
+      const headerHeight = stickyHeader.offsetHeight;
       document.documentElement.style.setProperty(
         "--site-header-height",
         `${headerHeight}px`
@@ -34,7 +35,7 @@ export function AuthActions({ currentUser }: Props) {
 
     function handleScroll() {
       const isStuck = window.scrollY > 10;
-      header.classList.toggle("site-header--stuck", isStuck);
+      stickyHeader.classList.toggle("site-header--stuck", isStuck);
     }
 
     const handleResize = () => {

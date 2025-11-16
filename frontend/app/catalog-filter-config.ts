@@ -15,6 +15,8 @@ export type CatalogFilterState = {
   query: string;
   yearFrom?: number;
   yearTo?: number;
+  yearFromInput: string;
+  yearToInput: string;
   genre?: string;
   tag?: string;
   status: "all" | "ongoing" | "released";

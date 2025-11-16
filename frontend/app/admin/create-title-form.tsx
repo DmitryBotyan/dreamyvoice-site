@@ -10,6 +10,11 @@ import { buildMediaUrl } from "@/lib/media";
 import { AGE_RATINGS } from "@/lib/catalog-keywords";
 import { GENRE_KEYWORDS } from "@/lib/genres";
 import { TAG_KEYWORDS } from "@/lib/catalog-keywords";
+import {
+  DEFAULT_TITLE_STATUS,
+  TITLE_STATUS_OPTIONS,
+  type TitleStatus,
+} from "@/lib/title-status";
 
 import styles from "./styles.module.css";
 
@@ -31,18 +36,23 @@ export function CreateTitleForm() {
   const [coverKey, setCoverKey] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
-  const [genreOptions] = useState<string[]>(GENRE_KEYWORDS);
-  const [tagOptions] = useState<string[]>(TAG_KEYWORDS);
+  const [genreOptions] = useState<string[]>(() => [...GENRE_KEYWORDS]);
+  const [tagOptions] = useState<string[]>(() => [...TAG_KEYWORDS]);
   const [selectedGenre, setSelectedGenre] = useState(genreOptions[0] ?? "");
   const [selectedTag, setSelectedTag] = useState(tagOptions[0] ?? "");
   const [addedGenres, setAddedGenres] = useState<string[]>([]);
   const [addedTags, setAddedTags] = useState<string[]>([]);
+  const [titleStatus, setTitleStatus] =
+    useState<TitleStatus>(DEFAULT_TITLE_STATUS);
 
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCoverKey(null);
+      setAddedGenres([]);
+      setAddedTags([]);
+      setTitleStatus(DEFAULT_TITLE_STATUS);
     }
   }, [state.success]);
 
@@ -113,6 +123,23 @@ export function CreateTitleForm() {
         <label>
           Описание
           <textarea name="description" maxLength={5000} rows={4} />
+        </label>
+        <label className={styles.adminStatusControl}>
+          <span>Статус сериала</span>
+          <select
+            name="titleStatus"
+            value={titleStatus}
+            onChange={(event) =>
+              setTitleStatus(event.target.value as TitleStatus)
+            }
+          >
+            {TITLE_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <small>Показывается в карточке и влияет на фильтры каталога.</small>
         </label>
         <label>
           Обложка
