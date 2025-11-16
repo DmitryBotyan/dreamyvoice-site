@@ -95,6 +95,7 @@ export default async function AdminTitlePage({ params }: Props) {
                         {episode.published ? "Опубликована" : "Черновик"}
                       </span>
                     </header>
+                    <p className={styles.adminMeta}>{episode.name}</p>
                     {episode.durationMinutes ? (
                       <p className={styles.adminMeta}>
                         Длительность: {episode.durationMinutes} мин

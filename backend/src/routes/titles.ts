@@ -194,6 +194,11 @@ const titleUpdateSchema = z.object({
 });
 
 const episodeCreateSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(3, 'Название серии должно содержать минимум 3 символа')
+    .max(128, 'Название серии слишком длинное'),
   number: z.coerce.number().int().positive().max(10000),
   playerSrc: z.string().url(),
   durationMinutes: z
@@ -532,6 +537,7 @@ episodesRouter.post(
       const episode = await prisma.episode.create({
         data: {
           titleId: title.id,
+          name: data.name,
           number: data.number,
           playerSrc: data.playerSrc,
           durationMinutes: data.durationMinutes ?? null,
@@ -641,6 +647,7 @@ function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
   return {
     id: episode.id,
     number: episode.number,
+    name: episode.name,
     durationMinutes: episode.durationMinutes,
     playerSrc: includeDrafts || episode.published ? episode.playerSrc : undefined,
     published: episode.published,

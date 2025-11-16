@@ -193,6 +193,7 @@ export async function updateTitle(slug: string, input: UpdateTitleInput) {
 }
 
 export type CreateEpisodeInput = {
+  name: string;
   number: number;
   playerSrc: string;
   durationMinutes?: number | null;

@@ -1606,6 +1606,24 @@ button:disabled {
   font-size: 1.8rem;
 }
 
+.episode-player-current {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.episode-player-current-number {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.65);
+  text-transform: uppercase;
+}
+
+.episode-player-current-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
 .episode-player-frame {
   border-radius: 10px;
   overflow: hidden;
@@ -1657,11 +1675,24 @@ button:disabled {
   font-weight: 600;
   font-size: 0.95rem;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 4px;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease,
     border-color 0.2s ease;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+}
+
+.episode-player-selector-button-number {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+.episode-player-selector-button-name {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .episode-player-selector-button:not(

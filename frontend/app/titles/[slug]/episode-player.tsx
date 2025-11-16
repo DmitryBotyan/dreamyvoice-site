@@ -8,6 +8,11 @@ type Props = {
   episodes: Episode[];
 };
 
+const getEpisodeDisplayName = (episode: Episode) =>
+  episode.name && episode.name.trim().length > 0
+    ? episode.name.trim()
+    : `Серия ${episode.number}`;
+
 export function EpisodePlayer({ episodes }: Props) {
   const playableEpisodes = useMemo(
     () => episodes.filter((episode) => Boolean(episode.playerSrc)),
@@ -67,10 +72,20 @@ export function EpisodePlayer({ episodes }: Props) {
       </div>
       {currentEpisode ? (
         <>
+          <div className="episode-player-current">
+            <p className="episode-player-current-number">
+              Серия {currentEpisode.number}
+            </p>
+            <p className="episode-player-current-name">
+              {getEpisodeDisplayName(currentEpisode)}
+            </p>
+          </div>
           <div className="episode-player-frame">
             <iframe
               className="episode-player-iframe"
-              title={`Серия ${currentEpisode.number}`}
+              title={`${getEpisodeDisplayName(
+                currentEpisode
+              )} (серия ${currentEpisode.number})`}
               src={currentEpisode.playerSrc}
               allowFullScreen
             />
@@ -96,8 +111,16 @@ export function EpisodePlayer({ episodes }: Props) {
                 }`}
                 onClick={() => handleEpisodeChange(episode)}
                 disabled={isDisabled}
+                aria-label={`Серия ${episode.number}: ${getEpisodeDisplayName(
+                  episode
+                )}`}
               >
-                Серия {episode.number}
+                <span className="episode-player-selector-button-number">
+                  Серия {episode.number}
+                </span>
+                <span className="episode-player-selector-button-name">
+                  {getEpisodeDisplayName(episode)}
+                </span>
               </button>
             );
           })}

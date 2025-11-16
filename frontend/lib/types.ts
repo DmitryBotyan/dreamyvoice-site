@@ -19,6 +19,7 @@ export type TeamMember = {
 export type Episode = {
   id: string;
   number: number;
+  name: string;
   durationMinutes?: number | null;
   playerSrc?: string;
   published: boolean;

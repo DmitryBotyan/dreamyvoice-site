@@ -36,6 +36,10 @@ export function AddEpisodeForm({ action }: Props) {
       <fieldset className={styles.adminFieldset}>
         <legend>Новая серия</legend>
         <label>
+          Название
+          <input type="text" name="name" minLength={3} maxLength={128} required />
+        </label>
+        <label>
           Номер
           <input type="number" name="number" min={1} required />
         </label>
