@@ -26,6 +26,29 @@ export function getAbsoluteUrl(path: string): string {
 }
 
 /**
+ * Обрезает описание до оптимальной длины для социальных сетей
+ * @param description - исходное описание
+ * @param maxLength - максимальная длина (по умолчанию 300 для OG, 200 для Twitter)
+ * @returns обрезанное описание с многоточием, если было обрезано
+ */
+export function truncateDescription(
+  description: string,
+  maxLength: number = 300
+): string {
+  if (description.length <= maxLength) {
+    return description;
+  }
+  // Обрезаем до последнего пробела перед лимитом, чтобы не обрывать слова
+  const truncated = description.substring(0, maxLength - 3);
+  const lastSpace = truncated.lastIndexOf(" ");
+  if (lastSpace > maxLength * 0.8) {
+    // Если пробел найден не слишком близко к началу, обрезаем по нему
+    return truncated.substring(0, lastSpace) + "...";
+  }
+  return truncated + "...";
+}
+
+/**
  * Генерирует базовые метаданные для сайта
  */
 export function createBaseMetadata(overrides?: {
@@ -34,14 +57,26 @@ export function createBaseMetadata(overrides?: {
   image?: string;
   url?: string;
   robots?: Metadata["robots"];
+  imageWidth?: number;
+  imageHeight?: number;
 }): Metadata {
   const siteUrl = getSiteUrl();
   const title = overrides?.title || "DreamyVoice — Каталог аниме в озвучке команды";
-  const description =
+  const fullDescription =
     overrides?.description ||
-    "Смотрите аниме в профессиональной озвучке команды DreamyVoice. Каталог тайтлов с сериями, комментариями и удобным просмотром.";
-  const image = overrides?.image || getAbsoluteUrl("/team-photo.png");
+    "Смотрите аниме в профессиональной озвучке команды DreamyVoice. Каталог тайтлов с сериями, комментариями и удобным просмотром. Все релизы доступны онлайн бесплатно.";
+  
+  // Оптимизируем описания для разных платформ
+  const ogDescription = truncateDescription(fullDescription, 300); // OG поддерживает до 300 символов
+  const twitterDescription = truncateDescription(fullDescription, 200); // Twitter рекомендует до 200 символов
+  
+  const image = overrides?.image || getAbsoluteUrl("/og-image.png");
   const url = overrides?.url || siteUrl;
+  const imageWidth = overrides?.imageWidth ?? 1200;
+  const imageHeight = overrides?.imageHeight ?? 630;
+
+  // Создаем абсолютный URL для изображения с поддержкой HTTPS
+  const imageUrl = image.startsWith("http") ? image : getAbsoluteUrl(image);
 
   return {
     metadataBase: new URL(siteUrl),
@@ -49,7 +84,7 @@ export function createBaseMetadata(overrides?: {
       default: title,
       template: "%s | DreamyVoice",
     },
-    description,
+    description: fullDescription, // Полное описание для поисковых систем
     keywords: [
       "аниме",
       "озвучка",
@@ -58,6 +93,8 @@ export function createBaseMetadata(overrides?: {
       "смотреть аниме",
       "русская озвучка",
       "аниме серии",
+      "аниме онлайн",
+      "бесплатное аниме",
     ],
     authors: [{ name: "DreamyVoice Team" }],
     creator: "DreamyVoice",
@@ -73,21 +110,27 @@ export function createBaseMetadata(overrides?: {
       url,
       siteName: "DreamyVoice",
       title,
-      description,
+      description: ogDescription, // Оптимизированное описание для OG
       images: [
         {
-          url: image,
-          width: 1200,
-          height: 630,
+          url: imageUrl,
+          width: imageWidth,
+          height: imageHeight,
           alt: title,
+          type: "image/png",
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description,
-      images: [image],
+      description: twitterDescription, // Оптимизированное описание для Twitter
+      images: [
+        {
+          url: imageUrl,
+          alt: title,
+        },
+      ],
       creator: "@dreamyvoice",
     },
     robots: overrides?.robots ?? {
@@ -103,6 +146,12 @@ export function createBaseMetadata(overrides?: {
     },
     alternates: {
       canonical: url,
+    },
+    // Дополнительные мета-теги для VK, Telegram и других платформ
+    other: {
+      "vk:title": title,
+      "vk:description": ogDescription,
+      "vk:image": imageUrl,
     },
   };
 }
@@ -129,45 +178,90 @@ export function createTitleMetadata(
   const episodeCount = publishedEpisodes.length;
   const totalEpisodes = title.episodes.length;
 
-  // Формируем описание с информацией о сериях
-  const episodeInfo =
-    episodeCount > 0
-      ? `${episodeCount} ${episodeCount === 1 ? "серия" : episodeCount < 5 ? "серии" : "серий"}`
-      : "Скоро";
-  const fullDescription = `${description} ${episodeInfo} доступно для просмотра.`;
+  // Формируем подробное описание с информацией о сериях
+  let episodeInfo = "";
+  if (episodeCount > 0) {
+    const episodeWord =
+      episodeCount === 1
+        ? "серия"
+        : episodeCount < 5
+        ? "серии"
+        : "серий";
+    episodeInfo = `${episodeCount} ${episodeWord} доступно для просмотра онлайн.`;
+  } else {
+    episodeInfo = "Скоро будут доступны серии для просмотра.";
+  }
+
+  // Создаем подробное описание
+  const baseDescription = description.trim() || `Смотрите ${titleName} в профессиональной озвучке команды DreamyVoice.`;
+  const fullDescription = `${baseDescription} ${episodeInfo} Все серии с качественной русской озвучкой, удобный плеер и возможность оставлять комментарии.`;
 
   // Изображение обложки или дефолтное
   const image = title.coverKey
     ? getAbsoluteUrl(`/media/covers/${encodeURIComponent(title.coverKey)}`)
-    : getAbsoluteUrl("/team-photo.png");
+    : getAbsoluteUrl("/og-image.png");
+  
+  const imageAlt = title.coverKey
+    ? `Обложка аниме ${titleName}`
+    : `DreamyVoice — ${titleName}`;
+
+  // Для обложек тайтлов не указываем фиксированные размеры,
+  // так как они могут быть разными. Социальные сети сами определят размеры.
+  const ogImage: Metadata["openGraph"]["images"] = title.coverKey
+    ? [
+        {
+          url: image,
+          alt: imageAlt,
+          // Не указываем width/height для пользовательских обложек,
+          // так как их размеры могут быть разными
+        },
+      ]
+    : [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: imageAlt,
+          type: "image/png",
+        },
+      ];
+
+  // Оптимизируем описания для разных платформ
+  const ogDescription = truncateDescription(fullDescription, 300);
+  const twitterDescription = truncateDescription(fullDescription, 200);
+  const ogTitle = `${titleName} | DreamyVoice`;
 
   return {
     title: titleName,
-    description: fullDescription,
+    description: fullDescription, // Полное описание для поисковых систем
     openGraph: {
       type: "website",
       locale: "ru_RU",
       url,
       siteName: "DreamyVoice",
-      title: `${titleName} | DreamyVoice`,
-      description: fullDescription,
-      images: [
-        {
-          url: image,
-          width: 1200,
-          height: 630,
-          alt: `Обложка ${titleName}`,
-        },
-      ],
+      title: ogTitle,
+      description: ogDescription, // Оптимизированное описание для OG
+      images: ogImage,
     },
     twitter: {
       card: "summary_large_image",
-      title: `${titleName} | DreamyVoice`,
-      description: fullDescription,
-      images: [image],
+      title: ogTitle,
+      description: twitterDescription, // Оптимизированное описание для Twitter
+      images: [
+        {
+          url: image,
+          alt: imageAlt,
+        },
+      ],
     },
     alternates: {
       canonical: url,
+    },
+    // Дополнительные мета-теги для VK, Telegram и других платформ
+    other: {
+      "vk:title": ogTitle,
+      "vk:description": ogDescription,
+      "vk:image": image,
     },
   };
 }
@@ -191,7 +285,7 @@ export function createTitleJsonLd(
   const publishedEpisodes = title.episodes.filter((ep) => ep.published);
   const image = title.coverKey
     ? getAbsoluteUrl(`/media/covers/${encodeURIComponent(title.coverKey)}`)
-    : getAbsoluteUrl("/team-photo.png");
+    : getAbsoluteUrl("/og-image.png");
 
   return {
     "@context": "https://schema.org",
@@ -235,7 +329,7 @@ export function createOrganizationJsonLd(): object {
     "@type": "Organization",
     name: "DreamyVoice",
     url: siteUrl,
-    logo: getAbsoluteUrl("/team-photo.png"),
+    logo: getAbsoluteUrl("/og-image.png"),
     description:
       "Команда озвучки аниме DreamyVoice. Профессиональная озвучка и каталог тайтлов.",
     sameAs: [],
