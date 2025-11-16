@@ -76,9 +76,6 @@ export function EpisodePlayer({ episodes }: Props) {
             <p className="episode-player-current-number">
               Серия {currentEpisode.number}
             </p>
-            <p className="episode-player-current-name">
-              {getEpisodeDisplayName(currentEpisode)}
-            </p>
           </div>
           <div className="episode-player-frame">
             <iframe
