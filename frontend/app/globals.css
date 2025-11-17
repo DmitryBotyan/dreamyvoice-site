@@ -1193,6 +1193,25 @@ button:disabled {
   background-repeat: no-repeat;
 }
 
+/* Стили для option элементов - темный фон, светлый текст */
+.catalog-filter-select option {
+  background-color: var(--surface-secondary);
+  color: var(--foreground);
+  padding: 8px 12px;
+}
+
+/* Стили для выбранного option */
+.catalog-filter-select option:checked {
+  background-color: var(--accent);
+  color: var(--foreground);
+}
+
+/* Стили для option при наведении (поддерживается не во всех браузерах) */
+.catalog-filter-select option:hover {
+  background-color: var(--surface-primary);
+  color: var(--foreground);
+}
+
 .catalog-filter-actions {
   display: flex;
   align-items: center;
