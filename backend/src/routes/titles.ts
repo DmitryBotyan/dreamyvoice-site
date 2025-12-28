@@ -545,6 +545,10 @@ episodesRouter.post(
         throw new HttpError(409, 'Серия с таким номером уже существует');
       }
 
+      if (error instanceof Error && error.message.includes('player_src host')) {
+        throw new HttpError(400, error.message);
+      }
+
       throw error;
     }
   }),

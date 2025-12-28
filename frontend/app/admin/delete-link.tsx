@@ -29,6 +29,10 @@ export function DeleteLink({
         return;
       }
 
+      if (!confirm("Вы уверены, что хотите удалить этот элемент?")) {
+        return;
+      }
+
       if (typeof form.requestSubmit === "function") {
         form.requestSubmit();
       } else {
