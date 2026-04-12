@@ -1,0 +1,22 @@
+dreamyvoice.net {
+
+  encode zstd gzip
+
+  @media path /media/*
+  reverse_proxy @media backend:4000
+
+  reverse_proxy frontend:3000
+
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "no-referrer"
+  }
+
+  log {
+    output stdout
+    format console
+  }
+}
+

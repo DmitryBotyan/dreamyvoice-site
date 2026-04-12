@@ -1,0 +1,99 @@
+services:
+  caddy:
+    image: caddy:2
+    container_name: dreamy_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    networks:
+      - web
+      - internal
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dreamy_frontend
+    restart: unless-stopped
+    environment:
+      # ВАЖНО: фронт ходит к бэку внутри docker-сети
+      API_BASE_URL: http://backend:4000
+      NODE_ENV: production
+    depends_on:
+      - backend
+    networks:
+      - web
+      - internal
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: postgresql://app:${POSTGRES_PASSWORD}@db:5432/app?schema=public
+    container_name: dreamy_backend
+    restart: unless-stopped
+    env_file:
+      - ../env/backend.prod.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://app:${POSTGRES_PASSWORD}@db:5432/app?schema=public
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      PORT: 4000
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      internal:
+        aliases:
+          - backend
+
+  db:
+    image: postgres:16-alpine
+    container_name: dreamy_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: app
+    volumes:
+      - ../data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks:
+      - internal
+
+  minio:
+    image: minio/minio:latest
+    container_name: dreamy_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ../data/minio:/data
+    networks:
+      - internal
+
+networks:
+  web: {}
+  internal: {}
+
+volumes:
+  caddy_data:
+  caddy_config:
+ 
