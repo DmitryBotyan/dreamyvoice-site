@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ApiError, createEpisode, updateTitle, deleteEpisode, updateCommentStatus } from '@/lib/server-api';
+import { ApiError, createEpisode, updateEpisode, updateTitle, deleteEpisode, updateCommentStatus } from '@/lib/server-api';
 import type { CommentStatus } from '@/lib/types';
 import {
   DEFAULT_TITLE_STATUS,
@@ -109,7 +109,8 @@ export async function createEpisodeAction(
   formData: FormData,
 ): Promise<CreateEpisodeFormState> {
   const numberValue = formData.get('number');
-  const playerSrc = (formData.get('playerSrc') ?? '').toString().trim();
+  const playerSrcRaw = (formData.get('playerSrc') ?? '').toString().trim();
+  const cvhVideoIdRaw = (formData.get('cvhVideoId') ?? '').toString().trim();
   const durationInput = formData.get('durationMinutes');
   const published = formData.get('episodePublished') === 'on';
 
@@ -118,14 +119,23 @@ export async function createEpisodeAction(
     return { success: false, error: 'Номер серии должен быть положительным целым' };
   }
 
-  if (!playerSrc) {
-    return { success: false, error: 'Укажите ссылку на плеер' };
+  const playerSrc = playerSrcRaw || null;
+  const cvhVideoId = cvhVideoIdRaw || null;
+
+  if (!playerSrc && !cvhVideoId) {
+    return { success: false, error: 'Укажите хотя бы один источник: ссылку на плеер или CDNVideoHub Video ID' };
   }
 
-  try {
-    new URL(playerSrc);
-  } catch {
-    return { success: false, error: 'Некорректный формат ссылки на плеер' };
+  if (playerSrc) {
+    try {
+      new URL(playerSrc);
+    } catch {
+      return { success: false, error: 'Некорректный формат ссылки на плеер' };
+    }
+  }
+
+  if (cvhVideoId && !/^\d+$/.test(cvhVideoId)) {
+    return { success: false, error: 'CDNVideoHub Video ID должен быть числом' };
   }
 
   let durationMinutes: number | null | undefined = undefined;
@@ -141,6 +151,7 @@ export async function createEpisodeAction(
     await createEpisode(slug, {
       number,
       playerSrc,
+      cvhVideoId,
       durationMinutes,
       published,
     });
@@ -150,6 +161,72 @@ export async function createEpisodeAction(
     }
 
     return { success: false, error: 'Не удалось добавить серию' };
+  }
+
+  revalidatePath('/admin');
+  revalidatePath(`/admin/${slug}`);
+
+  return { success: true };
+}
+
+export type UpdateEpisodeFormState = {
+  success: boolean;
+  error?: string;
+};
+
+export async function updateEpisodeAction(
+  slug: string,
+  episodeId: string,
+  _prevState: UpdateEpisodeFormState,
+  formData: FormData,
+): Promise<UpdateEpisodeFormState> {
+  const playerSrcRaw = (formData.get('playerSrc') ?? '').toString().trim();
+  const cvhVideoIdRaw = (formData.get('cvhVideoId') ?? '').toString().trim();
+  const durationInput = formData.get('durationMinutes');
+  const published = formData.get('episodePublished') === 'on';
+
+  // Empty string → null (clear the field); undefined = don't touch
+  const playerSrc = playerSrcRaw === '' ? null : playerSrcRaw;
+  const cvhVideoId = cvhVideoIdRaw === '' ? null : cvhVideoIdRaw;
+
+  if (playerSrc) {
+    try {
+      new URL(playerSrc);
+    } catch {
+      return { success: false, error: 'Некорректный формат ссылки на плеер' };
+    }
+  }
+
+  if (cvhVideoId && !/^\d+$/.test(cvhVideoId)) {
+    return { success: false, error: 'CDNVideoHub Video ID должен быть числом' };
+  }
+
+  let durationMinutes: number | null | undefined = undefined;
+  if (durationInput !== null && typeof durationInput === 'string') {
+    const trimmed = durationInput.trim();
+    if (trimmed === '') {
+      durationMinutes = null;
+    } else {
+      const parsed = Number(trimmed);
+      if (!Number.isInteger(parsed) || parsed <= 0) {
+        return { success: false, error: 'Длительность указывается в минутах целым числом' };
+      }
+      durationMinutes = parsed;
+    }
+  }
+
+  try {
+    await updateEpisode(slug, episodeId, {
+      playerSrc,
+      cvhVideoId,
+      durationMinutes,
+      published,
+    });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: 'Не удалось сохранить серию' };
   }
 
   revalidatePath('/admin');

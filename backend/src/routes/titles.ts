@@ -10,6 +10,7 @@ import { requireAuth } from '../middleware/require-auth';
 import { requireAdmin } from '../middleware/require-admin';
 import { AGE_RATINGS } from '../constants/catalog-keywords';
 import { deleteObject } from '../services/storage';
+import { env } from '../env';
 
 const titleAgeRatingEnum = z.enum(AGE_RATINGS);
 
@@ -193,14 +194,19 @@ const titleUpdateSchema = z.object({
   ageRating: titleAgeRatingEnum.optional(),
 });
 
-const episodeCreateSchema = z.object({
-  number: z.coerce.number().int().positive().max(10000),
-  playerSrc: z.string().url(),
-  durationMinutes: z
-    .union([z.coerce.number().int().positive().max(2000), z.literal(null)])
-    .optional(),
-  published: z.boolean().optional().default(false),
-});
+const episodeCreateSchema = z
+  .object({
+    number: z.coerce.number().int().positive().max(10000),
+    playerSrc: z.string().url().optional().nullable(),
+    cvhVideoId: z.string().trim().regex(/^\d+$/, 'CDNVideoHub Video ID должен быть числом').optional().nullable(),
+    durationMinutes: z
+      .union([z.coerce.number().int().positive().max(2000), z.literal(null)])
+      .optional(),
+    published: z.boolean().optional().default(false),
+  })
+  .refine((data) => data.playerSrc || data.cvhVideoId, {
+    message: 'Необходимо указать либо ссылку на плеер (playerSrc), либо ID видео CDNVideoHub (cvhVideoId)',
+  });
 
 router.get(
   '/',
@@ -533,7 +539,8 @@ episodesRouter.post(
         data: {
           titleId: title.id,
           number: data.number,
-          playerSrc: data.playerSrc,
+          playerSrc: data.playerSrc ?? null,
+          cvhVideoId: data.cvhVideoId ?? null,
           durationMinutes: data.durationMinutes ?? null,
           published: data.published ?? false,
         },
@@ -549,6 +556,84 @@ episodesRouter.post(
         throw new HttpError(400, error.message);
       }
 
+      throw error;
+    }
+  }),
+);
+
+const episodeUpdateSchema = z
+  .object({
+    playerSrc: z.union([z.string().url(), z.literal(''), z.null()]).optional(),
+    cvhVideoId: z.union([z.string().trim().regex(/^\d+$/, 'CDNVideoHub Video ID должен быть числом'), z.null()]).optional(),
+    durationMinutes: z
+      .union([z.coerce.number().int().positive().max(2000), z.null()])
+      .optional(),
+    published: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      // Only validate sources if both are explicitly being cleared
+      if (data.playerSrc === null && data.cvhVideoId === null) return false;
+      return true;
+    },
+    { message: 'Нельзя убрать оба источника одновременно' },
+  );
+
+episodesRouter.patch(
+  '/:episodeId',
+  requireAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { slug } = slugSchema.parse(req.params);
+    const { episodeId } = episodeIdSchema.parse(req.params);
+    const updates = episodeUpdateSchema.parse(req.body);
+
+    const title = await prisma.title.findFirst({
+      where: buildSlugWhere(slug),
+      select: { id: true },
+    });
+
+    if (!title) throw new HttpError(404, 'Title not found');
+
+    const episode = await prisma.episode.findFirst({
+      where: { id: episodeId, titleId: title.id },
+    });
+
+    if (!episode) throw new HttpError(404, 'Episode not found');
+
+    // Build update payload — only touch provided fields
+    const data: Prisma.EpisodeUpdateInput = {};
+    if (updates.playerSrc !== undefined) {
+      data.playerSrc = updates.playerSrc === '' ? null : (updates.playerSrc ?? null);
+    }
+    if (updates.cvhVideoId !== undefined) {
+      data.cvhVideoId = updates.cvhVideoId;
+    }
+    if (updates.durationMinutes !== undefined) {
+      data.durationMinutes = updates.durationMinutes;
+    }
+    if (updates.published !== undefined) {
+      data.published = updates.published;
+    }
+
+    // Verify after merge that at least one source will remain
+    const mergedPlayerSrc = updates.playerSrc !== undefined
+      ? (updates.playerSrc === '' ? null : updates.playerSrc)
+      : episode.playerSrc;
+    const mergedCvhId = updates.cvhVideoId !== undefined ? updates.cvhVideoId : episode.cvhVideoId;
+    if (!mergedPlayerSrc && !mergedCvhId) {
+      throw new HttpError(400, 'Серия должна иметь хотя бы один источник (playerSrc или cvhVideoId)');
+    }
+
+    try {
+      const updated = await prisma.episode.update({
+        where: { id: episode.id },
+        data,
+      });
+      res.json({ episode: toEpisodeDto(true, updated) });
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('player_src host')) {
+        throw new HttpError(400, error.message);
+      }
       throw error;
     }
   }),
@@ -642,11 +727,19 @@ function toTitleDto(includeDrafts: boolean) {
 }
 
 function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
+  const isVisible = includeDrafts || episode.published;
+  const cvhPlayerUrl =
+    isVisible && episode.cvhVideoId && env.cdnVideoHubPlayerBaseUrl
+      ? `${env.cdnVideoHubPlayerBaseUrl}/${episode.cvhVideoId}`
+      : undefined;
+
   return {
     id: episode.id,
     number: episode.number,
     durationMinutes: episode.durationMinutes,
-    playerSrc: includeDrafts || episode.published ? episode.playerSrc : undefined,
+    playerSrc: isVisible ? (episode.playerSrc ?? undefined) : undefined,
+    cvhVideoId: isVisible ? (episode.cvhVideoId ?? undefined) : undefined,
+    cvhPlayerUrl,
     published: episode.published,
   };
 }

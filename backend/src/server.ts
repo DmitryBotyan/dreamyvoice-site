@@ -10,6 +10,7 @@ import { profileRouter } from './routes/profile';
 import { metadataRouter } from './routes/metadata';
 import { teamMembersRouter } from './routes/team-members';
 import { favoritesRouter } from './routes/favorites';
+import { cdnVideoHubRouter } from './routes/cdnvideohub';
 import { syncCatalogMetadata } from './services/catalog-metadata';
 
 async function bootstrap() {
@@ -19,6 +20,8 @@ async function bootstrap() {
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser(env.SESSION_COOKIE_SECRET));
   app.use(sessionMiddleware);
+  // Raw binary body for CDN video chunk uploads (applied per-route via router)
+  app.use('/cdnvideohub/upload', express.raw({ type: 'application/octet-stream', limit: '2gb' }));
 
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });
@@ -31,6 +34,7 @@ async function bootstrap() {
   app.use('/team-members', teamMembersRouter);
   app.use('/media', mediaRouter);
   app.use('/profile', profileRouter);
+  app.use('/cdnvideohub', cdnVideoHubRouter);
 
   await syncCatalogMetadata();
 

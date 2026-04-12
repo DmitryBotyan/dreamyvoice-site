@@ -194,7 +194,8 @@ export async function updateTitle(slug: string, input: UpdateTitleInput) {
 
 export type CreateEpisodeInput = {
   number: number;
-  playerSrc: string;
+  playerSrc?: string | null;
+  cvhVideoId?: string | null;
   durationMinutes?: number | null;
   published?: boolean;
 };
@@ -210,6 +211,92 @@ export async function createEpisode(slug: string, input: CreateEpisodeInput) {
   });
 
   return data.episode;
+}
+
+// ─── CDNVideoHub API ──────────────────────────────────────────────────────────
+
+export type CdnVideoStatus =
+  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+  | 11 | 12 | 13 | 14 | 15 | 16 | 1000;
+
+export const CDN_VIDEO_STATUS_LABELS: Record<number, string> = {
+  0: 'Неизвестно',
+  1: 'OK',
+  2: 'Ошибка',
+  3: 'Загружается',
+  4: 'Создаётся',
+  5: 'Обрабатывается',
+  6: 'Offline',
+  7: 'Online',
+  8: 'Трансляция не начата',
+  9: 'Трансляция завершена',
+  11: 'Заблокировано',
+  12: 'Цензура',
+  13: 'Авторские права',
+  14: 'Недоступно',
+  15: 'Ограниченный доступ',
+  16: 'Трансляция прервана',
+  1000: 'Готово',
+};
+
+export type CdnVideo = {
+  id: number;
+  status: CdnVideoStatus;
+  error?: string;
+  created_at: string;
+  updated_at: string;
+  uploader?: string;
+  cvh_data?: {
+    id?: string;
+    title_id?: string;
+    episode_id?: string;
+    language_id?: number;
+    voice_type_id?: number;
+    video_type_id?: number;
+    video_resolution_id?: number;
+    storage_id?: number;
+    voice_studio_id?: number;
+    embedded_advertisement?: boolean;
+  };
+};
+
+export type CdnVideoPostBody = {
+  title_id?: string;
+  episode_id?: string;
+  language_id?: number;
+  voice_type_id?: number;
+  video_type_id?: number;
+  video_resolution_id?: number;
+  embedded_advertisement?: boolean;
+  uploader?: string;
+  voice_studio_id?: number;
+};
+
+export async function listCdnVideos(params: Record<string, string> = {}) {
+  const qs = new URLSearchParams(params).toString();
+  const path = `/cdnvideohub/videos${qs ? `?${qs}` : ''}`;
+  const data = await request<{ items: CdnVideo[] }>(path);
+  return data.items ?? [];
+}
+
+export async function createCdnVideo(body: CdnVideoPostBody) {
+  return request<CdnVideo>('/cdnvideohub/videos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getCdnVideo(id: number) {
+  return request<CdnVideo>(`/cdnvideohub/videos/${id}`);
+}
+
+export async function deleteCdnVideo(id: number) {
+  await request<void>(`/cdnvideohub/videos/${id}`, { method: 'DELETE' });
+}
+
+export async function getCdnUploadingUrl(id: number) {
+  return request<{ url: string }>(`/cdnvideohub/videos/${id}/uploading_url`);
 }
 
 export async function getTeamMembers() {
@@ -249,6 +336,24 @@ export async function deleteTitle(slug: string) {
   await request<void>(`/titles/${encodedSlug}`, {
     method: 'DELETE',
   });
+}
+
+export type UpdateEpisodeInput = {
+  playerSrc?: string | null;
+  cvhVideoId?: string | null;
+  durationMinutes?: number | null;
+  published?: boolean;
+};
+
+export async function updateEpisode(slug: string, episodeId: string, input: UpdateEpisodeInput) {
+  const encodedSlug = encodeURIComponent(slug);
+  const encodedEpisodeId = encodeURIComponent(episodeId);
+  const data = await request<{ episode: Episode }>(`/titles/${encodedSlug}/episodes/${encodedEpisodeId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  return data.episode;
 }
 
 export async function deleteEpisode(slug: string, episodeId: string) {

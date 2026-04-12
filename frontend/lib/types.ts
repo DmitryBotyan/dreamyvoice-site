@@ -22,6 +22,8 @@ export type Episode = {
   name: string;
   durationMinutes?: number | null;
   playerSrc?: string;
+  cvhVideoId?: string;
+  cvhPlayerUrl?: string;
   published: boolean;
 };
 

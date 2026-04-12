@@ -3,8 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser, getTitle, getTitleComments } from "@/lib/server-api";
 import { EditTitleForm } from "./edit-title-form";
 import { AddEpisodeForm } from "./add-episode-form";
+import { EditEpisodeForm } from "./edit-episode-form";
 import { DeleteLink } from "../delete-link";
-import { createEpisodeAction, updateTitleAction, deleteEpisodeAction, updateCommentStatusAction } from "./actions";
+import { createEpisodeAction, updateEpisodeAction, updateTitleAction, deleteEpisodeAction, updateCommentStatusAction } from "./actions";
 import { CommentModerationPanel } from "./comment-moderation-panel";
 import styles from "../styles.module.css";
 
@@ -112,6 +113,11 @@ export default async function AdminTitlePage({ params }: Props) {
                         >
                           {episode.playerSrc}
                         </a>
+                      ) : episode.cvhVideoId ? (
+                        <span>
+                          CDNVideoHub ID:{" "}
+                          <code className={styles.adminCode}>{episode.cvhVideoId}</code>
+                        </span>
                       ) : (
                         "не указан"
                       )}
@@ -126,6 +132,10 @@ export default async function AdminTitlePage({ params }: Props) {
                         Удалить серию
                       </DeleteLink>
                     </div>
+                    <EditEpisodeForm
+                      episode={episode}
+                      action={updateEpisodeAction.bind(null, title.slug, episode.id)}
+                    />
                   </article>
                 </li>
               ))}

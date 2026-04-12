@@ -89,7 +89,8 @@ model Episode {
   id              String    @id @default(cuid())
   titleId         String    @map("title_id")
   number          Int
-  playerSrc       String    @map("player_src")
+  playerSrc       String?   @map("player_src")
+  cvhVideoId      String?   @map("cvh_video_id")
   durationMinutes Int?      @map("duration_minutes")
   published       Boolean   @default(false)
   createdAt       DateTime  @default(now()) @map("created_at")
