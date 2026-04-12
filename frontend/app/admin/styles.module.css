@@ -819,3 +819,109 @@
   display: flex;
   justify-content: flex-end;
 }
+
+/* Player mode toggle (iframe / CDNVideoHub) */
+.playerModeToggle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.playerModeLabel {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.playerModeTabs {
+  display: flex;
+  gap: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  width: fit-content;
+}
+
+.playerModeTab {
+  padding: 9px 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  box-shadow: none;
+}
+
+.playerModeTab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.playerModeTabActive {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+}
+
+.playerModeTabCdn.playerModeTabActive {
+  background: linear-gradient(135deg, rgba(108, 71, 255, 0.35) 0%, rgba(139, 92, 246, 0.25) 100%);
+  color: #c4adff;
+}
+
+.fieldHint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: -4px;
+}
+
+.editEpisodeWrapper {
+  display: block;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.editEpisodeForm {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  grid-column: 1 / -1;
+}
+
+.editEpisodeForm label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.editEpisodeForm input {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--foreground);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.editEpisodeForm input:focus {
+  outline: none;
+  border-color: rgba(143, 99, 255, 0.65);
+  box-shadow: 0 0 0 2px rgba(143, 99, 255, 0.2);
+}
+
+.adminCode {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+}

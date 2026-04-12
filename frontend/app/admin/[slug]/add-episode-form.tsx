@@ -16,7 +16,6 @@ type Props = {
 
 function SubmitButton() {
   const { pending } = useFormStatus();
-
   return (
     <button type="submit" disabled={pending}>
       {pending ? "Добавляем..." : "Добавить серию"}
@@ -38,23 +37,47 @@ export function AddEpisodeForm({ action }: Props) {
     <form ref={formRef} action={formAction} className={styles.formCard}>
       <fieldset className={styles.adminFieldset}>
         <legend>Новая серия</legend>
+
         <label>
           Номер
           <input type="number" name="number" min={1} required />
         </label>
+
         <label>
           Ссылка на плеер (iframe src)
-          <input type="url" name="playerSrc" required />
+          <input
+            type="url"
+            name="playerSrc"
+            placeholder="https://aniqit.com/embed/..."
+          />
+          <span className={styles.fieldHint}>Оставьте пустым, если не нужен</span>
         </label>
+
+        <label>
+          CDNVideoHub Video ID
+          <input
+            type="text"
+            name="cvhVideoId"
+            placeholder="Например: 42"
+            pattern="\d*"
+            title="Числовой ID видео из CDNVideoHub"
+          />
+          <span className={styles.fieldHint}>
+            Оставьте пустым, если не нужен. Можно указать оба источника.
+          </span>
+        </label>
+
         <label>
           Длительность в минутах
           <input type="number" name="durationMinutes" min={1} />
         </label>
+
         <label className={styles.checkboxRow}>
           <input type="checkbox" name="episodePublished" />
           Опубликована
         </label>
       </fieldset>
+
       <div className={styles.formFooter}>
         <SubmitButton />
         {state.error ? (

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serverConfig } from '@/lib/server-config';
 
-const allowedPrefixes = new Set(['auth', 'titles', 'media', 'profile', 'favorites']);
+const allowedPrefixes = new Set(['auth', 'titles', 'media', 'profile', 'favorites', 'cdnvideohub']);
 
 type RouteParams = { path?: string[] };
 

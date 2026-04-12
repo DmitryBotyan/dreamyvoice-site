@@ -47,6 +47,12 @@ function collectPlayerSrcValues(payload: unknown): string[] {
   }
 
   const data = payload as Record<string, unknown>;
+
+  // null explicitly means "clear playerSrc" — skip validation
+  if (data.playerSrc === null || data.player_src === null) {
+    return [];
+  }
+
   const rawValue =
     pickString(data.playerSrc) ??
     pickString(data.player_src) ??

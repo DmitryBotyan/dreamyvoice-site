@@ -8,33 +8,46 @@ type Props = {
   episodes: Episode[];
 };
 
+type Source = "iframe" | "cdn";
+
 const getEpisodeDisplayName = (episode: Episode) =>
   episode.name && episode.name.trim().length > 0
     ? episode.name.trim()
     : `Серия ${episode.number}`;
 
+function hasIframe(ep: Episode) {
+  return Boolean(ep.playerSrc);
+}
+
+function hasCdn(ep: Episode) {
+  return Boolean(ep.cvhVideoId);
+}
+
+function isPlayable(ep: Episode) {
+  return hasIframe(ep) || hasCdn(ep);
+}
+
+function defaultSource(ep: Episode): Source {
+  return hasIframe(ep) ? "iframe" : "cdn";
+}
+
 export function EpisodePlayer({ episodes }: Props) {
   const playableEpisodes = useMemo(
-    () => episodes.filter((episode) => Boolean(episode.playerSrc)),
+    () => episodes.filter(isPlayable),
     [episodes]
   );
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const initialEpisodeId = useMemo(() => {
     const param = searchParams?.get("episode");
-    if (!param) {
-      return playableEpisodes[0]?.id;
-    }
-
-    const byId = playableEpisodes.find((episode) => episode.id === param);
-    if (byId) {
-      return byId.id;
-    }
-
+    if (!param) return playableEpisodes[0]?.id;
+    const byId = playableEpisodes.find((ep) => ep.id === param);
+    if (byId) return byId.id;
     const byNumber = playableEpisodes.find(
-      (episode) => episode.number.toString() === param
+      (ep) => ep.number.toString() === param
     );
     return byNumber?.id ?? playableEpisodes[0]?.id;
   }, [playableEpisodes, searchParams]);
@@ -42,14 +55,21 @@ export function EpisodePlayer({ episodes }: Props) {
   const [currentEpisodeId, setCurrentEpisodeId] = useState(
     () => initialEpisodeId
   );
+  const [source, setSource] = useState<Source>(() => {
+    const ep = playableEpisodes.find((e) => e.id === initialEpisodeId);
+    return ep ? defaultSource(ep) : "iframe";
+  });
 
   useEffect(() => {
     setCurrentEpisodeId(initialEpisodeId);
-  }, [initialEpisodeId]);
+    const ep = playableEpisodes.find((e) => e.id === initialEpisodeId);
+    if (ep) setSource(defaultSource(ep));
+  }, [initialEpisodeId, playableEpisodes]);
 
   const handleEpisodeChange = useCallback(
     (episode: Episode) => {
       setCurrentEpisodeId(episode.id);
+      setSource(defaultSource(episode));
       const params = new URLSearchParams(searchParams?.toString());
       params.set("episode", episode.number.toString());
       const query = params.toString();
@@ -61,8 +81,33 @@ export function EpisodePlayer({ episodes }: Props) {
   );
 
   const currentEpisode =
-    playableEpisodes.find((episode) => episode.id === currentEpisodeId) ??
+    playableEpisodes.find((ep) => ep.id === currentEpisodeId) ??
     playableEpisodes[0];
+
+  // Safe derivations — only when episode exists
+  const cdnSrc = currentEpisode?.cvhPlayerUrl;
+  const cdnUnconfigured =
+    currentEpisode !== undefined && hasCdn(currentEpisode) && !cdnSrc;
+
+  const activeSrc =
+    currentEpisode == null
+      ? undefined
+      : source === "cdn"
+      ? cdnSrc ?? currentEpisode.playerSrc
+      : currentEpisode.playerSrc ?? cdnSrc;
+
+  const bothSources =
+    currentEpisode != null &&
+    hasIframe(currentEpisode) &&
+    hasCdn(currentEpisode);
+
+  const isCdnActive = source === "cdn" && Boolean(cdnSrc);
+
+  // Single-source label: based on which source the episode actually has
+  const singleSourceLabel =
+    currentEpisode != null && hasCdn(currentEpisode) && !hasIframe(currentEpisode)
+      ? "CDNVideoHub"
+      : "Внешний плеер";
 
   return (
     <section className="episode-player">
@@ -70,51 +115,115 @@ export function EpisodePlayer({ episodes }: Props) {
         <p className="episode-player-eyebrow">Онлайн просмотр</p>
         <h2 className="episode-player-title">Плеер</h2>
       </div>
-      {currentEpisode ? (
+
+      {playableEpisodes.length === 0 ? (
+        <p className="episode-player-empty">
+          Нет опубликованных серий с плеером
+        </p>
+      ) : currentEpisode != null ? (
         <>
+          {/* Source indicator / toggle — above episode label */}
+          <div className="episode-player-source-row">
+            {bothSources ? (
+              <div
+                className="episode-player-source-toggle"
+                role="group"
+                aria-label="Выбор источника плеера"
+              >
+                <button
+                  type="button"
+                  className={`episode-player-source-btn${
+                    source === "iframe"
+                      ? " episode-player-source-btn--active"
+                      : ""
+                  }`}
+                  onClick={() => setSource("iframe")}
+                >
+                  Внешний плеер
+                </button>
+                <button
+                  type="button"
+                  className={`episode-player-source-btn episode-player-source-btn--cdn${
+                    source === "cdn"
+                      ? " episode-player-source-btn--active episode-player-source-btn--cdn-active"
+                      : ""
+                  }`}
+                  onClick={() => setSource("cdn")}
+                >
+                  CDNVideoHub
+                </button>
+              </div>
+            ) : (
+              <p className="episode-player-source-label">{singleSourceLabel}</p>
+            )}
+          </div>
+
           <div className="episode-player-current">
             <p className="episode-player-current-number">
               Серия {currentEpisode.number}
             </p>
           </div>
-          <div className="episode-player-frame">
-            <iframe
-              className="episode-player-iframe"
-              title={`${getEpisodeDisplayName(currentEpisode)} (серия ${
-                currentEpisode.number
-              })`}
-              src={currentEpisode.playerSrc}
-              allowFullScreen
-            />
-          </div>
+
+          {source === "cdn" && cdnUnconfigured ? (
+            <div className="episode-player-cdn-notice">
+              <p>CDNVideoHub плеер не настроен на сервере.</p>
+              <p className="episode-player-cdn-notice-hint">
+                Укажите{" "}
+                <code>CDN_VIDEOHUB_PLAYER_BASE_URL</code> в конфигурации.
+              </p>
+            </div>
+          ) : activeSrc ? (
+            <div
+              className={`episode-player-frame${
+                isCdnActive ? " episode-player-frame--cdn" : ""
+              }`}
+            >
+              <iframe
+                key={activeSrc}
+                className="episode-player-iframe"
+                title={`${getEpisodeDisplayName(currentEpisode)} (серия ${currentEpisode.number})`}
+                src={activeSrc}
+                allowFullScreen
+                allow="autoplay; fullscreen; picture-in-picture"
+              />
+            </div>
+          ) : null}
         </>
-      ) : (
-        <p className="episode-player-empty">
-          Нет опубликованных серий с плеером
-        </p>
-      )}
+      ) : null}
+
       <div className="episode-player-selector">
         <p className="episode-player-selector-label">Выбор серии</p>
         <div className="episode-player-selector-grid">
           {episodes.map((episode) => {
             const isActive = currentEpisode?.id === episode.id;
-            const isDisabled = !episode.playerSrc;
+            const isDisabled = !isPlayable(episode);
+            const cdnOnly = !hasIframe(episode) && hasCdn(episode);
             return (
               <button
                 key={episode.id}
                 type="button"
-                className={`episode-player-selector-button${
-                  isActive ? " episode-player-selector-button--active" : ""
-                }`}
+                className={[
+                  "episode-player-selector-button",
+                  isActive ? "episode-player-selector-button--active" : "",
+                  cdnOnly ? "episode-player-selector-button--cdn" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() => handleEpisodeChange(episode)}
                 disabled={isDisabled}
-                aria-label={`Серия ${episode.number}: ${getEpisodeDisplayName(
-                  episode
-                )}`}
+                aria-label={`Серия ${episode.number}: ${getEpisodeDisplayName(episode)}${
+                  cdnOnly ? " (CDN)" : ""
+                }`}
               >
                 <span className="episode-player-selector-button-number">
                   Серия {episode.number}
                 </span>
+                {cdnOnly && (
+                  <span
+                    className="episode-player-selector-button-cdn-dot"
+                    aria-hidden="true"
+                  />
+                )}
               </button>
             );
           })}

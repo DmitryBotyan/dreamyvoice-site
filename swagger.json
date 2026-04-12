@@ -1,0 +1,850 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for uploading videos to CDNVideoHub CDN.",
+        "title": "CDNVideoHub uploading API",
+        "contact": {},
+        "version": "1.0.0"
+    },
+    "basePath": "/api",
+    "paths": {
+        "/uploading/{encoded_url}": {
+            "post": {
+                "description": "Proxies video upload to CDN. The encoded_url is obtained from /videos/{id}/uploading_url endpoint.",
+                "consumes": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "uploading"
+                ],
+                "summary": "Upload video to CDN.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token with encrypted VoiceStudioId",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Encrypted upload URL from /videos/{id}/uploading_url",
+                        "name": "encoded_url",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Must be application/octet-stream",
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Byte range, e.g. 0-2642345/5284692",
+                        "name": "Content-Range",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "form-data;filename=video.mp4",
+                        "name": "Content-Disposition",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    }
+                }
+            }
+        },
+        "/videos": {
+            "get": {
+                "description": "Returns videos filtered by VoiceStudioId from token. Master token returns all videos.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "Find videos.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token with encrypted VoiceStudioId",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The lower limit of the creation time.",
+                        "name": "created_at_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The upper limit of the creation time.",
+                        "name": "created_at_to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The lower limit of the update time.",
+                        "name": "updated_at_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The upper limit of the update time.",
+                        "name": "updated_at_to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CDNVideoHub Content id.",
+                        "name": "cvh_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CDNVideoHub Title id.",
+                        "name": "cvh_title_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "CDNVideoHub Episode id.",
+                        "name": "cvh_episode_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "CDNVideoHub Language id.",
+                        "name": "cvh_language_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "CDNVideoHub VoiceType id.",
+                        "name": "cvh_voice_type_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "CDNVideoHub VideoType id.",
+                        "name": "cvh_video_type_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "CDNVideoHub VideoResolution id.",
+                        "name": "cvh_video_resolution_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "CDNVideoHub EmbeddedAdvertisement.",
+                        "name": "cvh_embedded_advertisement",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Uploader identifier.",
+                        "name": "uploader",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            1000
+                        ],
+                        "type": "integer",
+                        "description": "Video status.",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Only include videos with errors or without errors.",
+                        "name": "error_is_null",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit result.",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset result.",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VideoCollection"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new video. VoiceStudioId is taken from token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "Create new video.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token with encrypted VoiceStudioId",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create new video body request.",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VideoPostBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/Video"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    }
+                }
+            }
+        },
+        "/videos/{id}": {
+            "get": {
+                "description": "Returns video if its VoiceStudioId matches token. Master token can access any video.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "Get video by its id.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token with encrypted VoiceStudioId",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Video id.",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Video"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes video if its VoiceStudioId matches token. Master token can delete any video.",
+                "tags": [
+                    "video"
+                ],
+                "summary": "Delete video.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token with encrypted VoiceStudioId",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Video id.",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates video if its VoiceStudioId matches token. Master token can update any video.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "Update video.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token with encrypted VoiceStudioId",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Video id.",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data to update.",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VideoPatchBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Video"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    }
+                }
+            }
+        },
+        "/videos/{id}/uploading_url": {
+            "get": {
+                "description": "Get url used for uploading video to CDN. Only accessible if video's VoiceStudioId matches token.\nSend video segment as binary in request body and specify this headers:\n1. `Content-Type`: `application/octet-stream`;\n2. `Content-Range`: `\u003cstartByte\u003e-\u003cendByte\u003e/\u003ctotalLength\u003e`. Here `startByte` and `endByte` are indexes of currently uploading segment in whole file, `totalLength` - file size in bytes. Example: `0-2642345/5284692`.\n3. `Content-Disposition`: `form-data;filename=\u003cfilename.ext\u003e`. Example: `form-data;filename=testFull.mp4`.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "Get url for upload video.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token with encrypted VoiceStudioId",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Video id.",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UploadingURL"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/CommonError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CVHData": {
+            "type": "object",
+            "properties": {
+                "embedded_advertisement": {
+                    "type": "boolean"
+                },
+                "episode_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "language_id": {
+                    "type": "integer"
+                },
+                "skip": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Skip"
+                    }
+                },
+                "storage_id": {
+                    "type": "integer"
+                },
+                "title_id": {
+                    "type": "string"
+                },
+                "video_resolution_id": {
+                    "type": "integer"
+                },
+                "video_type_id": {
+                    "type": "integer"
+                },
+                "voice_studio_id": {
+                    "type": "integer"
+                },
+                "voice_type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "CommonError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "Skip": {
+            "type": "object",
+            "properties": {
+                "end": {
+                    "description": "Segment end in seconds.",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Segment name.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/SkipName"
+                        }
+                    ]
+                },
+                "require": {
+                    "description": "Force skip segment.",
+                    "type": "boolean"
+                },
+                "start": {
+                    "description": "Segment start in seconds.",
+                    "type": "integer"
+                }
+            }
+        },
+        "SkipName": {
+            "type": "string",
+            "enum": [
+                "Опенинг",
+                "Эндинг",
+                "Сцена после титров",
+                "Рекламная вставка",
+                "Запрещенный контент"
+            ],
+            "x-enum-varnames": [
+                "SkipNameOpening",
+                "SkipNameEnding",
+                "SkipNameAfterTitlesScene",
+                "SkipNameAdvertisement",
+                "SkipNameForbidden"
+            ]
+        },
+        "UploadingURL": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "Video": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "cvh_data": {
+                    "$ref": "#/definitions/CVHData"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/VideoStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "uploader": {
+                    "type": "string"
+                }
+            }
+        },
+        "VideoCollection": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Video"
+                    }
+                }
+            }
+        },
+        "VideoPatchBody": {
+            "type": "object",
+            "properties": {
+                "embedded_advertisement": {
+                    "type": "boolean"
+                },
+                "language_id": {
+                    "type": "integer"
+                },
+                "video_resolution_id": {
+                    "type": "integer"
+                },
+                "video_type_id": {
+                    "type": "integer"
+                },
+                "voice_type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "VideoPostBody": {
+            "type": "object",
+            "properties": {
+                "embedded_advertisement": {
+                    "description": "Specify `true` if video contains segment with advertisement.",
+                    "type": "boolean"
+                },
+                "episode_id": {
+                    "description": "CDNVideoHub Episode identifier if video is episode of serial.",
+                    "type": "string"
+                },
+                "language_id": {
+                    "description": "CDNVideoHub Language identifier for video.",
+                    "type": "integer"
+                },
+                "skip": {
+                    "description": "Video segments which can be skipped manually or automatically.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Skip"
+                    }
+                },
+                "title_id": {
+                    "description": "CDNVideoHub Title identifier if video is movie.",
+                    "type": "string"
+                },
+                "uploader": {
+                    "description": "Name or id or email or something else data which you need to identify who uploaded the video.",
+                    "type": "string"
+                },
+                "video_resolution_id": {
+                    "description": "CDNVideoHub VideoResolution identifier for video.",
+                    "type": "integer"
+                },
+                "video_type_id": {
+                    "description": "CDNVideoHub VideoType identifier for video.",
+                    "type": "integer"
+                },
+                "voice_studio_id": {
+                    "description": "CDNVideoHub VoiceStudio identifier. Required only when using master token.",
+                    "type": "integer"
+                },
+                "voice_type_id": {
+                    "description": "CDNVideoHub VoiceType identifier for video.",
+                    "type": "integer"
+                }
+            }
+        },
+        "VideoStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                1000
+            ],
+            "x-enum-varnames": [
+                "VideoStatus_UNDEF",
+                "VideoStatus_OK",
+                "VideoStatus_ERROR",
+                "VideoStatus_UPLOADING",
+                "VideoStatus_CREATING",
+                "VideoStatus_PROCESSING",
+                "VideoStatus_OFFLINE",
+                "VideoStatus_ONLINE",
+                "VideoStatus_LIVE_NOT_STARTED",
+                "VideoStatus_LIVE_ENDED",
+                "VideoStatus_BLOCKED",
+                "VideoStatus_CENSORED",
+                "VideoStatus_COPYRIGHTS_RESTRICTED",
+                "VideoStatus_UNAVAILABLE",
+                "VideoStatus_LIMITED_ACCESS",
+                "VideoStatus_LIVE_INTERRUPTED",
+                "VideoStatus_READY"
+            ]
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}
