@@ -172,6 +172,7 @@ const titleCreateSchema = z.object({
     .transform((value) => (value && value.trim() ? value.trim() : undefined)),
   ageRating: titleAgeRatingEnum.optional(),
   published: z.boolean().optional().default(false),
+  cvhAggregator: z.enum(['kp', 'mali', 'mdl']).optional().nullable(),
 });
 
 const titleUpdateSchema = z.object({
@@ -192,6 +193,7 @@ const titleUpdateSchema = z.object({
   tags: z.array(z.string().trim().min(1)).optional().transform((value) => normalizeStringList(value)),
   originalReleaseDate: z.union([z.string(), z.null()]).optional(),
   ageRating: titleAgeRatingEnum.optional(),
+  cvhAggregator: z.union([z.enum(['kp', 'mali', 'mdl']), z.null()]).optional(),
 });
 
 const episodeCreateSchema = z
@@ -433,6 +435,7 @@ router.post(
           },
           originalReleaseDate: parsedOriginalReleaseDate ?? null,
           ageRating: data.ageRating ?? null,
+          cvhAggregator: data.cvhAggregator ?? null,
         },
         include: {
           episodes: true,
@@ -501,6 +504,9 @@ router.patch(
     }
     if (updates.ageRating !== undefined) {
       data.ageRating = updates.ageRating;
+    }
+    if (updates.cvhAggregator !== undefined) {
+      data.cvhAggregator = updates.cvhAggregator;
     }
 
     const updatedTitle = await prisma.title.update({
@@ -719,6 +725,7 @@ function toTitleDto(includeDrafts: boolean) {
     published: title.published,
     createdAt: title.createdAt,
     updatedAt: title.updatedAt,
+    cvhAggregator: title.cvhAggregator ?? null,
     episodes: title.episodes
       .slice()
       .sort((a, b) => a.number - b.number)
@@ -728,10 +735,6 @@ function toTitleDto(includeDrafts: boolean) {
 
 function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
   const isVisible = includeDrafts || episode.published;
-  const cvhPlayerUrl =
-    isVisible && episode.cvhVideoId && env.cdnVideoHubPlayerBaseUrl
-      ? `${env.cdnVideoHubPlayerBaseUrl}/${episode.cvhVideoId}`
-      : undefined;
 
   return {
     id: episode.id,
@@ -739,7 +742,6 @@ function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
     durationMinutes: episode.durationMinutes,
     playerSrc: isVisible ? (episode.playerSrc ?? undefined) : undefined,
     cvhVideoId: isVisible ? (episode.cvhVideoId ?? undefined) : undefined,
-    cvhPlayerUrl,
     published: episode.published,
   };
 }

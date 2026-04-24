@@ -47,14 +47,15 @@ model Title {
   coverKey    String?    @map("cover_key")
   published   Boolean    @default(false)
   originalReleaseDate DateTime? @map("original_release_date")
-  ageRating   String?    @map("age_rating")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  episodes    Episode[]
-  comments    Comment[]
-  genres      Genre[]    @relation("TitleGenres")
-  tags        Tag[]      @relation("TitleTags")
-  favorites   Favorite[]
+  ageRating     String?    @map("age_rating")
+  cvhAggregator String?    @map("cvh_aggregator")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+  episodes      Episode[]
+  comments      Comment[]
+  genres        Genre[]    @relation("TitleGenres")
+  tags          Tag[]      @relation("TitleTags")
+  favorites     Favorite[]
 
   @@map("titles")
 }

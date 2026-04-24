@@ -177,6 +177,7 @@ export type UpdateTitleInput = {
   tags?: string[];
   ageRating?: string | null;
   originalReleaseDate?: string | null;
+  cvhAggregator?: string | null;
 };
 
 export async function updateTitle(slug: string, input: UpdateTitleInput) {

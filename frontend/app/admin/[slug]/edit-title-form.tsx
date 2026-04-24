@@ -31,6 +31,7 @@ type Props = {
     tags: string[];
     ageRating?: string | null;
     originalReleaseDate?: string | null;
+    cvhAggregator?: string | null;
   };
 };
 
@@ -279,6 +280,15 @@ export function EditTitleForm({ action, initialValues }: Props) {
             />
           </label>
         </div>
+        <label>
+          CDNVideoHub Агрегатор
+          <select name="cvhAggregator" defaultValue={initialValues.cvhAggregator ?? ""}>
+            <option value="">— не задан —</option>
+            <option value="kp">Кинопоиск (kp)</option>
+            <option value="mali">MyAnimeList (mali)</option>
+            <option value="mdl">MyDramaList (mdl)</option>
+          </select>
+        </label>
         <label>
           Ключ обложки
           <input

@@ -48,6 +48,11 @@ export async function updateTitleAction(
     originalReleaseDateInput.trim().length > 0
       ? originalReleaseDateInput.trim()
       : undefined;
+  const cvhAggregatorInput = formData.get('cvhAggregator');
+  const cvhAggregator =
+    cvhAggregatorInput && typeof cvhAggregatorInput === 'string' && cvhAggregatorInput.trim().length > 0
+      ? cvhAggregatorInput.trim()
+      : null;
 
   if (name.length < 3) {
     return { success: false, error: 'Название должно содержать минимум 3 символа' };
@@ -83,6 +88,7 @@ export async function updateTitleAction(
       tags,
       ageRating,
       originalReleaseDate,
+      cvhAggregator,
     });
   } catch (error) {
     if (error instanceof ApiError) {

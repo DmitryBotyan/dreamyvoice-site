@@ -61,6 +61,7 @@ export default async function AdminTitlePage({ params }: Props) {
           tags: title.tags,
           ageRating: title.ageRating ?? null,
           originalReleaseDate: title.originalReleaseDate ?? null,
+          cvhAggregator: title.cvhAggregator ?? null,
         }}
       />
 

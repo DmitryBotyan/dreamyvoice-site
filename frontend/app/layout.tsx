@@ -51,6 +51,11 @@ export default async function RootLayout({
           }}
         />
         <Script
+          id="cvh-player"
+          src="https://player.cdnvideohub.com/s2/stable/video-player.umd.js"
+          strategy="afterInteractive"
+        />
+        <Script
           id="yandex-metrika"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{

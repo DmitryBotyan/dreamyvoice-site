@@ -23,7 +23,6 @@ export type Episode = {
   durationMinutes?: number | null;
   playerSrc?: string;
   cvhVideoId?: string;
-  cvhPlayerUrl?: string;
   published: boolean;
 };
 
@@ -41,6 +40,7 @@ export type Title = {
   tags: string[];
   ageRating?: string | null;
   originalReleaseDate?: string | null;
+  cvhAggregator?: string | null;
 };
 
 export type FavoriteTitle = {

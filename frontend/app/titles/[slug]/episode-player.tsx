@@ -4,8 +4,27 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Episode } from "@/lib/types";
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'video-player': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        'data-title-id'?: string;
+        'data-publisher-id'?: string;
+        'data-aggregator'?: string;
+        episode?: number | string;
+        season?: number | string;
+        ident?: string;
+        'is-show-banner'?: string;
+        'disable-licensed'?: string;
+      };
+    }
+  }
+}
+
 type Props = {
   episodes: Episode[];
+  cvhAggregator?: string | null;
 };
 
 type Source = "iframe" | "cdn";
@@ -31,7 +50,7 @@ function defaultSource(ep: Episode): Source {
   return hasIframe(ep) ? "iframe" : "cdn";
 }
 
-export function EpisodePlayer({ episodes }: Props) {
+export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
   const playableEpisodes = useMemo(
     () => episodes.filter(isPlayable),
     [episodes]
@@ -84,24 +103,12 @@ export function EpisodePlayer({ episodes }: Props) {
     playableEpisodes.find((ep) => ep.id === currentEpisodeId) ??
     playableEpisodes[0];
 
-  // Safe derivations — only when episode exists
-  const cdnSrc = currentEpisode?.cvhPlayerUrl;
-  const cdnUnconfigured =
-    currentEpisode !== undefined && hasCdn(currentEpisode) && !cdnSrc;
-
-  const activeSrc =
-    currentEpisode == null
-      ? undefined
-      : source === "cdn"
-      ? cdnSrc ?? currentEpisode.playerSrc
-      : currentEpisode.playerSrc ?? cdnSrc;
+  const activeSrc = currentEpisode?.playerSrc;
 
   const bothSources =
     currentEpisode != null &&
     hasIframe(currentEpisode) &&
     hasCdn(currentEpisode);
-
-  const isCdnActive = source === "cdn" && Boolean(cdnSrc);
 
   // Single-source label: based on which source the episode actually has
   const singleSourceLabel =
@@ -164,20 +171,21 @@ export function EpisodePlayer({ episodes }: Props) {
             </p>
           </div>
 
-          {source === "cdn" && cdnUnconfigured ? (
-            <div className="episode-player-cdn-notice">
-              <p>CDNVideoHub плеер не настроен на сервере.</p>
-              <p className="episode-player-cdn-notice-hint">
-                Укажите{" "}
-                <code>CDN_VIDEOHUB_PLAYER_BASE_URL</code> в конфигурации.
-              </p>
+          {source === "cdn" && currentEpisode.cvhVideoId ? (
+            <div className="episode-player-frame episode-player-frame--cdn">
+              <video-player
+                id="cvhPlayer"
+                ident="player_1"
+                data-title-id={currentEpisode.cvhVideoId}
+                data-publisher-id="2819"
+                data-aggregator={cvhAggregator ?? "kp"}
+                episode={currentEpisode.number}
+                is-show-banner="true"
+                disable-licensed="false"
+              />
             </div>
           ) : activeSrc ? (
-            <div
-              className={`episode-player-frame${
-                isCdnActive ? " episode-player-frame--cdn" : ""
-              }`}
-            >
+            <div className="episode-player-frame">
               <iframe
                 key={activeSrc}
                 className="episode-player-iframe"

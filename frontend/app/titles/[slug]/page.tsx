@@ -258,7 +258,7 @@ export default async function TitlePage({ params }: Props) {
         </div>
       </header>
 
-      <EpisodePlayer episodes={title.episodes} />
+      <EpisodePlayer episodes={title.episodes} cvhAggregator={title.cvhAggregator} />
 
       <section className="comments-section" id="comments">
         <div className="comments-heading">
