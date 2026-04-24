@@ -4,23 +4,6 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Episode } from "@/lib/types";
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'video-player': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        id?: string;
-        'data-title-id'?: string;
-        'data-publisher-id'?: string;
-        'data-aggregator'?: string;
-        episode?: number | string;
-        season?: number | string;
-        ident?: string;
-        'is-show-banner'?: string;
-        'disable-licensed'?: string;
-      };
-    }
-  }
-}
 
 type Props = {
   episodes: Episode[];
