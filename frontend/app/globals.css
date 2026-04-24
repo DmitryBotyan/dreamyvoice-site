@@ -1651,6 +1651,12 @@ button:disabled {
   box-shadow: 0 35px 90px rgba(0, 0, 0, 0.65);
 }
 
+video-player {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .episode-player-iframe {
   width: 100%;
   height: 100%;
