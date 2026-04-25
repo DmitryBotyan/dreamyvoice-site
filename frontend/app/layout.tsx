@@ -35,6 +35,9 @@ export default async function RootLayout({
 
   return (
     <html lang="ru">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `window.AdmanHTML=window.AdmanHTML||function(){};` }} />
+      </head>
       <body className="app-body">
         <Script
           id="organization-jsonld"
@@ -50,8 +53,6 @@ export default async function RootLayout({
             __html: JSON.stringify(websiteJsonLd),
           }}
         />
-        {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
-        <script dangerouslySetInnerHTML={{ __html: `window.AdmanHTML=window.AdmanHTML||function(){};` }} />
         <Script
           id="cvh-player"
           src="https://player.cdnvideohub.com/s2/stable/video-player.umd.js"
