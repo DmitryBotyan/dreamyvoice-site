@@ -70,23 +70,31 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
 
   useEffect(() => {
     if (source !== "cdn") return;
+
+    let observer: MutationObserver | null = null;
     let intervalId: ReturnType<typeof setInterval>;
 
-    const inject = () => {
+    const hide = (root: ShadowRoot) => {
+      const el = root.querySelector(".controls") as HTMLElement | null;
+      if (el && el.style.display !== "none") el.style.display = "none";
+    };
+
+    const setup = () => {
       const player = document.getElementById("cvhPlayer") as (HTMLElement & { shadowRoot: ShadowRoot | null }) | null;
       if (!player?.shadowRoot) return false;
-      if (player.shadowRoot.getElementById("dv-hide-selectors")) return true;
-      const style = document.createElement("style");
-      style.id = "dv-hide-selectors";
-      style.textContent = `.controls { display: none !important; }`;
-      player.shadowRoot.appendChild(style);
+      hide(player.shadowRoot);
+      observer = new MutationObserver(() => hide(player.shadowRoot!));
+      observer.observe(player.shadowRoot, { childList: true, subtree: true });
       return true;
     };
 
-    if (!inject()) {
-      intervalId = setInterval(() => { if (inject()) clearInterval(intervalId); }, 200);
+    if (!setup()) {
+      intervalId = setInterval(() => { if (setup()) clearInterval(intervalId); }, 200);
     }
-    return () => clearInterval(intervalId);
+    return () => {
+      clearInterval(intervalId);
+      observer?.disconnect();
+    };
   }, [source, currentEpisodeId]);
 
   const handleEpisodeChange = useCallback(
