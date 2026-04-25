@@ -54,16 +54,15 @@ export function AddEpisodeForm({ action }: Props) {
         </label>
 
         <label>
-          CDNVideoHub Video ID
+          CDNVideoHub ID тайтла
           <input
             type="text"
             name="cvhVideoId"
-            placeholder="Например: 42"
-            pattern="\d*"
-            title="Числовой ID видео из CDNVideoHub"
+            placeholder="Например: 3536"
+            title="ID тайтла в агрегаторе (KP / MAL / MDL)"
           />
           <span className={styles.fieldHint}>
-            Оставьте пустым, если не нужен. Можно указать оба источника.
+            ID тайтла в агрегаторе (KP / MAL / MDL). Оставьте пустым, если не нужен.
           </span>
         </label>
 

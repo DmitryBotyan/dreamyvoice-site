@@ -64,15 +64,16 @@ export function EditEpisodeForm({ episode, action }: Props) {
           </label>
 
           <label>
-            CDNVideoHub Video ID
+            CDNVideoHub ID тайтла
             <input
               type="text"
               name="cvhVideoId"
               defaultValue={episode.cvhVideoId ?? ""}
-              placeholder="Например: 42"
-              pattern="\d*"
+              placeholder="Например: 3536"
             />
-            <span className={styles.fieldHint}>Оставьте пустым, чтобы убрать</span>
+            <span className={styles.fieldHint}>
+              ID тайтла в агрегаторе (KP / MAL / MDL). Оставьте пустым, чтобы убрать.
+            </span>
           </label>
 
           <label>

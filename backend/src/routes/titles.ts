@@ -200,14 +200,14 @@ const episodeCreateSchema = z
   .object({
     number: z.coerce.number().int().positive().max(10000),
     playerSrc: z.string().url().optional().nullable(),
-    cvhVideoId: z.string().trim().regex(/^\d+$/, 'CDNVideoHub Video ID должен быть числом').optional().nullable(),
+    cvhVideoId: z.string().trim().min(1).optional().nullable(),
     durationMinutes: z
       .union([z.coerce.number().int().positive().max(2000), z.literal(null)])
       .optional(),
     published: z.boolean().optional().default(false),
   })
   .refine((data) => data.playerSrc || data.cvhVideoId, {
-    message: 'Необходимо указать либо ссылку на плеер (playerSrc), либо ID видео CDNVideoHub (cvhVideoId)',
+    message: 'Необходимо указать либо ссылку на плеер (playerSrc), либо Content ID CDNVideoHub (cvhVideoId)',
   });
 
 router.get(
@@ -570,7 +570,7 @@ episodesRouter.post(
 const episodeUpdateSchema = z
   .object({
     playerSrc: z.union([z.string().url(), z.literal(''), z.null()]).optional(),
-    cvhVideoId: z.union([z.string().trim().regex(/^\d+$/, 'CDNVideoHub Video ID должен быть числом'), z.null()]).optional(),
+    cvhVideoId: z.union([z.string().trim().min(1), z.null()]).optional(),
     durationMinutes: z
       .union([z.coerce.number().int().positive().max(2000), z.null()])
       .optional(),

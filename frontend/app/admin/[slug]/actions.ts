@@ -140,10 +140,6 @@ export async function createEpisodeAction(
     }
   }
 
-  if (cvhVideoId && !/^\d+$/.test(cvhVideoId)) {
-    return { success: false, error: 'CDNVideoHub Video ID должен быть числом' };
-  }
-
   let durationMinutes: number | null | undefined = undefined;
   if (durationInput && typeof durationInput === 'string' && durationInput.trim().length > 0) {
     const parsedDuration = Number(durationInput);
@@ -201,10 +197,6 @@ export async function updateEpisodeAction(
     } catch {
       return { success: false, error: 'Некорректный формат ссылки на плеер' };
     }
-  }
-
-  if (cvhVideoId && !/^\d+$/.test(cvhVideoId)) {
-    return { success: false, error: 'CDNVideoHub Video ID должен быть числом' };
   }
 
   let durationMinutes: number | null | undefined = undefined;
