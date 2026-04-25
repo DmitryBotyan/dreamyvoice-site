@@ -68,6 +68,33 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
     if (ep) setSource(defaultSource(ep));
   }, [initialEpisodeId, playableEpisodes]);
 
+  useEffect(() => {
+    if (source !== "cdn") return;
+    let intervalId: ReturnType<typeof setInterval>;
+
+    const inject = () => {
+      const player = document.getElementById("cvhPlayer") as (HTMLElement & { shadowRoot: ShadowRoot | null }) | null;
+      if (!player?.shadowRoot) return false;
+      if (player.shadowRoot.getElementById("dv-hide-selectors")) return true;
+      const style = document.createElement("style");
+      style.id = "dv-hide-selectors";
+      style.textContent = `
+        .player-top-panel, .player-header, .top-controls, .top-panel,
+        .controls-top, .media-header, .selectors, .player-selectors,
+        .voice-selector, .voice-select, .audio-selector,
+        [class*="header"]:not([class*="video"]):not([class*="play"]),
+        [class*="selector"], [class*="voice"], [class*="select"] { display: none !important; }
+      `;
+      player.shadowRoot.appendChild(style);
+      return true;
+    };
+
+    if (!inject()) {
+      intervalId = setInterval(() => { if (inject()) clearInterval(intervalId); }, 200);
+    }
+    return () => clearInterval(intervalId);
+  }, [source, currentEpisodeId]);
+
   const handleEpisodeChange = useCallback(
     (episode: Episode) => {
       setCurrentEpisodeId(episode.id);
@@ -164,6 +191,7 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
                 data-aggregator={cvhAggregator ?? "kp"}
                 episode={currentEpisode.number}
                 is-show-banner="true"
+                is-show-voice-only="true"
                 disable-licensed="false"
               />
             </div>
