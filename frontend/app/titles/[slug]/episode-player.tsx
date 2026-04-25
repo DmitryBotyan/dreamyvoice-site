@@ -78,13 +78,7 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
       if (player.shadowRoot.getElementById("dv-hide-selectors")) return true;
       const style = document.createElement("style");
       style.id = "dv-hide-selectors";
-      style.textContent = `
-        .player-top-panel, .player-header, .top-controls, .top-panel,
-        .controls-top, .media-header, .selectors, .player-selectors,
-        .voice-selector, .voice-select, .audio-selector,
-        [class*="header"]:not([class*="video"]):not([class*="play"]),
-        [class*="selector"], [class*="voice"], [class*="select"] { display: none !important; }
-      `;
+      style.textContent = `.select-container { display: none !important; }`;
       player.shadowRoot.appendChild(style);
       return true;
     };
