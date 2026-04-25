@@ -78,7 +78,7 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
       if (player.shadowRoot.getElementById("dv-hide-selectors")) return true;
       const style = document.createElement("style");
       style.id = "dv-hide-selectors";
-      style.textContent = `.select-container { display: none !important; }`;
+      style.textContent = `.controls { display: none !important; }`;
       player.shadowRoot.appendChild(style);
       return true;
     };
