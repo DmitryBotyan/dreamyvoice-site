@@ -4,6 +4,7 @@ declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
       'video-player': {
+        key?: React.Key;
         id?: string;
         'data-title-id'?: string;
         'data-publisher-id'?: string;
