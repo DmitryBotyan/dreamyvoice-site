@@ -12,6 +12,9 @@ declare module 'react' {
         season?: number | string;
         ident?: string;
         'is-show-banner'?: string;
+        'is-show-voice-only'?: string;
+        'only-voice'?: string;
+        'priority-voice'?: string;
         'disable-licensed'?: string;
         className?: string;
       };

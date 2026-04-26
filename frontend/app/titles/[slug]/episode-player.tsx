@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Episode } from "@/lib/types";
 
@@ -62,40 +62,28 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
     return ep ? defaultSource(ep) : "iframe";
   });
 
+  // Derived values — placed before hooks that depend on them.
+  const currentEpisode =
+    playableEpisodes.find((ep) => ep.id === currentEpisodeId) ??
+    playableEpisodes[0];
+
+  const activeSrc = currentEpisode?.playerSrc;
+
+  const bothSources =
+    currentEpisode != null &&
+    hasIframe(currentEpisode) &&
+    hasCdn(currentEpisode);
+
+  const singleSourceLabel =
+    currentEpisode != null && hasCdn(currentEpisode) && !hasIframe(currentEpisode)
+      ? "CDNVideoHub"
+      : "Внешний плеер";
+
   useEffect(() => {
     setCurrentEpisodeId(initialEpisodeId);
     const ep = playableEpisodes.find((e) => e.id === initialEpisodeId);
     if (ep) setSource(defaultSource(ep));
   }, [initialEpisodeId, playableEpisodes]);
-
-  useEffect(() => {
-    if (source !== "cdn") return;
-
-    let observer: MutationObserver | null = null;
-    let intervalId: ReturnType<typeof setInterval>;
-
-    const hide = (root: ShadowRoot) => {
-      const el = root.querySelector(".controls") as HTMLElement | null;
-      if (el && el.style.display !== "none") el.style.display = "none";
-    };
-
-    const setup = () => {
-      const player = document.getElementById("cvhPlayer") as (HTMLElement & { shadowRoot: ShadowRoot | null }) | null;
-      if (!player?.shadowRoot) return false;
-      hide(player.shadowRoot);
-      observer = new MutationObserver(() => hide(player.shadowRoot!));
-      observer.observe(player.shadowRoot, { childList: true, subtree: true });
-      return true;
-    };
-
-    if (!setup()) {
-      intervalId = setInterval(() => { if (setup()) clearInterval(intervalId); }, 200);
-    }
-    return () => {
-      clearInterval(intervalId);
-      observer?.disconnect();
-    };
-  }, [source, currentEpisodeId]);
 
   const handleEpisodeChange = useCallback(
     (episode: Episode) => {
@@ -111,22 +99,62 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
     [pathname, router, searchParams]
   );
 
-  const currentEpisode =
-    playableEpisodes.find((ep) => ep.id === currentEpisodeId) ??
-    playableEpisodes[0];
+  // Track what episode number we set on the player so we can distinguish
+  // our own attribute writes from player-initiated auto-advances.
+  const intendedEpisodeNumberRef = useRef<number | null>(null);
 
-  const activeSrc = currentEpisode?.playerSrc;
+  useEffect(() => {
+    if (source === "cdn" && currentEpisode != null) {
+      intendedEpisodeNumberRef.current = currentEpisode.number;
+    }
+  }, [source, currentEpisode]);
 
-  const bothSources =
-    currentEpisode != null &&
-    hasIframe(currentEpisode) &&
-    hasCdn(currentEpisode);
+  useEffect(() => {
+    if (source !== "cdn") return;
 
-  // Single-source label: based on which source the episode actually has
-  const singleSourceLabel =
-    currentEpisode != null && hasCdn(currentEpisode) && !hasIframe(currentEpisode)
-      ? "CDNVideoHub"
-      : "Внешний плеер";
+    let shadowObserver: MutationObserver | null = null;
+    let attrObserver: MutationObserver | null = null;
+    let intervalId: ReturnType<typeof setInterval>;
+
+    const hide = (root: ShadowRoot) => {
+      const el = root.querySelector(".controls") as HTMLElement | null;
+      if (el && el.style.display !== "none") el.style.display = "none";
+    };
+
+    const setup = () => {
+      const player = document.getElementById("cvhPlayer") as (HTMLElement & { shadowRoot: ShadowRoot | null }) | null;
+      if (!player?.shadowRoot) return false;
+
+      hide(player.shadowRoot);
+      shadowObserver = new MutationObserver(() => hide(player.shadowRoot!));
+      shadowObserver.observe(player.shadowRoot, { childList: true, subtree: true });
+
+      // Detect when CVH player internally advances to a different episode.
+      attrObserver = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          if (m.attributeName !== "episode") continue;
+          const raw = player.getAttribute("episode");
+          const num = raw !== null ? Number(raw) : NaN;
+          if (isNaN(num) || num === intendedEpisodeNumberRef.current) continue;
+          // Player auto-advanced to `num` — sync React state to match.
+          const next = playableEpisodes.find((ep) => ep.number === num);
+          if (next) handleEpisodeChange(next);
+        }
+      });
+      attrObserver.observe(player, { attributes: true, attributeFilter: ["episode"] });
+
+      return true;
+    };
+
+    if (!setup()) {
+      intervalId = setInterval(() => { if (setup()) clearInterval(intervalId); }, 200);
+    }
+    return () => {
+      clearInterval(intervalId);
+      shadowObserver?.disconnect();
+      attrObserver?.disconnect();
+    };
+  }, [source, currentEpisodeId, playableEpisodes, handleEpisodeChange]);
 
   return (
     <section className="episode-player">
@@ -186,14 +214,17 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
           {source === "cdn" && currentEpisode.cvhVideoId ? (
             <div className="episode-player-frame episode-player-frame--cdn">
               <video-player
+                key={currentEpisode.id}
                 id="cvhPlayer"
                 ident="player_1"
                 data-title-id={currentEpisode.cvhVideoId}
                 data-publisher-id="2819"
                 data-aggregator={cvhAggregator ?? "kp"}
                 episode={currentEpisode.number}
+                only-voice="jaskier"
+                priority-voice="Jaskier"
                 is-show-banner="true"
-                is-show-voice-only="true"
+                is-show-voice-only="false"
                 disable-licensed="false"
               />
             </div>
