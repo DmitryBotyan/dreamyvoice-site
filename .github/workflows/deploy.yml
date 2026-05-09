@@ -1,0 +1,88 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Backend – install & typecheck
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma generate
+          pnpm tsc --noEmit
+
+      - name: Frontend – install & typecheck
+        working-directory: frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm tsc --noEmit
+
+  deploy:
+    name: Deploy to VPS
+    needs: typecheck
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          script_stop: true
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            cd /opt/dreamyvoice
+
+            echo "▶ pull"
+            git pull origin main
+
+            echo "▶ build images"
+            docker compose -f docker-compose.prod.yml build
+
+            echo "▶ start db"
+            docker compose -f docker-compose.prod.yml up -d db
+
+            echo "▶ wait for db healthy"
+            timeout 60 bash -c \
+              'until docker compose -f docker-compose.prod.yml ps db | grep -q "(healthy)"; do sleep 3; done'
+
+            echo "▶ run migrations"
+            docker compose -f docker-compose.prod.yml run --rm \
+              --no-deps \
+              backend npx prisma migrate deploy
+
+            echo "▶ up all services"
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            echo "▶ wait for stabilize"
+            sleep 15
+
+            echo "▶ status"
+            docker compose -f docker-compose.prod.yml ps
+
+            echo "▶ prune old images"
+            docker image prune -f
