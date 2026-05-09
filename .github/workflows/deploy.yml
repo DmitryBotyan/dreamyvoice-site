@@ -70,6 +70,8 @@ jobs:
       - name: Start all services
         run: |
           cd /opt/dreamyvoice/app
+          # Remove stale named containers that may belong to a different compose project
+          docker rm -f dreamy_backend dreamy_frontend dreamy_caddy 2>/dev/null || true
           docker compose -f docker-compose.prod.yml up -d --remove-orphans
 
       - name: Health check
