@@ -1,28 +1,50 @@
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 import { asyncHandler } from '../utils/async-handler';
 import { authenticateUser, registerUser, toPublicUser } from '../services/auth';
 import { createSession, deleteSession, setSessionCookie, clearSessionCookie } from '../services/session';
+import { createVerificationToken, validateVerificationToken } from '../services/verification-token';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email';
+import { verifyRecaptcha } from '../utils/recaptcha';
+import { prisma } from '../prisma';
 import { HttpError } from '../utils/http-error';
 
 const router = Router();
 
-const credentialsSchema = z.object({
+const registerSchema = z.object({
   username: z.string().min(3).max(32),
   password: z.string().min(6).max(128),
+  email: z.string().email(),
+  recaptchaToken: z.string().min(1),
+});
+
+const loginSchema = z.object({
+  username: z.string().min(3).max(32),
+  password: z.string().min(6).max(128),
+  recaptchaToken: z.string().min(1),
 });
 
 router.post(
   '/register',
   asyncHandler(async (req: Request, res: Response) => {
-    const { username, password } = credentialsSchema.parse(req.body);
-    const user = await registerUser({ username, password });
+    const { username, password, email, recaptchaToken } = registerSchema.parse(req.body);
+
+    const captchaOk = await verifyRecaptcha(recaptchaToken);
+    if (!captchaOk) {
+      throw new HttpError(400, 'Captcha verification failed');
+    }
+
+    const user = await registerUser({ username, password, email });
     const { session, expiresAt } = await createSession(user.id, {
       userAgent: req.get('user-agent'),
       ip: req.ip,
     });
 
     setSessionCookie(res, session.id, expiresAt);
+
+    const token = await createVerificationToken(user.id, 'EMAIL_VERIFICATION');
+    sendVerificationEmail(email, token).catch(() => {});
 
     res.status(201).json({ user: toPublicUser(user) });
   }),
@@ -31,7 +53,13 @@ router.post(
 router.post(
   '/login',
   asyncHandler(async (req: Request, res: Response) => {
-    const { username, password } = credentialsSchema.parse(req.body);
+    const { username, password, recaptchaToken } = loginSchema.parse(req.body);
+
+    const captchaOk = await verifyRecaptcha(recaptchaToken);
+    if (!captchaOk) {
+      throw new HttpError(400, 'Captcha verification failed');
+    }
+
     const user = await authenticateUser({ username, password });
 
     if (!user) {
@@ -68,6 +96,85 @@ router.get(
     }
 
     res.json({ user: toPublicUser(req.currentUser) });
+  }),
+);
+
+router.post(
+  '/verify-email',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { token } = z.object({ token: z.string().min(1) }).parse(req.body);
+
+    const userId = await validateVerificationToken(token, 'EMAIL_VERIFICATION');
+    if (!userId) {
+      throw new HttpError(400, 'Invalid or expired verification link');
+    }
+
+    await prisma.user.update({ where: { id: userId }, data: { emailVerified: true } });
+
+    res.json({ message: 'Email confirmed' });
+  }),
+);
+
+router.post(
+  '/forgot-password',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { email, recaptchaToken } = z
+      .object({ email: z.string().email(), recaptchaToken: z.string().min(1) })
+      .parse(req.body);
+
+    const captchaOk = await verifyRecaptcha(recaptchaToken);
+    if (!captchaOk) {
+      throw new HttpError(400, 'Captcha verification failed');
+    }
+
+    const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    if (user) {
+      const token = await createVerificationToken(user.id, 'PASSWORD_RESET');
+      sendPasswordResetEmail(email, token).catch(() => {});
+    }
+
+    res.json({ message: 'If an account with this email exists, a reset link has been sent' });
+  }),
+);
+
+router.post(
+  '/reset-password',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { token, password } = z
+      .object({ token: z.string().min(1), password: z.string().min(6).max(128) })
+      .parse(req.body);
+
+    const userId = await validateVerificationToken(token, 'PASSWORD_RESET');
+    if (!userId) {
+      throw new HttpError(400, 'Invalid or expired reset link');
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+
+    res.json({ message: 'Password updated' });
+  }),
+);
+
+router.post(
+  '/resend-verification',
+  asyncHandler(async (req: Request, res: Response) => {
+    if (!req.currentUser) {
+      throw new HttpError(401, 'Not authenticated');
+    }
+
+    if (req.currentUser.emailVerified) {
+      throw new HttpError(400, 'Email already verified');
+    }
+
+    if (!req.currentUser.email) {
+      throw new HttpError(400, 'No email on this account');
+    }
+
+    const token = await createVerificationToken(req.currentUser.id, 'EMAIL_VERIFICATION');
+    sendVerificationEmail(req.currentUser.email, token).catch(() => {});
+
+    res.json({ message: 'Verification email sent' });
   }),
 );
 

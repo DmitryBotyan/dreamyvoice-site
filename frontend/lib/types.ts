@@ -3,6 +3,8 @@ export type UserRole = 'USER' | 'ADMIN';
 export type PublicUser = {
   id: string;
   username: string;
+  email?: string | null;
+  emailVerified: boolean;
   role: UserRole;
   avatarKey?: string | null;
   createdAt: string;

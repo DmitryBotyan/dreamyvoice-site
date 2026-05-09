@@ -10,11 +10,10 @@ const optionalUrl = z
   .optional()
   .transform((value) => value?.replace(/\/+$/, ''));
 
-const optionalNonEmptyString = z
-  .string()
-  .trim()
-  .min(1)
-  .optional();
+const optionalNonEmptyString = z.preprocess(
+  (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+  z.string().trim().min(1).optional(),
+);
 
 const envSchema = z
   .object({
@@ -50,6 +49,13 @@ const envSchema = z
     CDN_VIDEOHUB_BASE_URL: optionalUrl,
     CDN_VIDEOHUB_TOKEN: optionalNonEmptyString,
     CDN_VIDEOHUB_PLAYER_BASE_URL: optionalUrl,
+    APP_URL: z.string().url().default('http://localhost:3000'),
+    SMTP_HOST: optionalNonEmptyString,
+    SMTP_PORT: z.coerce.number().default(465),
+    SMTP_USER: optionalNonEmptyString,
+    SMTP_PASS: optionalNonEmptyString,
+    SMTP_FROM: optionalNonEmptyString,
+    RECAPTCHA_SECRET_KEY: z.string().min(1),
   })
   .superRefine((value, ctx) => {
     const hasApiBaseUrl = Boolean(value.CDN_VIDEOHUB_BASE_URL);
@@ -70,10 +76,19 @@ const sessionCookieSecure =
   rawEnv.SESSION_COOKIE_SECURE ??
   (rawEnv.NODE_ENV === 'production' ? true : false);
 
+const smtpConfigured = Boolean(
+  rawEnv.SMTP_HOST && rawEnv.SMTP_USER && rawEnv.SMTP_PASS && rawEnv.SMTP_FROM,
+);
+
+if (!smtpConfigured) {
+  console.warn('[email] SMTP not configured — email stub mode active. Links will be logged to console.');
+}
+
 export const env = {
   ...rawEnv,
   sessionCookieSecure,
   isProduction: rawEnv.NODE_ENV === 'production',
+  emailConfigured: smtpConfigured,
   playerAllowedHostsSet: new Set(rawEnv.PLAYER_ALLOWED_HOSTS),
   mediaBucketsSet: new Set([rawEnv.S3_BUCKET_AVATARS, rawEnv.S3_BUCKET_COVERS]),
   cdnVideoHubPlayerBaseUrl: rawEnv.CDN_VIDEOHUB_PLAYER_BASE_URL ?? null,
