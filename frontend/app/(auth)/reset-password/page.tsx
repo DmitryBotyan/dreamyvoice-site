@@ -5,15 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
 
-declare global {
-  interface Window {
-    grecaptcha: {
-      getResponse: (widgetId?: number) => string;
-      reset: (widgetId?: number) => void;
-    };
-  }
-}
-
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!;
 const IS_DEV = process.env.NODE_ENV === 'development';
 
@@ -35,7 +26,7 @@ function ResetPasswordContent() {
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
       script.id = scriptId;
-      script.src = 'https://www.google.com/recaptcha/api.js';
+      script.src = 'https://www.google.com/recaptcha/api.js?render=explicit';
       script.async = true;
       script.defer = true;
       document.body.appendChild(script);
@@ -46,10 +37,14 @@ function ResetPasswordContent() {
     if (IS_DEV || !captchaRef.current || captchaRendered.current) return;
 
     const interval = setInterval(() => {
-      if (window.grecaptcha && captchaRef.current && !captchaRendered.current) {
+      if (window.grecaptcha?.ready && captchaRef.current && !captchaRendered.current) {
         clearInterval(interval);
-        captchaRendered.current = true;
-        (window.grecaptcha as any).render(captchaRef.current, { sitekey: SITE_KEY });
+        window.grecaptcha.ready(() => {
+          if (captchaRef.current && !captchaRendered.current) {
+            captchaRendered.current = true;
+            window.grecaptcha.render(captchaRef.current, { sitekey: SITE_KEY });
+          }
+        });
       }
     }, 200);
 
@@ -73,7 +68,9 @@ function ResetPasswordContent() {
       return;
     }
 
-    const recaptchaToken = IS_DEV ? 'dev-bypass' : (window.grecaptcha?.getResponse() ?? '');
+    const recaptchaToken = IS_DEV
+      ? 'dev-bypass'
+      : (() => { try { return window.grecaptcha?.getResponse() ?? ''; } catch { return ''; } })();
     if (!IS_DEV && !recaptchaToken) {
       setError('Подтвердите, что вы не робот');
       return;

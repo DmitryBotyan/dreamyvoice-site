@@ -8,6 +8,8 @@ import { clientConfig } from '@/lib/client-config';
 declare global {
   interface Window {
     grecaptcha: {
+      ready: (callback: () => void) => void;
+      render: (container: HTMLElement, params: { sitekey: string }) => number;
       getResponse: (widgetId?: number) => string;
       reset: (widgetId?: number) => void;
     };
@@ -48,7 +50,7 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
       script.id = scriptId;
-      script.src = 'https://www.google.com/recaptcha/api.js';
+      script.src = 'https://www.google.com/recaptcha/api.js?render=explicit';
       script.async = true;
       script.defer = true;
       document.body.appendChild(script);
@@ -58,17 +60,15 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
   useEffect(() => {
     if (IS_DEV || !captchaRef.current || captchaRendered.current) return;
 
-    const tryRender = () => {
-      if (window.grecaptcha && captchaRef.current && !captchaRendered.current) {
-        captchaRendered.current = true;
-        (window.grecaptcha as any).render(captchaRef.current, { sitekey: SITE_KEY });
-      }
-    };
-
     const interval = setInterval(() => {
-      if (window.grecaptcha) {
+      if (window.grecaptcha?.ready && captchaRef.current && !captchaRendered.current) {
         clearInterval(interval);
-        tryRender();
+        window.grecaptcha.ready(() => {
+          if (captchaRef.current && !captchaRendered.current) {
+            captchaRendered.current = true;
+            window.grecaptcha.render(captchaRef.current, { sitekey: SITE_KEY });
+          }
+        });
       }
     }, 200);
 
@@ -82,7 +82,9 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
       return;
     }
 
-    const recaptchaToken = IS_DEV ? 'dev-bypass' : (window.grecaptcha?.getResponse() ?? '');
+    const recaptchaToken = IS_DEV
+      ? 'dev-bypass'
+      : (() => { try { return window.grecaptcha?.getResponse() ?? ''; } catch { return ''; } })();
     if (!IS_DEV && !recaptchaToken) {
       setError('Подтвердите, что вы не робот');
       return;
