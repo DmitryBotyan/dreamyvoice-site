@@ -40,49 +40,43 @@ jobs:
   deploy:
     name: Deploy to VPS
     needs: typecheck
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: 22
-          script_stop: true
-          command_timeout: 15m
-          script: |
-            set -euo pipefail
-            cd /opt/dreamyvoice/app
+      - name: Pull latest code
+        run: |
+          cd /opt/dreamyvoice/app
+          git pull origin main
 
-            echo "▶ pull"
-            git pull origin main
+      - name: Build Docker images
+        run: |
+          cd /opt/dreamyvoice/app
+          docker compose -f docker-compose.prod.yml build
 
-            echo "▶ build images"
-            docker compose -f docker-compose.prod.yml build
+      - name: Start DB and wait for healthy
+        run: |
+          cd /opt/dreamyvoice/app
+          docker compose -f docker-compose.prod.yml up -d db
+          timeout 60 bash -c \
+            'until docker compose -f docker-compose.prod.yml ps db | grep -q "(healthy)"; do sleep 3; done'
 
-            echo "▶ start db"
-            docker compose -f docker-compose.prod.yml up -d db
+      - name: Run DB migrations
+        run: |
+          cd /opt/dreamyvoice/app
+          docker compose -f docker-compose.prod.yml run --rm --no-deps \
+            backend npx prisma migrate deploy
 
-            echo "▶ wait for db healthy"
-            timeout 60 bash -c \
-              'until docker compose -f docker-compose.prod.yml ps db | grep -q "(healthy)"; do sleep 3; done'
+      - name: Start all services
+        run: |
+          cd /opt/dreamyvoice/app
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans
 
-            echo "▶ run migrations"
-            docker compose -f docker-compose.prod.yml run --rm \
-              --no-deps \
-              backend npx prisma migrate deploy
+      - name: Health check
+        run: |
+          sleep 15
+          cd /opt/dreamyvoice/app
+          docker compose -f docker-compose.prod.yml ps
 
-            echo "▶ up all services"
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
-
-            echo "▶ wait for stabilize"
-            sleep 15
-
-            echo "▶ status"
-            docker compose -f docker-compose.prod.yml ps
-
-            echo "▶ prune old images"
-            docker image prune -f
+      - name: Prune old images
+        run: docker image prune -f
