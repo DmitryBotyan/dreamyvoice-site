@@ -69,8 +69,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: app
     ports:
-      # Bound to VPS loopback only — access via SSH tunnel from outside.
-      - "127.0.0.1:5432:5432"
+      # Exposed publicly on host port 5432, but firewalled by iptables
+      # DOCKER-USER chain to a whitelist of admin IPs. Manage whitelist via
+      # /opt/dreamyvoice/scripts/db-firewall.sh on the VPS.
+      - "5432:5432"
     volumes:
       - ../data/postgres:/var/lib/postgresql/data
     healthcheck:
