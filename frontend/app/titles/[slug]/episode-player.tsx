@@ -30,7 +30,7 @@ function isPlayable(ep: Episode) {
 }
 
 function defaultSource(ep: Episode): Source {
-  return hasIframe(ep) ? "iframe" : "cdn";
+  return hasCdn(ep) ? "cdn" : "iframe";
 }
 
 export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
@@ -179,17 +179,6 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
               >
                 <button
                   type="button"
-                  className={`episode-player-source-btn${
-                    source === "iframe"
-                      ? " episode-player-source-btn--active"
-                      : ""
-                  }`}
-                  onClick={() => setSource("iframe")}
-                >
-                  Внешний плеер
-                </button>
-                <button
-                  type="button"
                   className={`episode-player-source-btn episode-player-source-btn--cdn${
                     source === "cdn"
                       ? " episode-player-source-btn--active episode-player-source-btn--cdn-active"
@@ -198,6 +187,17 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
                   onClick={() => setSource("cdn")}
                 >
                   CDNVideoHub
+                </button>
+                <button
+                  type="button"
+                  className={`episode-player-source-btn${
+                    source === "iframe"
+                      ? " episode-player-source-btn--active"
+                      : ""
+                  }`}
+                  onClick={() => setSource("iframe")}
+                >
+                  Внешний плеер
                 </button>
               </div>
             ) : (

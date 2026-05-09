@@ -53,10 +53,10 @@ function ResetPasswordContent() {
 
   if (!token) {
     return (
-      <>
-        <p>Ссылка недействительна.</p>
-        <Link href="/forgot-password">Запросить новую ссылку</Link>
-      </>
+      <div className="auth-success">
+        <p className="auth-success-text">Ссылка недействительна.</p>
+        <Link className="auth-success-action" href="/forgot-password">Запросить новую ссылку</Link>
+      </div>
     );
   }
 
@@ -102,10 +102,11 @@ function ResetPasswordContent() {
 
   if (success) {
     return (
-      <>
-        <p>Пароль успешно обновлён.</p>
-        <Link href="/login">Войти в аккаунт</Link>
-      </>
+      <div className="auth-success">
+        <div className="auth-success-icon" aria-hidden="true">✓</div>
+        <h3 className="auth-success-title">Пароль обновлён</h3>
+        <Link className="auth-success-action" href="/login">Войти в аккаунт</Link>
+      </div>
     );
   }
 
@@ -144,8 +145,10 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <section>
-      <h1>Новый пароль</h1>
+    <section className="auth-page-card">
+      <header className="auth-page-header">
+        <h1 className="auth-page-title">Новый пароль</h1>
+      </header>
       <Suspense fallback={<p>Загрузка…</p>}>
         <ResetPasswordContent />
       </Suspense>

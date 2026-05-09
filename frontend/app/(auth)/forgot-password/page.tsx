@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
 
@@ -76,18 +77,29 @@ export default function ForgotPasswordPage() {
 
   if (submitted) {
     return (
-      <section>
-        <h1>Восстановление пароля</h1>
-        <p>
-          Если аккаунт с адресом <strong>{email}</strong> существует, мы отправили письмо со ссылкой для сброса пароля.
-        </p>
+      <section className="auth-page-card">
+        <header className="auth-page-header">
+          <h1 className="auth-page-title">Письмо отправлено</h1>
+        </header>
+        <div className="auth-success">
+          <div className="auth-success-icon" aria-hidden="true">✉</div>
+          <p className="auth-success-text">
+            Если аккаунт с адресом <strong>{email}</strong> существует, мы отправили на него ссылку для сброса пароля.
+          </p>
+          <Link className="auth-success-action" href="/login">Вернуться ко входу</Link>
+        </div>
       </section>
     );
   }
 
   return (
-    <section>
-      <h1>Забыли пароль?</h1>
+    <section className="auth-page-card">
+      <header className="auth-page-header">
+        <h1 className="auth-page-title">Забыли пароль?</h1>
+        <p className="auth-page-subtitle">
+          Введите email — пришлём ссылку для сброса.
+        </p>
+      </header>
       <form onSubmit={handleSubmit}>
         <label>
           Email

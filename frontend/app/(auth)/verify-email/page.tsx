@@ -69,8 +69,10 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <section>
-      <h1>Подтверждение email</h1>
+    <section className="auth-page-card">
+      <header className="auth-page-header">
+        <h1 className="auth-page-title">Подтверждение email</h1>
+      </header>
       <Suspense fallback={<p>Загрузка…</p>}>
         <VerifyEmailContent />
       </Suspense>
