@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { env } from '../env';
+import { buildVerificationEmail, buildPasswordResetEmail } from './email-templates';
 
 function createTransport() {
   if (!env.emailConfigured) return null;
@@ -13,14 +14,15 @@ function createTransport() {
 
 const transport = createTransport();
 
-async function send(to: string, subject: string, html: string, label: string) {
+async function send(to: string, subject: string, html: string, text: string, label: string) {
   if (!transport) {
     console.log(`[email:stub] ${label} → ${to}`);
-    console.log(`[email:stub] HTML: ${html.replace(/\s+/g, ' ').trim()}`);
+    console.log(`[email:stub] subject: ${subject}`);
+    console.log(`[email:stub] text: ${text.replace(/\n/g, ' ⏎ ')}`);
     return;
   }
   try {
-    const info = await transport.sendMail({ from: env.SMTP_FROM, to, subject, html });
+    const info = await transport.sendMail({ from: env.SMTP_FROM, to, subject, html, text });
     console.log(`[email] sent ${label} → ${to} (messageId=${info.messageId}, response=${info.response})`);
   } catch (err) {
     console.error(`[email] failed to send ${label} → ${to}:`, err);
@@ -30,20 +32,12 @@ async function send(to: string, subject: string, html: string, label: string) {
 
 export async function sendVerificationEmail(to: string, token: string) {
   const link = `${env.APP_URL}/verify-email?token=${token}`;
-  const html = `
-    <p>Для подтверждения вашего email перейдите по ссылке:</p>
-    <p><a href="${link}">${link}</a></p>
-    <p>Ссылка действительна 24 часа.</p>
-  `;
-  await send(to, 'Подтверждение email — DreamyVoice', html, 'VERIFY_EMAIL');
+  const tpl = buildVerificationEmail({ appUrl: env.APP_URL, link });
+  await send(to, tpl.subject, tpl.html, tpl.text, 'VERIFY_EMAIL');
 }
 
 export async function sendPasswordResetEmail(to: string, token: string) {
   const link = `${env.APP_URL}/reset-password?token=${token}`;
-  const html = `
-    <p>Для сброса пароля перейдите по ссылке:</p>
-    <p><a href="${link}">${link}</a></p>
-    <p>Ссылка действительна 1 час. Если вы не запрашивали сброс пароля — проигнорируйте это письмо.</p>
-  `;
-  await send(to, 'Сброс пароля — DreamyVoice', html, 'RESET_PASSWORD');
+  const tpl = buildPasswordResetEmail({ appUrl: env.APP_URL, link });
+  await send(to, tpl.subject, tpl.html, tpl.text, 'RESET_PASSWORD');
 }
