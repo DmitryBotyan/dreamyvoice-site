@@ -2,7 +2,12 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { asyncHandler } from '../utils/async-handler';
-import { authenticateUser, registerUser, toPublicUser } from '../services/auth';
+import {
+  authenticateUser,
+  consumePendingRegistration,
+  createPendingRegistration,
+  toPublicUser,
+} from '../services/auth';
 import { createSession, deleteSession, setSessionCookie, clearSessionCookie } from '../services/session';
 import { createVerificationToken, validateVerificationToken } from '../services/verification-token';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email';
@@ -35,18 +40,12 @@ router.post(
       throw new HttpError(400, 'Captcha verification failed');
     }
 
-    const user = await registerUser({ username, password, email });
-    const { session, expiresAt } = await createSession(user.id, {
-      userAgent: req.get('user-agent'),
-      ip: req.ip,
+    const pending = await createPendingRegistration({ username, password, email });
+    sendVerificationEmail(pending.email, pending.token).catch((err) => {
+      console.error('[auth] failed to send verification email', err);
     });
 
-    setSessionCookie(res, session.id, expiresAt);
-
-    const token = await createVerificationToken(user.id, 'EMAIL_VERIFICATION');
-    sendVerificationEmail(email, token).catch(() => {});
-
-    res.status(201).json({ user: toPublicUser(user) });
+    res.status(202).json({ message: 'Verification email sent', email: pending.email });
   }),
 );
 
@@ -104,6 +103,21 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const { token } = z.object({ token: z.string().min(1) }).parse(req.body);
 
+    // New flow: token belongs to a pending registration. Create the user
+    // and log them in.
+    const newUser = await consumePendingRegistration(token);
+    if (newUser) {
+      const { session, expiresAt } = await createSession(newUser.id, {
+        userAgent: req.get('user-agent'),
+        ip: req.ip,
+      });
+      setSessionCookie(res, session.id, expiresAt);
+      res.json({ message: 'Account activated', user: toPublicUser(newUser) });
+      return;
+    }
+
+    // Legacy flow: token belongs to an already-existing user that was
+    // created before the double-opt-in change. Flip the verified flag.
     const userId = await validateVerificationToken(token, 'EMAIL_VERIFICATION');
     if (!userId) {
       throw new HttpError(400, 'Invalid or expired verification link');

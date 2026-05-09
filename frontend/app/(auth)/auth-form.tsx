@@ -131,25 +131,15 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
   if (successEmail) {
     return (
       <div className="auth-success">
-        <div className="auth-success-icon" aria-hidden="true">✓</div>
-        <h3 className="auth-success-title">Аккаунт создан</h3>
+        <div className="auth-success-icon" aria-hidden="true">✉</div>
+        <h3 className="auth-success-title">Проверьте почту</h3>
         <p className="auth-success-text">
-          Мы отправили письмо с подтверждением на <strong>{successEmail}</strong>.
-          Перейдите по ссылке из письма, чтобы активировать аккаунт.
+          Мы отправили письмо со ссылкой на <strong>{successEmail}</strong>.
+          Перейдите по ней, чтобы завершить регистрацию — после этого аккаунт будет создан и вы войдёте автоматически.
         </p>
-        {onSwitchMode ? (
-          <button
-            type="button"
-            className="auth-success-action"
-            onClick={() => onSwitchMode('login')}
-          >
-            Войти в аккаунт
-          </button>
-        ) : (
-          <Link className="auth-success-action" href="/login">
-            Войти в аккаунт
-          </Link>
-        )}
+        <p className="auth-success-text" style={{ fontSize: '0.85rem' }}>
+          Ссылка действует 24 часа. Не пришло письмо? Проверьте папку «Спам» или зарегистрируйтесь заново.
+        </p>
       </div>
     );
   }

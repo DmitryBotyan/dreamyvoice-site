@@ -1,14 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
 
 function VerifyEmailContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'activated' | 'verified' | 'error'>('loading');
 
   useEffect(() => {
     if (!token) {
@@ -19,25 +20,47 @@ function VerifyEmailContent() {
     fetch(`${clientConfig.apiProxyBasePath}/auth/verify-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ token }),
     })
-      .then((res) => setStatus(res.ok ? 'success' : 'error'))
+      .then(async (res) => {
+        if (!res.ok) { setStatus('error'); return; }
+        const payload = await res.json().catch(() => ({}));
+        // New flow returns a `user` field — that means the account was just
+        // created and we are now logged in.
+        setStatus(payload?.user ? 'activated' : 'verified');
+      })
       .catch(() => setStatus('error'));
   }, [token]);
+
+  useEffect(() => {
+    if (status !== 'activated') return;
+    const t = setTimeout(() => {
+      router.push('/');
+      router.refresh();
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [status, router]);
 
   return (
     <>
       {status === 'loading' && <p>Проверяем ссылку…</p>}
-      {status === 'success' && (
+      {status === 'activated' && (
         <>
-          <p>Email успешно подтверждён!</p>
+          <p>Аккаунт активирован, добро пожаловать в DreamyVoice.</p>
+          <p>Сейчас перенаправим на главную…</p>
+        </>
+      )}
+      {status === 'verified' && (
+        <>
+          <p>Email подтверждён.</p>
           <Link href="/login">Войти в аккаунт</Link>
         </>
       )}
       {status === 'error' && (
         <>
           <p>Ссылка недействительна или уже использована.</p>
-          <Link href="/login">На страницу входа</Link>
+          <Link href="/register">Зарегистрироваться заново</Link>
         </>
       )}
     </>

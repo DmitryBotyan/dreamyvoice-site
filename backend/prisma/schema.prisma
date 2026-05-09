@@ -158,3 +158,15 @@ model VerificationToken {
 
   @@map("verification_tokens")
 }
+
+model PendingRegistration {
+  id           String   @id @default(cuid())
+  token        String   @unique
+  username     String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("pending_registrations")
+}
