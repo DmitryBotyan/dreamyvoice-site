@@ -68,6 +68,9 @@ services:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: app
+    ports:
+      # Bound to VPS loopback only — access via SSH tunnel from outside.
+      - "127.0.0.1:5432:5432"
     volumes:
       - ../data/postgres:/var/lib/postgresql/data
     healthcheck:
