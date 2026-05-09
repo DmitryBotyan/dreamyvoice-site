@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { AuthForm } from "./(auth)/auth-form";
 
 type AuthModalMode = 'login' | 'register';
@@ -16,6 +17,8 @@ const AuthModalContext = createContext<AuthModalContextValue | undefined>(undefi
 
 export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [activeModal, setActiveModal] = useState<AuthModalMode | null>(null);
+  const pathname = usePathname();
+  const initialPathRef = useRef(pathname);
 
   const openModal = useCallback((mode: AuthModalMode) => {
     setActiveModal(mode);
@@ -24,6 +27,16 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   const closeModal = useCallback(() => {
     setActiveModal(null);
   }, []);
+
+  // Auto-close on any client-side navigation. Stays open if the modal was
+  // opened *and* the user is still on the same route (so opening it via the
+  // header doesn't immediately close on first render).
+  useEffect(() => {
+    if (pathname !== initialPathRef.current) {
+      setActiveModal(null);
+      initialPathRef.current = pathname;
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (!activeModal) return;
