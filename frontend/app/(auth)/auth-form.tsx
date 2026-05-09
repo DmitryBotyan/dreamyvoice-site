@@ -131,9 +131,25 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
   if (successEmail) {
     return (
       <div className="auth-success">
-        <p>Аккаунт создан. Письмо с подтверждением отправлено на <strong>{successEmail}</strong>.</p>
-        <p>Проверьте почту и перейдите по ссылке для активации аккаунта.</p>
-        <Link href="/login">Войти в аккаунт</Link>
+        <div className="auth-success-icon" aria-hidden="true">✓</div>
+        <h3 className="auth-success-title">Аккаунт создан</h3>
+        <p className="auth-success-text">
+          Мы отправили письмо с подтверждением на <strong>{successEmail}</strong>.
+          Перейдите по ссылке из письма, чтобы активировать аккаунт.
+        </p>
+        {onSwitchMode ? (
+          <button
+            type="button"
+            className="auth-success-action"
+            onClick={() => onSwitchMode('login')}
+          >
+            Войти в аккаунт
+          </button>
+        ) : (
+          <Link className="auth-success-action" href="/login">
+            Войти в аккаунт
+          </Link>
+        )}
       </div>
     );
   }

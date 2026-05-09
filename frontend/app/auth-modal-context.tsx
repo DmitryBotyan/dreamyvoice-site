@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { AuthForm } from "./(auth)/auth-form";
 
@@ -24,6 +24,24 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   const closeModal = useCallback(() => {
     setActiveModal(null);
   }, []);
+
+  useEffect(() => {
+    if (!activeModal) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [activeModal]);
+
+  useEffect(() => {
+    if (!activeModal) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeModal();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [activeModal, closeModal]);
 
   const contextValue = useMemo(
     () => ({
