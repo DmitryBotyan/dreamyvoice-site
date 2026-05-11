@@ -6,6 +6,7 @@ const apiBaseUrl =
 const normalizedApiBaseUrl = apiBaseUrl.replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   async rewrites() {
     return [
       {
