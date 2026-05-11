@@ -269,6 +269,7 @@ a {
   opacity: 0;
   transition: opacity 0.25s ease;
   pointer-events: none;
+  touch-action: none;
 }
 
 .site-nav-mobile-panel {
@@ -291,6 +292,7 @@ a {
   min-height: 100vh;
   height: 100vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .site-nav-mobile--open .site-nav-mobile-backdrop {
@@ -385,6 +387,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: env(safe-area-inset-bottom, 24px);
 }
 
 .site-nav-mobile-auth-greeting {

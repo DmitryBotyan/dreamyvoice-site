@@ -119,11 +119,25 @@ export function SiteNav({
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const scrollY = window.scrollY;
+    const bodyStyle = document.body.style;
+
+    const previousOverflow = bodyStyle.overflow;
+    const previousPosition = bodyStyle.position;
+    const previousWidth = bodyStyle.width;
+    const previousTop = bodyStyle.top;
+
+    bodyStyle.overflow = "hidden";
+    bodyStyle.position = "fixed";
+    bodyStyle.width = "100%";
+    bodyStyle.top = `-${scrollY}px`;
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      bodyStyle.overflow = previousOverflow;
+      bodyStyle.position = previousPosition;
+      bodyStyle.width = previousWidth;
+      bodyStyle.top = previousTop;
+      window.scrollTo(0, scrollY);
     };
   }, [isMobileMenuOpen]);
 

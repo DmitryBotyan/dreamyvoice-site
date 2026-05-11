@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { getCurrentUser, getTitles } from "@/lib/server-api";
@@ -16,6 +16,12 @@ import {
 } from "@/lib/seo";
 
 export const metadata: Metadata = createBaseMetadata();
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export default async function RootLayout({
   children,

@@ -5,9 +5,9 @@
 set -euo pipefail
 
 DEPLOY_USER="deploy"
-APP_DIR="/opt/dreamyvoice"
-DATA_DIR="/opt/data"
-ENV_DIR="/opt/env"
+APP_DIR="/opt/dreamyvoice/app"
+DATA_DIR="/opt/dreamyvoice/data"
+ENV_DIR="/opt/dreamyvoice/env"
 
 # ── Docker ───────────────────────────────────────────────────────────────────
 apt-get update -q

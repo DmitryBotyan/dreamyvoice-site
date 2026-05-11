@@ -1,14 +1,8 @@
 FROM node:20-alpine
 WORKDIR /app
 
-RUN apk add --no-cache bash
-
-COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
-RUN \
-    if [ -f pnpm-lock.yaml ]; then corepack enable && pnpm i; \
-    elif [ -f yarn.lock ]; then yarn install; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    else npm i; fi
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm@10.20.0 && pnpm install --frozen-lockfile
 
 EXPOSE 4000
 # Код монтируется в контейнер томом; запуск через compose: npm run dev

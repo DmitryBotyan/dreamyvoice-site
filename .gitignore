@@ -2,6 +2,8 @@
 data
 backend/.pnpm-store
 /prisma
+.DS_Store
+*.prod.env
 
 # CI/CD: env templates are ok to commit, actual secrets are not
 !infra/backend.prod.env.example
