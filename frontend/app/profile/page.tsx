@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
@@ -42,7 +41,7 @@ export default async function ProfilePage() {
       <header className={styles.profileHero}>
         <div className={styles.profileAvatarFrame}>
           {avatarUrl ? (
-            <Image
+            <img
               src={avatarUrl}
               alt="Текущий аватар"
               width={108}

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -98,12 +97,11 @@ export function AuthActions({ currentUser }: Props) {
     <div className="auth-actions">
       <div className="auth-avatar">
         {avatarUrl ? (
-          <Image
+          <img
             src={avatarUrl}
             alt={`${currentUser.username} avatar`}
             width={36}
             height={36}
-            priority
           />
         ) : (
           <span>{avatarInitial}</span>
