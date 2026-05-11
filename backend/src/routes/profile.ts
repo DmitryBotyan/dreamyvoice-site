@@ -7,6 +7,8 @@ import { prisma } from '../prisma';
 import { HttpError } from '../utils/http-error';
 import { toPublicUser } from '../services/auth';
 import { deleteObject, makeObjectKey, uploadObject } from '../services/storage';
+import { createVerificationToken } from '../services/verification-token';
+import { sendVerificationEmail } from '../services/email';
 
 const router = Router();
 
@@ -84,6 +86,42 @@ router.patch(
     });
 
     res.json({ user: toPublicUser(updatedUser) });
+  }),
+);
+
+// ── Email change ────────────────────────────────────────────────────────────
+
+const emailChangeSchema = z.object({
+  email: z.string().email().max(254).transform((v) => v.trim().toLowerCase()),
+});
+
+router.post(
+  '/email',
+  requireAuth,
+  asyncHandler(async (req: Request, res: Response) => {
+    const user = req.currentUser!;
+    const { email } = emailChangeSchema.parse(req.body);
+
+    if (user.email === email && user.emailVerified) {
+      throw new HttpError(409, 'Этот email уже привязан и подтверждён');
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing && existing.id !== user.id) {
+      throw new HttpError(409, 'Этот email уже используется другим аккаунтом');
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { email, emailVerified: false },
+    });
+
+    const token = await createVerificationToken(user.id, 'EMAIL_VERIFICATION');
+    sendVerificationEmail(email, token).catch((err) => {
+      console.error('[profile] failed to send verification email', err);
+    });
+
+    res.json({ message: 'Письмо с подтверждением отправлено', email });
   }),
 );
 

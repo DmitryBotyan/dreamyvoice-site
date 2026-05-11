@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import { ProfileForm } from "./profile-form";
-import { ResendVerification } from "./resend-verification";
+import { EmailSection } from "./email-section";
 import styles from "./profile.module.css";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 
@@ -64,11 +64,7 @@ export default async function ProfilePage() {
         </div>
       </header>
 
-      {!currentUser.emailVerified && (
-        <div className={styles.profilePanel}>
-          <ResendVerification />
-        </div>
-      )}
+      <EmailSection user={currentUser} />
 
       <div className={styles.profilePanel}>
         <div className={styles.profilePanelHeader}>

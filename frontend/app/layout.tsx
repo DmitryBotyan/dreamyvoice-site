@@ -109,13 +109,6 @@ export default async function RootLayout({
             />
             <AuthActions currentUser={currentUser} />
           </header>
-          {/* <div className="site-header-placeholder" aria-hidden="true" /> */}
-          {currentUser && !currentUser.emailVerified && (
-            <div className="email-verify-banner">
-              Подтвердите email — проверьте почту или{' '}
-              <a href="/profile">запросите повторное письмо</a>.
-            </div>
-          )}
           <main className="site-main">
             <div className="site-main-inner">{children}</div>
           </main>

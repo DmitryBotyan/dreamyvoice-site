@@ -199,6 +199,56 @@
   color: #fca5a5;
 }
 
+.emailCurrent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 0;
+}
+
+.emailValue {
+  font-size: 1.05rem;
+  color: var(--foreground);
+  word-break: break-all;
+}
+
+.emailUnverified {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 180, 80, 0.15);
+  color: #ffb450;
+}
+
+.emailForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emailCancelButton {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.emailCancelButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+  transform: none;
+}
+
+.emailResendButton {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.emailResendButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  transform: none;
+}
+
 @media (max-width: 900px) {
   .profileHero {
     flex-direction: column;
