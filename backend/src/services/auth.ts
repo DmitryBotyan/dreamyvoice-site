@@ -81,9 +81,16 @@ export async function consumePendingRegistration(token: string) {
   return user;
 }
 
-export async function authenticateUser(input: { username: string; password: string }) {
-  const username = input.username.trim();
-  const user = await prisma.user.findUnique({ where: { username } });
+export async function authenticateUser(input: { login: string; password: string }) {
+  const login = input.login.trim();
+  const isEmail = login.includes('@');
+
+  let user;
+  if (isEmail) {
+    user = await prisma.user.findUnique({ where: { email: login.toLowerCase() } });
+  } else {
+    user = await prisma.user.findUnique({ where: { username: login } });
+  }
 
   if (!user) {
     return null;

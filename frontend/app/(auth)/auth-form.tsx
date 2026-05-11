@@ -94,8 +94,9 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
     setError(null);
 
     try {
-      const body: Record<string, string> = { username, password, recaptchaToken };
-      if (mode === 'register') body.email = email;
+      const body: Record<string, string> = mode === 'login'
+        ? { login: username, password, recaptchaToken }
+        : { username, password, email, recaptchaToken };
 
       const response = await fetch(
         `${clientConfig.apiProxyBasePath}/auth/${mode === 'login' ? 'login' : 'register'}`,
@@ -147,13 +148,13 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        Никнейм
+        {mode === 'login' ? 'Никнейм или email' : 'Никнейм'}
         <input
           type="text"
           value={username}
           onChange={(event) => setUsername(event.target.value)}
           minLength={3}
-          maxLength={32}
+          maxLength={mode === 'login' ? 254 : 32}
           required
         />
       </label>

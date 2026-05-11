@@ -25,7 +25,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  username: z.string().min(3).max(32),
+  login: z.string().min(3).max(254),
   password: z.string().min(6).max(128),
   recaptchaToken: z.string().min(1),
 });
@@ -52,14 +52,14 @@ router.post(
 router.post(
   '/login',
   asyncHandler(async (req: Request, res: Response) => {
-    const { username, password, recaptchaToken } = loginSchema.parse(req.body);
+    const { login, password, recaptchaToken } = loginSchema.parse(req.body);
 
     const captchaOk = await verifyRecaptcha(recaptchaToken);
     if (!captchaOk) {
       throw new HttpError(400, 'Captcha verification failed');
     }
 
-    const user = await authenticateUser({ username, password });
+    const user = await authenticateUser({ login, password });
 
     if (!user) {
       throw new HttpError(401, 'Invalid credentials');
