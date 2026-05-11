@@ -58,6 +58,17 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
     () => initialEpisodeId
   );
   const [source, setSource] = useState<Source>(() => {
+    const paramSource = searchParams?.get("source") as Source | null;
+    if (paramSource === "cdn" || paramSource === "iframe") {
+      const ep = playableEpisodes.find((e) => e.id === initialEpisodeId);
+      // Only honour the URL param if the initial episode supports that source
+      if (ep && (
+        (paramSource === "cdn" && hasCdn(ep)) ||
+        (paramSource === "iframe" && hasIframe(ep))
+      )) {
+        return paramSource;
+      }
+    }
     const ep = playableEpisodes.find((e) => e.id === initialEpisodeId);
     return ep ? defaultSource(ep) : "iframe";
   });
@@ -81,16 +92,35 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
 
   useEffect(() => {
     setCurrentEpisodeId(initialEpisodeId);
-    const ep = playableEpisodes.find((e) => e.id === initialEpisodeId);
-    if (ep) setSource(defaultSource(ep));
+    // Preserve source if the new episode supports it; otherwise fall back
+    setSource((prev) => {
+      const ep = playableEpisodes.find((e) => e.id === initialEpisodeId);
+      if (!ep) return prev;
+      if (prev === "cdn" && hasCdn(ep)) return "cdn";
+      if (prev === "iframe" && hasIframe(ep)) return "iframe";
+      return defaultSource(ep);
+    });
   }, [initialEpisodeId, playableEpisodes]);
 
   const handleEpisodeChange = useCallback(
     (episode: Episode) => {
       setCurrentEpisodeId(episode.id);
-      setSource(defaultSource(episode));
+      setSource((prev) => {
+        if (prev === "cdn" && hasCdn(episode)) return "cdn";
+        if (prev === "iframe" && hasIframe(episode)) return "iframe";
+        return defaultSource(episode);
+      });
       const params = new URLSearchParams(searchParams?.toString());
       params.set("episode", episode.number.toString());
+      // Persist source in URL so it survives page reloads
+      const currentSource = params.get("source") as Source | null;
+      const preferredSource =
+        currentSource === "cdn" || currentSource === "iframe"
+          ? currentSource
+          : defaultSource(episode);
+      if (hasCdn(episode) || hasIframe(episode)) {
+        params.set("source", preferredSource);
+      }
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, {
         scroll: false,
@@ -156,6 +186,17 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
     };
   }, [source, currentEpisodeId, playableEpisodes, handleEpisodeChange]);
 
+  // Keep URL in sync when source is manually toggled
+  const handleSourceChange = useCallback(
+    (newSource: Source) => {
+      setSource(newSource);
+      const params = new URLSearchParams(searchParams?.toString());
+      params.set("source", newSource);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams]
+  );
+
   return (
     <section className="episode-player">
       <div className="episode-player-heading">
@@ -184,7 +225,7 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
                       ? " episode-player-source-btn--active episode-player-source-btn--cdn-active"
                       : ""
                   }`}
-                  onClick={() => setSource("cdn")}
+                  onClick={() => handleSourceChange("cdn")}
                 >
                   CDNVideoHub
                 </button>
@@ -195,7 +236,7 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
                       ? " episode-player-source-btn--active"
                       : ""
                   }`}
-                  onClick={() => setSource("iframe")}
+                  onClick={() => handleSourceChange("iframe")}
                 >
                   Внешний плеер
                 </button>
