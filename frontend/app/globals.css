@@ -275,13 +275,17 @@ a {
 .site-nav-mobile-panel {
   position: fixed;
   top: 0;
-  bottom: 0;
   right: 0;
   left: auto;
   width: min(360px, 85vw);
+  height: 100vh;         /* fallback */
+  height: 100dvh;        /* dynamic viewport — исключает браузерный chrome */
+  max-height: 100vh;
+  max-height: 100dvh;
   background: var(--surface-primary);
   box-shadow: -5px 0 40px rgba(0, 0, 0, 0.65);
   padding: 24px;
+  padding-bottom: max(env(safe-area-inset-bottom, 24px), 24px);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -289,8 +293,6 @@ a {
   transition: transform 0.3s ease;
   z-index: 40;
   visibility: hidden;
-  min-height: 100vh;
-  height: 100vh;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
