@@ -369,7 +369,7 @@ commentsRouter.post(
         titleId: title.id,
         userId: user.id,
         body,
-        status: user.role === 'ADMIN' ? 'APPROVED' : undefined,
+        status: 'APPROVED',
       },
       include: { user: true },
     });
@@ -406,6 +406,32 @@ commentsRouter.patch(
     });
 
     res.json({ comment: toCommentDto(true)(updated) });
+  }),
+);
+
+commentsRouter.delete(
+  '/:commentId',
+  requireAdmin,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { slug, commentId } = commentParamsSchema.parse(req.params);
+    const title = await prisma.title.findFirst({ where: buildSlugWhere(slug) });
+
+    if (!title) {
+      throw new HttpError(404, 'Title not found');
+    }
+
+    const comment = await prisma.comment.findFirst({
+      where: { id: commentId, titleId: title.id },
+      select: { id: true },
+    });
+
+    if (!comment) {
+      throw new HttpError(404, 'Comment not found');
+    }
+
+    await prisma.comment.delete({ where: { id: comment.id } });
+
+    res.status(204).send();
   }),
 );
 
