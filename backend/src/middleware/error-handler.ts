@@ -4,8 +4,10 @@ import { HttpError } from '../utils/http-error';
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
+    const firstIssue = err.issues[0];
+    const message = firstIssue?.message?.trim() || 'Validation failed';
     return res.status(400).json({
-      message: 'Validation failed',
+      message,
       issues: err.issues,
     });
   }

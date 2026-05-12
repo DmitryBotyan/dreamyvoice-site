@@ -37,13 +37,25 @@ export function CommentForm({ titleSlug, isAuthenticated }: Props) {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!body.trim()) {
+
+    const trimmed = body.trim();
+    setMessage(null);
+    setError(null);
+
+    if (trimmed.length === 0) {
+      setError("Введите текст комментария.");
+      return;
+    }
+    if (trimmed.length < 3) {
+      setError("Комментарий слишком короткий — минимум 3 символа.");
+      return;
+    }
+    if (trimmed.length > 2000) {
+      setError("Комментарий слишком длинный — максимум 2000 символов.");
       return;
     }
 
     setIsSubmitting(true);
-    setMessage(null);
-    setError(null);
 
     try {
       const response = await fetch(
@@ -54,13 +66,17 @@ export function CommentForm({ titleSlug, isAuthenticated }: Props) {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-          body: JSON.stringify({ body }),
+          body: JSON.stringify({ body: trimmed }),
         },
       );
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message ?? "Не удалось отправить комментарий");
+        const message =
+          payload?.message && payload.message !== "Validation failed"
+            ? payload.message
+            : "Не удалось отправить комментарий.";
+        throw new Error(message);
       }
 
       setBody("");
@@ -93,7 +109,7 @@ export function CommentForm({ titleSlug, isAuthenticated }: Props) {
         <button type="submit" className="comment-form-submit" disabled={isSubmitting}>
           {isSubmitting ? "Отправляем…" : "Отправить"}
         </button>
-        <span className="comment-form-hint">до 2000 символов</span>
+        <span className="comment-form-hint">от 3 до 2000 символов</span>
       </div>
       {message ? <p className="comment-form-message">{message}</p> : null}
       {error ? <p className="comment-form-error">{error}</p> : null}
