@@ -2195,6 +2195,149 @@ video-player {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.comment-card-status + .comment-card-delete {
+  margin-left: 8px;
+}
+
+.comment-card-delete {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.08);
+  color: #fca5a5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.comment-card-delete:hover,
+.comment-card-delete:focus-visible {
+  background: rgba(248, 113, 113, 0.22);
+  border-color: rgba(248, 113, 113, 0.7);
+  color: #fff;
+  outline: none;
+  transform: scale(1.04);
+}
+
+.comment-card-delete:focus-visible {
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.35);
+}
+
+.comment-delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 60;
+  animation: fadeIn 0.18s ease;
+}
+
+.comment-delete-modal {
+  width: min(420px, 100%);
+  background: var(--surface-primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeIn 0.22s ease;
+}
+
+.comment-delete-modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.comment-delete-modal-text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.comment-delete-modal-text strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.comment-delete-modal-error {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  color: #fecaca;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 8px;
+}
+
+.comment-delete-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.comment-delete-modal-cancel,
+.comment-delete-modal-confirm {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.comment-delete-modal-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.comment-delete-modal-cancel:hover:not(:disabled),
+.comment-delete-modal-cancel:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+}
+
+.comment-delete-modal-confirm {
+  background: rgba(248, 113, 113, 0.85);
+  border: 1px solid rgba(248, 113, 113, 0.85);
+  color: #fff;
+}
+
+.comment-delete-modal-confirm:hover:not(:disabled),
+.comment-delete-modal-confirm:focus-visible {
+  background: rgba(220, 38, 38, 0.95);
+  border-color: rgba(220, 38, 38, 0.95);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.35);
+}
+
+.comment-delete-modal-cancel:disabled,
+.comment-delete-modal-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .comment-form {
   display: flex;
   flex-direction: column;

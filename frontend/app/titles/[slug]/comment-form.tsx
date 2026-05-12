@@ -64,7 +64,7 @@ export function CommentForm({ titleSlug, isAuthenticated }: Props) {
       }
 
       setBody("");
-      setMessage("Комментарий отправлен на модерацию.");
+      setMessage("Комментарий опубликован.");
       router.refresh();
     } catch (submitError) {
       setError((submitError as Error).message);

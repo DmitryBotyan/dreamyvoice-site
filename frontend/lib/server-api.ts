@@ -145,6 +145,14 @@ export async function updateCommentStatus(slug: string, commentId: string, statu
   return data.comment;
 }
 
+export async function deleteComment(slug: string, commentId: string) {
+  const encodedSlug = encodeURIComponent(slug);
+  const encodedCommentId = encodeURIComponent(commentId);
+  await request<void>(`/titles/${encodedSlug}/comments/${encodedCommentId}`, {
+    method: 'DELETE',
+  });
+}
+
 export type CreateTitleInput = {
   name: string;
   description?: string;

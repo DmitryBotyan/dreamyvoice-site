@@ -12,6 +12,7 @@ import {
 import type { Comment } from "@/lib/types";
 import { EpisodePlayer } from "./episode-player";
 import { CommentForm } from "./comment-form";
+import { CommentDeleteButton } from "./comment-delete-button";
 import { buildMediaUrl } from "@/lib/media";
 import { detectGenres } from "@/lib/genres";
 import { detectTags, detectAgeRating } from "@/lib/catalog-keywords";
@@ -278,7 +279,11 @@ export default async function TitlePage({ params }: Props) {
           <ul className="comments-list" role="list">
             {comments.map((comment) => (
               <li key={comment.id} className="comments-list-item">
-                <CommentBlock comment={comment} />
+                <CommentBlock
+                  comment={comment}
+                  titleSlug={title.slug}
+                  isAdmin={currentUser?.role === "ADMIN"}
+                />
               </li>
             ))}
           </ul>
@@ -335,7 +340,15 @@ export default async function TitlePage({ params }: Props) {
   );
 }
 
-function CommentBlock({ comment }: { comment: Comment }) {
+function CommentBlock({
+  comment,
+  titleSlug,
+  isAdmin,
+}: {
+  comment: Comment;
+  titleSlug: string;
+  isAdmin: boolean;
+}) {
   const avatarUrl = comment.author.avatarKey
     ? buildMediaUrl("avatars", comment.author.avatarKey)
     : null;
@@ -382,6 +395,13 @@ function CommentBlock({ comment }: { comment: Comment }) {
           >
             {status}
           </span>
+        ) : null}
+        {isAdmin ? (
+          <CommentDeleteButton
+            titleSlug={titleSlug}
+            commentId={comment.id}
+            authorName={comment.author.username}
+          />
         ) : null}
       </header>
       <p className="comment-card-body">{comment.body}</p>
