@@ -1,8 +1,8 @@
 FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 RUN corepack enable
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --no-frozen-lockfile
 
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
