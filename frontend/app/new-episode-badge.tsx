@@ -16,8 +16,8 @@ export function NewEpisodeBadge({ slug, episodeCount }: Props) {
     try {
       const stored = JSON.parse(localStorage.getItem(LS_KEY) ?? '{}');
       const seen: number | undefined = stored[slug];
-      // Show badge only when: user has visited before AND new episodes appeared
-      setIsNew(seen !== undefined && seen < episodeCount);
+      // Show for unvisited titles with episodes, or when new episodes appeared
+      setIsNew(episodeCount > 0 && (seen ?? 0) < episodeCount);
     } catch {
       // ignore
     }

@@ -2071,12 +2071,15 @@ video-player {
 }
 
 .episode-player-selector-button-cdn-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
   display: block;
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #a87cff;
-  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .comments-section {
