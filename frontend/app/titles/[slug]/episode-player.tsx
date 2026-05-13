@@ -151,27 +151,49 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
       if (el && el.style.display !== "none") el.style.display = "none";
     };
 
+    // CVH player may emit a custom event when it auto-advances an episode.
+    // We listen to several likely names since the exact one is undocumented.
+    const CVH_EPISODE_EVENTS = ["episodeChange", "episode-change", "changeEpisode", "nextEpisode", "epchange"];
+
+    const handlePlayerEpisodeEvent = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      const num = Number(
+        detail?.episode ?? detail?.episodeNumber ?? detail?.number ?? detail?.ep ?? NaN
+      );
+      if (isNaN(num) || num === intendedEpisodeNumberRef.current) return;
+      const next = playableEpisodes.find((ep) => ep.number === num);
+      if (next) handleEpisodeChange(next);
+    };
+
+    let playerEl: HTMLElement | null = null;
+
     const setup = () => {
       const player = document.getElementById("cvhPlayer") as (HTMLElement & { shadowRoot: ShadowRoot | null }) | null;
       if (!player?.shadowRoot) return false;
+
+      playerEl = player;
 
       hide(player.shadowRoot);
       shadowObserver = new MutationObserver(() => hide(player.shadowRoot!));
       shadowObserver.observe(player.shadowRoot, { childList: true, subtree: true });
 
-      // Detect when CVH player internally advances to a different episode.
+      // Detect when CVH player internally advances via attribute mutation.
       attrObserver = new MutationObserver((mutations) => {
         for (const m of mutations) {
           if (m.attributeName !== "episode") continue;
           const raw = player.getAttribute("episode");
           const num = raw !== null ? Number(raw) : NaN;
           if (isNaN(num) || num === intendedEpisodeNumberRef.current) continue;
-          // Player auto-advanced to `num` — sync React state to match.
           const next = playableEpisodes.find((ep) => ep.number === num);
           if (next) handleEpisodeChange(next);
         }
       });
       attrObserver.observe(player, { attributes: true, attributeFilter: ["episode"] });
+
+      // Detect auto-advance via custom events the player may dispatch.
+      CVH_EPISODE_EVENTS.forEach((name) =>
+        player.addEventListener(name, handlePlayerEpisodeEvent)
+      );
 
       return true;
     };
@@ -183,6 +205,11 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
       clearInterval(intervalId);
       shadowObserver?.disconnect();
       attrObserver?.disconnect();
+      if (playerEl) {
+        CVH_EPISODE_EVENTS.forEach((name) =>
+          playerEl!.removeEventListener(name, handlePlayerEpisodeEvent)
+        );
+      }
     };
   }, [source, currentEpisodeId, playableEpisodes, handleEpisodeChange]);
 
