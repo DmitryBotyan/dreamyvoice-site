@@ -3,7 +3,7 @@ import { z } from 'zod';
 import slugify from 'slugify';
 import { prisma } from '../prisma';
 import { Prisma } from '@prisma/client';
-import type { Episode as EpisodeModel, Genre, Tag } from '@prisma/client';
+import type { Episode as EpisodeModel, Genre, Tag, Rating } from '@prisma/client';
 import { asyncHandler } from '../utils/async-handler';
 import { HttpError } from '../utils/http-error';
 import { requireAuth } from '../middleware/require-auth';
@@ -19,6 +19,7 @@ type TitleWithEpisodes = Prisma.TitleGetPayload<{
     episodes: true;
     genres: true;
     tags: true;
+    ratings: true;
   };
 }>;
 type CommentWithUser = Prisma.CommentGetPayload<{ include: { user: true } }>;
@@ -238,10 +239,11 @@ router.get(
         },
         genres: true,
         tags: true,
+        ratings: true,
       },
     });
 
-    res.json({ titles: titles.map(toTitleDto(canSeeDrafts)) });
+    res.json({ titles: titles.map(toTitleDto(canSeeDrafts, req.currentUser?.id)) });
   }),
 );
 
@@ -302,6 +304,7 @@ router.get(
         },
         genres: true,
         tags: true,
+        ratings: true,
       },
     });
 
@@ -309,7 +312,7 @@ router.get(
       throw new HttpError(404, 'Title not found');
     }
 
-    res.json({ title: toTitleDto(includeDrafts)(title) });
+    res.json({ title: toTitleDto(includeDrafts, req.currentUser?.id)(title) });
   }),
 );
 
@@ -467,6 +470,7 @@ router.post(
           episodes: true,
           genres: true,
           tags: true,
+          ratings: true,
         },
       });
 
@@ -544,6 +548,7 @@ router.patch(
         },
         genres: true,
         tags: true,
+        ratings: true,
       },
     });
 
@@ -731,32 +736,121 @@ router.delete(
   }),
 );
 
+const ratingValueSchema = z.object({
+  value: z.number().int().min(1).max(5),
+});
+
+router.post(
+  '/:slug/ratings',
+  requireAuth,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { slug } = slugSchema.parse(req.params);
+    const { value } = ratingValueSchema.parse(req.body);
+    const user = req.currentUser!;
+
+    const title = await prisma.title.findFirst({
+      where: buildSlugWhere(slug),
+      select: { id: true },
+    });
+    if (!title) throw new HttpError(404, 'Title not found');
+
+    await prisma.rating.upsert({
+      where: { userId_titleId: { userId: user.id, titleId: title.id } },
+      create: { userId: user.id, titleId: title.id, value },
+      update: { value },
+    });
+
+    const [agg, myRecord] = await Promise.all([
+      prisma.rating.aggregate({
+        where: { titleId: title.id },
+        _avg: { value: true },
+        _count: true,
+      }),
+      prisma.rating.findFirst({
+        where: { userId: user.id, titleId: title.id },
+        select: { value: true },
+      }),
+    ]);
+
+    res.json({
+      avgRating: agg._avg.value,
+      ratingCount: agg._count,
+      myRating: myRecord?.value ?? null,
+    });
+  }),
+);
+
+router.delete(
+  '/:slug/ratings',
+  requireAuth,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { slug } = slugSchema.parse(req.params);
+    const user = req.currentUser!;
+
+    const title = await prisma.title.findFirst({
+      where: buildSlugWhere(slug),
+      select: { id: true },
+    });
+    if (!title) throw new HttpError(404, 'Title not found');
+
+    await prisma.rating.deleteMany({
+      where: { userId: user.id, titleId: title.id },
+    });
+
+    const agg = await prisma.rating.aggregate({
+      where: { titleId: title.id },
+      _avg: { value: true },
+      _count: true,
+    });
+
+    res.json({
+      avgRating: agg._avg.value,
+      ratingCount: agg._count,
+      myRating: null,
+    });
+  }),
+);
+
 router.use('/:slug/comments', commentsRouter);
 router.use('/:slug/episodes', episodesRouter);
 
 type EpisodeWithParent = TitleWithEpisodes['episodes'][number];
 type CommentAuthor = CommentWithUser['user'];
 
-function toTitleDto(includeDrafts: boolean) {
-  return (title: TitleWithEpisodes) => ({
-    id: title.id,
-    slug: title.slug,
-    name: title.name,
-    description: title.description,
-    genres: title.genres.map((genre) => genre.name),
-    tags: title.tags.map((tag) => tag.name),
-    ageRating: title.ageRating,
-    originalReleaseDate: title.originalReleaseDate,
-    coverKey: title.coverKey,
-    published: title.published,
-    createdAt: title.createdAt,
-    updatedAt: title.updatedAt,
-    cvhAggregator: title.cvhAggregator ?? null,
-    episodes: title.episodes
-      .slice()
-      .sort((a, b) => a.number - b.number)
-      .map((episode: EpisodeWithParent) => toEpisodeDto(includeDrafts, episode)),
-  });
+function toTitleDto(includeDrafts: boolean, userId?: string) {
+  return (title: TitleWithEpisodes) => {
+    const ratingCount = title.ratings.length;
+    const avgRating =
+      ratingCount > 0
+        ? title.ratings.reduce((sum: number, r: Rating) => sum + r.value, 0) / ratingCount
+        : null;
+    const myRating = userId
+      ? (title.ratings.find((r: Rating) => r.userId === userId)?.value ?? null)
+      : null;
+
+    return {
+      id: title.id,
+      slug: title.slug,
+      name: title.name,
+      description: title.description,
+      genres: title.genres.map((genre) => genre.name),
+      tags: title.tags.map((tag) => tag.name),
+      ageRating: title.ageRating,
+      originalReleaseDate: title.originalReleaseDate,
+      coverKey: title.coverKey,
+      published: title.published,
+      createdAt: title.createdAt,
+      updatedAt: title.updatedAt,
+      cvhAggregator: title.cvhAggregator ?? null,
+      avgRating,
+      ratingCount,
+      myRating,
+      episodes: title.episodes
+        .slice()
+        .sort((a, b) => a.number - b.number)
+        .map((episode: EpisodeWithParent) => toEpisodeDto(includeDrafts, episode)),
+    };
+  };
 }
 
 function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
