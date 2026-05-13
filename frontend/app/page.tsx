@@ -7,6 +7,7 @@ import { sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
 import { CatalogSection } from "./catalog-section";
 import { enrichTitles } from "./catalog-filter-utils";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
+import { NewEpisodeBadge } from "./new-episode-badge";
 
 export const metadata: Metadata = createBaseMetadata({
   title: "DreamyVoice — Каталог аниме в озвучке команды",
@@ -59,6 +60,10 @@ export default async function HomePage() {
                     ) : (
                       <span className="sr-only">Обложка отсутствует</span>
                     )}
+                    <NewEpisodeBadge
+                      slug={title.slug}
+                      episodeCount={title.episodes.filter((e) => e.published).length}
+                    />
                   </div>
                 </Link>
               </li>

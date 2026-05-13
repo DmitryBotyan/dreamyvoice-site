@@ -13,6 +13,7 @@ import {
   sortTitles,
   type EnrichedTitle,
 } from "./catalog-filter-utils";
+import { NewEpisodeBadge } from "./new-episode-badge";
 
 const INITIAL_BATCH = 8;
 const LOAD_STEP = 8;
@@ -108,10 +109,18 @@ export function CatalogSection({
                           height={320}
                           loading="lazy"
                         />
+                        <NewEpisodeBadge
+                          slug={title.slug}
+                          episodeCount={title.episodes.filter((e) => e.published).length}
+                        />
                       </div>
                     ) : (
                       <div className="catalog-card-cover catalog-card-cover--empty">
                         <span>Нет обложки</span>
+                        <NewEpisodeBadge
+                          slug={title.slug}
+                          episodeCount={title.episodes.filter((e) => e.published).length}
+                        />
                       </div>
                     )}
                     <h2 className="catalog-card-title" title={title.name}>
