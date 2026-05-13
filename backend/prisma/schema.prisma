@@ -42,6 +42,7 @@ model User {
   comments           Comment[]
   sessions           Session[]
   favorites          Favorite[]
+  ratings            Rating[]
   verificationTokens VerificationToken[]
 
   @@map("users")
@@ -64,6 +65,7 @@ model Title {
   genres        Genre[]    @relation("TitleGenres")
   tags          Tag[]      @relation("TitleTags")
   favorites     Favorite[]
+  ratings       Rating[]
 
   @@map("titles")
 }
@@ -157,6 +159,21 @@ model VerificationToken {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("verification_tokens")
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  titleId   String   @map("title_id")
+  value     Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title Title @relation(fields: [titleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, titleId])
+  @@map("ratings")
 }
 
 model PendingRegistration {
