@@ -265,7 +265,7 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
                 only-voice="dreamyvoice"
                 priority-voice="DreamyVoice"
                 is-show-banner="true"
-                is-show-voice-only="false"
+                is-show-voice-only="true"
                 disable-licensed="false"
               />
             </div>
