@@ -263,7 +263,6 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
                 data-aggregator={cvhAggregator ?? "kp"}
                 episode={currentEpisode.number}
                 only-voice="dreamyvoice"
-                priority-voice="DreamyVoice"
                 is-show-banner="true"
                 is-show-voice-only="true"
                 disable-licensed="false"
