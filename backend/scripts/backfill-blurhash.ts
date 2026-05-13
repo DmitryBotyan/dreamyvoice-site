@@ -1,7 +1,7 @@
 import sharp from 'sharp';
 import { encode } from 'blurhash';
-import { prisma } from '../src/prisma';
-import { getObject } from '../src/services/storage';
+import { prisma } from '../dist/prisma';
+import { getObject } from '../dist/services/storage';
 
 async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   const chunks: Buffer[] = [];
