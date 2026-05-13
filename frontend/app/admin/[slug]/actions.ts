@@ -33,6 +33,7 @@ export async function updateTitleAction(
   const name = (formData.get('name') ?? '').toString().trim();
   const descriptionInput = formData.get('description');
   const coverKeyInput = formData.get('coverKey');
+  const coverBlurHashInput = formData.get('coverBlurHash');
   const published = formData.get('published') === 'on';
   const genres = collectList(formData, 'genres');
   const tagsWithStatus = collectList(formData, 'tags');
@@ -70,6 +71,10 @@ export async function updateTitleAction(
     coverKeyInput && typeof coverKeyInput === 'string' && coverKeyInput.trim().length > 0
       ? coverKeyInput.trim()
       : null;
+  const coverBlurHash =
+    coverBlurHashInput && typeof coverBlurHashInput === 'string' && coverBlurHashInput.trim().length > 0
+      ? coverBlurHashInput.trim()
+      : null;
 
   const statusInput = (formData.get('titleStatus') ?? '').toString();
   const normalizedStatus = normalizeStatusValue(statusInput) ?? DEFAULT_TITLE_STATUS;
@@ -83,6 +88,7 @@ export async function updateTitleAction(
       name,
       description,
       coverKey,
+      coverBlurHash,
       published,
       genres,
       tags,

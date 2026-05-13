@@ -159,6 +159,12 @@ const titleCreateSchema = z.object({
     .max(255)
     .optional()
     .transform((value) => value || undefined),
+  coverBlurHash: z
+    .string()
+    .trim()
+    .max(100)
+    .optional()
+    .transform((value) => value || undefined),
   genres: z
     .array(z.string().trim().min(1))
     .optional()
@@ -188,6 +194,9 @@ const titleUpdateSchema = z.object({
     .optional(),
   coverKey: z
     .union([z.string().trim().max(255), z.null()])
+    .optional(),
+  coverBlurHash: z
+    .union([z.string().trim().max(100), z.null()])
     .optional(),
   published: z.boolean().optional(),
   genres: z.array(z.string().trim().min(1)).optional().transform((value) => normalizeStringList(value)),
@@ -455,6 +464,7 @@ router.post(
           name: data.name,
           description: data.description ?? null,
           coverKey: data.coverKey ?? null,
+          coverBlurHash: data.coverBlurHash ?? null,
           published: data.published ?? false,
           genres: {
             connect: genres.map((genre) => ({ id: genre.id })),
@@ -513,6 +523,9 @@ router.patch(
     }
     if (updates.coverKey !== undefined) {
       data.coverKey = updates.coverKey;
+    }
+    if (updates.coverBlurHash !== undefined) {
+      data.coverBlurHash = updates.coverBlurHash;
     }
     if (updates.published !== undefined) {
       data.published = updates.published;
@@ -838,6 +851,7 @@ function toTitleDto(includeDrafts: boolean, userId?: string) {
       ageRating: title.ageRating,
       originalReleaseDate: title.originalReleaseDate,
       coverKey: title.coverKey,
+      coverBlurHash: title.coverBlurHash,
       published: title.published,
       createdAt: title.createdAt,
       updatedAt: title.updatedAt,

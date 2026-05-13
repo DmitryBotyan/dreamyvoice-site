@@ -41,6 +41,11 @@ export async function createTitleAction(
     coverKeyInput && typeof coverKeyInput === 'string' && coverKeyInput.trim().length > 0
       ? coverKeyInput.trim()
       : undefined;
+  const coverBlurHashInput = formData.get('coverBlurHash');
+  const coverBlurHash =
+    coverBlurHashInput && typeof coverBlurHashInput === 'string' && coverBlurHashInput.trim().length > 0
+      ? coverBlurHashInput.trim()
+      : undefined;
   const published = formData.get('published') === 'on';
   const genres = collectList(formData, 'genres');
   const tagsWithStatus = collectList(formData, 'tags');
@@ -81,6 +86,7 @@ export async function createTitleAction(
       name,
       description,
       coverKey,
+      coverBlurHash,
       published,
       genres,
       tags,

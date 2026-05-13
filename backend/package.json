@@ -12,6 +12,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
+    "backfill:blurhash": "tsx scripts/backfill-blurhash.ts",
     "test": "echo \"No tests yet\" && exit 0"
   },
   "keywords": [],
@@ -41,11 +42,13 @@
     "@prisma/client": "^6.19.0",
     "@types/nodemailer": "^8.0.0",
     "bcryptjs": "^3.0.3",
+    "blurhash": "^2.0.5",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "nodemailer": "^8.0.7",
+    "sharp": "^0.34.5",
     "slugify": "^1.6.6",
     "zod": "^4.1.12"
   },

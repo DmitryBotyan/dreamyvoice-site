@@ -8,6 +8,7 @@ import { CatalogSection } from "./catalog-section";
 import { enrichTitles } from "./catalog-filter-utils";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 import { NewEpisodeBadge } from "./new-episode-badge";
+import { CoverImage } from "./cover-image";
 
 export const metadata: Metadata = createBaseMetadata({
   title: "DreamyVoice — Каталог аниме в озвучке команды",
@@ -50,11 +51,12 @@ export default async function HomePage() {
                     }`}
                   >
                     {title.coverKey ? (
-                      <img
+                      <CoverImage
                         src={buildMediaUrl("covers", title.coverKey)!}
                         alt={`Обложка ${title.name}`}
                         width={180}
                         height={240}
+                        blurHash={title.coverBlurHash}
                       />
                     ) : (
                       <span className="sr-only">Обложка отсутствует</span>

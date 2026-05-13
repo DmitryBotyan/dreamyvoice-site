@@ -26,6 +26,7 @@ type Props = {
     name: string;
     description?: string | null;
     coverKey?: string | null;
+    coverBlurHash?: string | null;
     published: boolean;
     genres: string[];
     tags: string[];
@@ -48,6 +49,7 @@ function SubmitButton() {
 export function EditTitleForm({ action, initialValues }: Props) {
   const [state, formAction] = useActionState(action, initialState);
   const [coverKey, setCoverKey] = useState(initialValues.coverKey ?? '');
+  const [coverBlurHash, setCoverBlurHash] = useState(initialValues.coverBlurHash ?? '');
   const [coverUploadError, setCoverUploadError] = useState<string | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [genreOptions] = useState<string[]>(() => [...GENRE_KEYWORDS]);
@@ -148,6 +150,7 @@ export function EditTitleForm({ action, initialValues }: Props) {
 
     const data = await response.json();
     setCoverKey(data.key ?? '');
+    setCoverBlurHash(data.blurHash ?? '');
   }
 
   return (
@@ -289,6 +292,7 @@ export function EditTitleForm({ action, initialValues }: Props) {
             <option value="mdl">MyDramaList (mdl)</option>
           </select>
         </label>
+        <input type="hidden" name="coverBlurHash" value={coverBlurHash} />
         <label>
           Ключ обложки
           <input
@@ -296,7 +300,10 @@ export function EditTitleForm({ action, initialValues }: Props) {
             name="coverKey"
             maxLength={255}
             value={coverKey}
-            onChange={(event) => setCoverKey(event.target.value)}
+            onChange={(event) => {
+              setCoverKey(event.target.value);
+              setCoverBlurHash('');
+            }}
           />
         </label>
         <label>

@@ -56,6 +56,7 @@ export default async function AdminTitlePage({ params }: Props) {
           name: title.name,
           description: title.description ?? "",
           coverKey: title.coverKey ?? "",
+          coverBlurHash: title.coverBlurHash ?? "",
           published: title.published,
           genres: title.genres,
           tags: title.tags,

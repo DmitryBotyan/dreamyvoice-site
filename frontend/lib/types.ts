@@ -34,6 +34,7 @@ export type Title = {
   name: string;
   description?: string | null;
   coverKey?: string | null;
+  coverBlurHash?: string | null;
   published: boolean;
   createdAt: string;
   updatedAt: string;
@@ -53,6 +54,7 @@ export type FavoriteTitle = {
   slug: string;
   name: string;
   coverKey?: string | null;
+  coverBlurHash?: string | null;
 };
 
 export type CommentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';

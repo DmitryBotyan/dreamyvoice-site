@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUser, getFavoriteTitles } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
+import { CoverImage } from "@/app/cover-image";
 import { FavoritesLoginPrompt } from "./login-prompt";
 import styles from "./page.module.css";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
@@ -47,11 +48,12 @@ export default async function FavoritesPage() {
                 >
                   {coverUrl ? (
                     <div className="catalog-card-cover">
-                      <img
+                      <CoverImage
                         src={coverUrl}
                         alt={`Обложка ${title.name}`}
                         width={240}
                         height={320}
+                        blurHash={title.coverBlurHash}
                       />
                     </div>
                   ) : (

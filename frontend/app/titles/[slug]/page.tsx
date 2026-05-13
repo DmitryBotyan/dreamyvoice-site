@@ -14,6 +14,7 @@ import { EpisodePlayer } from "./episode-player";
 import { CommentForm } from "./comment-form";
 import { CommentDeleteButton } from "./comment-delete-button";
 import { buildMediaUrl } from "@/lib/media";
+import { CoverImage } from "@/app/cover-image";
 import { detectGenres } from "@/lib/genres";
 import { detectTags, detectAgeRating } from "@/lib/catalog-keywords";
 import { getReleaseDate, sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
@@ -175,11 +176,12 @@ export default async function TitlePage({ params }: Props) {
       <header className="title-hero">
         <div className="title-cover">
           {title.coverKey ? (
-            <img
+            <CoverImage
               src={buildMediaUrl("covers", title.coverKey)!}
               alt={`Обложка ${title.name}`}
               width={320}
               height={440}
+              blurHash={title.coverBlurHash}
             />
           ) : (
             <span>Обложка появится позже</span>

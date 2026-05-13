@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { buildMediaUrl } from "@/lib/media";
+import { CoverImage } from "./cover-image";
 import { CatalogFiltersDock } from "./catalog-filters-dock";
 import { CatalogFiltersForm } from "./catalog-filters-form";
 import { CatalogSortControl } from "./catalog-sort-control";
@@ -99,12 +100,12 @@ export function CatalogSection({
                   >
                     {title.coverKey ? (
                       <div className="catalog-card-cover">
-                        <img
+                        <CoverImage
                           src={buildMediaUrl("covers", title.coverKey)!}
                           alt={`Обложка ${title.name}`}
                           width={240}
                           height={320}
-                          loading="lazy"
+                          blurHash={title.coverBlurHash}
                         />
                         <NewEpisodeBadge
                           slug={title.slug}

@@ -34,6 +34,7 @@ export function CreateTitleForm() {
   const [state, formAction] = useActionState(createTitleAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [coverKey, setCoverKey] = useState<string | null>(null);
+  const [coverBlurHash, setCoverBlurHash] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [genreOptions] = useState<string[]>(() => [...GENRE_KEYWORDS]);
@@ -50,6 +51,7 @@ export function CreateTitleForm() {
       formRef.current?.reset();
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCoverKey(null);
+      setCoverBlurHash(null);
       setAddedGenres([]);
       setAddedTags([]);
       setTitleStatus(DEFAULT_TITLE_STATUS);
@@ -103,11 +105,13 @@ export function CreateTitleForm() {
 
     const data = await response.json();
     setCoverKey(data.key);
+    setCoverBlurHash(data.blurHash ?? null);
   }
 
   return (
     <form ref={formRef} action={formAction} className={styles.formCard}>
       <input type="hidden" name="coverKey" value={coverKey ?? ""} />
+      <input type="hidden" name="coverBlurHash" value={coverBlurHash ?? ""} />
       <fieldset className={styles.adminFieldset}>
         <legend>Новый тайтл</legend>
         <label>

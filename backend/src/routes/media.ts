@@ -1,6 +1,8 @@
 import { Router, type Request, type Response } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
+import sharp from 'sharp';
+import { encode } from 'blurhash';
 import { asyncHandler } from '../utils/async-handler';
 import { HttpError } from '../utils/http-error';
 import { ensureBucket, getObject, makeObjectKey, MediaBucket, uploadObject, deleteObject } from '../services/storage';
@@ -75,10 +77,30 @@ router.post(
       contentType: file.mimetype,
     });
 
-    res.status(201).json({
-      bucket,
-      key,
-    });
+    if (bucket === 'covers') {
+      try {
+        const { data, info } = await sharp(file.buffer)
+          .resize(32, 32, { fit: 'cover', withoutEnlargement: false })
+          .raw()
+          .ensureAlpha()
+          .toBuffer({ resolveWithObject: true });
+
+        const blurHash = encode(
+          new Uint8ClampedArray(data),
+          info.width,
+          info.height,
+          4,
+          3,
+        );
+
+        res.status(201).json({ bucket, key, blurHash });
+        return;
+      } catch {
+        // Fall through to plain response if blur hash fails
+      }
+    }
+
+    res.status(201).json({ bucket, key });
   }),
 );
 

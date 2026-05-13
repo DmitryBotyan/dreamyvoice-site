@@ -157,6 +157,7 @@ export type CreateTitleInput = {
   name: string;
   description?: string;
   coverKey?: string;
+  coverBlurHash?: string;
   published?: boolean;
   genres?: string[];
   tags?: string[];
@@ -180,6 +181,7 @@ export type UpdateTitleInput = {
   name?: string;
   description?: string | null;
   coverKey?: string | null;
+  coverBlurHash?: string | null;
   published?: boolean;
   genres?: string[];
   tags?: string[];

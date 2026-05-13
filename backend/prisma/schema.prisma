@@ -53,8 +53,9 @@ model Title {
   slug        String     @unique
   name        String
   description String?
-  coverKey    String?    @map("cover_key")
-  published   Boolean    @default(false)
+  coverKey      String?    @map("cover_key")
+  coverBlurHash String?    @map("cover_blur_hash")
+  published     Boolean    @default(false)
   originalReleaseDate DateTime? @map("original_release_date")
   ageRating     String?    @map("age_rating")
   cvhAggregator String?    @map("cvh_aggregator")

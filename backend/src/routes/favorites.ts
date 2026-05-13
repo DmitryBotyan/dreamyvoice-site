@@ -26,6 +26,7 @@ router.get(
             slug: true,
             name: true,
             coverKey: true,
+            coverBlurHash: true,
           },
         },
       },
@@ -37,6 +38,7 @@ router.get(
         slug: favorite.title.slug,
         name: favorite.title.name,
         coverKey: favorite.title.coverKey,
+        coverBlurHash: favorite.title.coverBlurHash,
       })),
     });
   }),
