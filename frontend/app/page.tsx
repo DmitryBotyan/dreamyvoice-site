@@ -29,8 +29,7 @@ export default async function HomePage() {
     <>
       <section className="latest-section">
         <div className="latest-heading">
-          <p className="latest-eyebrow">Новинки</p>
-          <h2 className="latest-title">Последние релизы</h2>
+          <h2 className="latest-title">Новинки</h2>
         </div>
         {latestTitles.length === 0 ? (
           <p className="latest-empty">

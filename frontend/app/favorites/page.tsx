@@ -25,12 +25,7 @@ export default async function FavoritesPage() {
   return (
     <section className={styles.favoritesPage}>
       <header className={styles.favoritesHeading}>
-        <div>
-          <h1 className={styles.favoritesTitle}>Ваши избранные</h1>
-        </div>
-        <p className={styles.favoritesSubtitle}>
-          Здесь хранятся тайтлы, которые вы отметили звёздочкой.
-        </p>
+        <h1 className={styles.favoritesTitle}>Избранное</h1>
       </header>
 
       {favorites.length === 0 ? (

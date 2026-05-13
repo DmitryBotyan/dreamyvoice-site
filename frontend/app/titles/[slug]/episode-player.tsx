@@ -226,11 +226,6 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
 
   return (
     <section className="episode-player">
-      <div className="episode-player-heading">
-        <p className="episode-player-eyebrow">Онлайн просмотр</p>
-        <h2 className="episode-player-title">Плеер</h2>
-      </div>
-
       {playableEpisodes.length === 0 ? (
         <p className="episode-player-empty">
           Нет опубликованных серий с плеером

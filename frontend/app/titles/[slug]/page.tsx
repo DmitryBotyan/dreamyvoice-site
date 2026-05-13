@@ -217,7 +217,7 @@ export default async function TitlePage({ params }: Props) {
             </p>
           )}
           <div className="title-genres">
-            {titleGenres.length > 0 ? (
+            {titleGenres.length > 0 && (
               <ul className="title-genres-list" role="list">
                 {titleGenres.map((genre) => (
                   <li key={genre}>
@@ -225,18 +225,7 @@ export default async function TitlePage({ params }: Props) {
                   </li>
                 ))}
               </ul>
-            ) : (
-              ""
             )}
-          </div>
-          <div className="title-rating-tags-row">
-            <StarRating
-              slug={title.slug}
-              initialAvgRating={title.avgRating ?? null}
-              initialRatingCount={title.ratingCount ?? 0}
-              initialMyRating={title.myRating ?? null}
-              isAuthenticated={Boolean(currentUser)}
-            />
             {titleTags.length > 0 && (
               <ul className="title-genres-list" role="list">
                 {titleTags.map((tag) => (
@@ -246,6 +235,15 @@ export default async function TitlePage({ params }: Props) {
                 ))}
               </ul>
             )}
+          </div>
+          <div className="title-rating-row">
+            <StarRating
+              slug={title.slug}
+              initialAvgRating={title.avgRating ?? null}
+              initialRatingCount={title.ratingCount ?? 0}
+              initialMyRating={title.myRating ?? null}
+              isAuthenticated={Boolean(currentUser)}
+            />
           </div>
           <dl className="title-meta">
             <div>
@@ -308,8 +306,7 @@ export default async function TitlePage({ params }: Props) {
 
       <section className="latest-section">
         <div className="latest-heading">
-          <p className="latest-eyebrow">Новинки</p>
-          <h2 className="latest-title">Последние релизы</h2>
+          <h2 className="latest-title">Новинки</h2>
         </div>
         {latestTitles.length === 0 ? (
           <p className="latest-empty">

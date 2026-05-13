@@ -79,9 +79,6 @@ export function CatalogSection({
       <div className="catalog-heading-block">
         <div className="catalog-heading">
           <h1 className="catalog-title">Каталог тайтлов</h1>
-          <p className="catalog-subtitle">
-            Подборка релизов команды DreamyVoice
-          </p>
         </div>
         <CatalogSortControl />
       </div>
