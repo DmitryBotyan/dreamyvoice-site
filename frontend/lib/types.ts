@@ -43,6 +43,9 @@ export type Title = {
   ageRating?: string | null;
   originalReleaseDate?: string | null;
   cvhAggregator?: string | null;
+  avgRating?: number | null;
+  ratingCount?: number;
+  myRating?: number | null;
 };
 
 export type FavoriteTitle = {

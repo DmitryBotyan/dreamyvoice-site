@@ -19,6 +19,8 @@ import { detectTags, detectAgeRating } from "@/lib/catalog-keywords";
 import { getReleaseDate, sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
 import { TitleDescriptionExpander } from "./title-description";
 import { FavoriteToggle } from "./favorite-toggle";
+import { StarRating } from "./star-rating";
+import { EpisodeViewTracker } from "./episode-view-tracker";
 import {
   TITLE_STATUS_LABELS,
   extractStatusFromTags,
@@ -227,8 +229,15 @@ export default async function TitlePage({ params }: Props) {
               ""
             )}
           </div>
-          <div className="title-tags">
-            {titleTags.length > 0 ? (
+          <div className="title-rating-tags-row">
+            <StarRating
+              slug={title.slug}
+              initialAvgRating={title.avgRating ?? null}
+              initialRatingCount={title.ratingCount ?? 0}
+              initialMyRating={title.myRating ?? null}
+              isAuthenticated={Boolean(currentUser)}
+            />
+            {titleTags.length > 0 && (
               <ul className="title-genres-list" role="list">
                 {titleTags.map((tag) => (
                   <li key={tag}>
@@ -236,8 +245,6 @@ export default async function TitlePage({ params }: Props) {
                   </li>
                 ))}
               </ul>
-            ) : (
-              ""
             )}
           </div>
           <dl className="title-meta">
@@ -259,6 +266,10 @@ export default async function TitlePage({ params }: Props) {
         </div>
       </header>
 
+      <EpisodeViewTracker
+        slug={title.slug}
+        episodeCount={publishedEpisodes.length}
+      />
       <EpisodePlayer episodes={title.episodes} cvhAggregator={title.cvhAggregator} />
 
       <section className="comments-section" id="comments">
