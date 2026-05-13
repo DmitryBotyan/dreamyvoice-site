@@ -38,7 +38,7 @@ export default async function HomePage() {
           </p>
         ) : (
           <ul className="latest-grid" role="list">
-            {latestTitles.map((title) => (
+            {latestTitles.map((title, index) => (
               <li key={title.id} className="latest-card">
                 <Link
                   href={`/titles/${title.slug}`}
@@ -57,6 +57,7 @@ export default async function HomePage() {
                         width={180}
                         height={240}
                         blurHash={title.coverBlurHash}
+                        priority={index < 4}
                       />
                     ) : (
                       <span className="sr-only">Обложка отсутствует</span>

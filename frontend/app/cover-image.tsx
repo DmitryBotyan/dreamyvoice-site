@@ -9,12 +9,15 @@ type Props = {
   width: number;
   height: number;
   blurHash?: string | null;
+  priority?: boolean;
 };
 
-export function CoverImage({ src, alt, width, height, blurHash }: Props) {
+export function CoverImage({ src, alt, width, height, blurHash, priority }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  // Draw blurhash canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!blurHash || !canvas) return;
@@ -33,15 +36,29 @@ export function CoverImage({ src, alt, width, height, blurHash }: Props) {
     ctx.putImageData(imageData, 0, 0);
   }, [blurHash, width, height]);
 
+  // Handle cached images: onLoad won't fire if already complete
+  useEffect(() => {
+    if (imgRef.current?.complete) {
+      setImageLoaded(true);
+    }
+  }, [src]);
+
+  const reveal = () => setImageLoaded(true);
+
   return (
     <>
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
         width={width}
         height={height}
-        onLoad={() => setImageLoaded(true)}
+        onLoad={reveal}
+        onError={reveal}
         className="cover-image-img"
+        loading={priority ? 'eager' : 'lazy'}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        fetchPriority={priority ? 'high' : 'auto'}
         style={{ opacity: imageLoaded || !blurHash ? 1 : 0 }}
       />
       {blurHash && (
