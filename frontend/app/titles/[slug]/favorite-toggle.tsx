@@ -90,7 +90,7 @@ export function FavoriteToggle({ slug }: Props) {
         aria-pressed={Boolean(isFavorite)}
         aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
       >
-        <span aria-hidden="true">★</span>
+        <span aria-hidden="true">♥</span>
         <span className="sr-only">
           {isFavorite ? 'Убрано из избранного' : 'Добавить в избранное'}
         </span>
