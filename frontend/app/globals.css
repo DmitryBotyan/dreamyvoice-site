@@ -1686,7 +1686,6 @@ button:disabled {
 .title-hero-name .favorite-toggle {
   width: 1.5em;
   height: 1.5em;
-  font-size: 0.9em;
 }
 
 .favorite-toggle {
@@ -1695,7 +1694,6 @@ button:disabled {
   border: none;
   background: transparent;
   color: rgba(255, 150, 170, 0.5);
-  font-size: 2.2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1703,6 +1701,11 @@ button:disabled {
   cursor: pointer;
   transition: color 0.2s ease, transform 0.15s ease;
   box-shadow: none;
+}
+
+.favorite-toggle svg {
+  fill: none;
+  stroke: currentColor;
 }
 
 .favorite-toggle:hover:not(:disabled),
@@ -1713,8 +1716,17 @@ button:disabled {
   transform: scale(1.15);
 }
 
+.favorite-toggle:hover:not(:disabled) svg,
+.favorite-toggle:focus-visible:not(:disabled) svg {
+  fill: currentColor;
+}
+
 .favorite-toggle--active {
   color: #f43f5e;
+}
+
+.favorite-toggle--active svg {
+  fill: currentColor;
 }
 
 .favorite-toggle:disabled {
@@ -2754,11 +2766,15 @@ video-player {
   border: none;
   padding: 2px;
   cursor: pointer;
-  font-size: 2.25rem;
   color: rgba(255, 255, 255, 0.2);
   line-height: 1;
   transition: color 0.12s ease, transform 0.1s ease;
   box-shadow: none;
+}
+
+.star-rating-star svg {
+  fill: none;
+  stroke: currentColor;
 }
 
 .star-rating-star:hover:not(:disabled) {
@@ -2774,6 +2790,12 @@ video-player {
 
 .star-rating-star--filled {
   color: rgba(250, 204, 21, 0.55);
+}
+
+.star-rating-star--filled svg,
+.star-rating-star--mine svg,
+.star-rating-star--hover svg {
+  fill: currentColor;
 }
 
 .star-rating-star--mine {

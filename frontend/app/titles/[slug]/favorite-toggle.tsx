@@ -3,6 +3,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { Heart } from 'lucide-react';
 import { clientConfig } from '@/lib/client-config';
 import { useAuthModal } from '@/app/auth-modal-context';
 
@@ -90,7 +91,7 @@ export function FavoriteToggle({ slug }: Props) {
         aria-pressed={Boolean(isFavorite)}
         aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
       >
-        <span aria-hidden="true">♥</span>
+        <Heart size={20} aria-hidden="true" />
         <span className="sr-only">
           {isFavorite ? 'Убрано из избранного' : 'Добавить в избранное'}
         </span>

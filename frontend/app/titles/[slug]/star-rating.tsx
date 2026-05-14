@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { Star } from 'lucide-react';
 import { clientConfig } from '@/lib/client-config';
 import { useAuthModal } from '@/app/auth-modal-context';
 
@@ -113,7 +114,7 @@ export function StarRating({
               aria-label={`Оценить ${star} из 5`}
               disabled={isSubmitting}
             >
-              ★
+              <Star size={20} aria-hidden="true" />
             </button>
           );
         })}
