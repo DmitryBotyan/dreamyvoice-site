@@ -31,7 +31,7 @@ export function ResendVerification() {
       {status === 'sent' && <p>Письмо отправлено — проверьте почту.</p>}
       {status === 'error' && (
         <>
-          <p>Ошибка отправки.</p>
+          <p>Письмо не отправилось — попробуйте ещё раз.</p>
           <button type="button" onClick={handleClick}>
             Попробовать снова
           </button>

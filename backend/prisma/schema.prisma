@@ -30,6 +30,13 @@ enum TokenType {
   PASSWORD_RESET
 }
 
+enum AnimeListStatus {
+  WATCHING
+  WATCHED
+  DROPPED
+  PLANNED
+}
+
 model User {
   id                 String              @id @default(cuid())
   username           String              @unique
@@ -38,12 +45,14 @@ model User {
   passwordHash       String              @map("password_hash")
   role               Role                @default(USER)
   avatarKey          String?             @map("avatar_key")
+  bio                String?
   createdAt          DateTime            @default(now()) @map("created_at")
   comments           Comment[]
   sessions           Session[]
   favorites          Favorite[]
   ratings            Rating[]
   verificationTokens VerificationToken[]
+  animeListEntries   AnimeListEntry[]
 
   @@map("users")
 }
@@ -65,8 +74,9 @@ model Title {
   comments      Comment[]
   genres        Genre[]    @relation("TitleGenres")
   tags          Tag[]      @relation("TitleTags")
-  favorites     Favorite[]
-  ratings       Rating[]
+  favorites        Favorite[]
+  ratings          Rating[]
+  animeListEntries AnimeListEntry[]
 
   @@map("titles")
 }
@@ -187,4 +197,18 @@ model PendingRegistration {
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("pending_registrations")
+}
+
+model AnimeListEntry {
+  id        String          @id @default(cuid())
+  userId    String          @map("user_id")
+  titleId   String          @map("title_id")
+  status    AnimeListStatus
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     Title           @relation(fields: [titleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, titleId])
+  @@map("anime_list_entries")
 }

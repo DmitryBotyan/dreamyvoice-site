@@ -39,7 +39,7 @@ export function EmailSection({ user }: Props) {
 
       if (!res.ok) {
         const payload = await res.json().catch(() => null);
-        throw new Error(payload?.message ?? "Не удалось обновить email");
+        throw new Error(payload?.message ?? "Email не обновился — попробуйте ввести адрес снова");
       }
 
       setStatus("sent");
@@ -168,7 +168,7 @@ export function EmailSection({ user }: Props) {
 
       {resendStatus === "error" && (
         <p className={styles.feedbackError} role="alert">
-          Не удалось отправить письмо. Попробуйте позже.
+          Письмо не отправилось — это сбой на нашей стороне, попробуйте ещё раз.
         </p>
       )}
     </div>

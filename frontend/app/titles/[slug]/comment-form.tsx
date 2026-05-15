@@ -75,7 +75,7 @@ export function CommentForm({ titleSlug, isAuthenticated }: Props) {
         const message =
           payload?.message && payload.message !== "Validation failed"
             ? payload.message
-            : "Не удалось отправить комментарий.";
+            : "Комментарий не отправился — текст сохранён в форме, попробуйте снова.";
         throw new Error(message);
       }
 

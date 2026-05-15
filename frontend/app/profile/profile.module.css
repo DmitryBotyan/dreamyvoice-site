@@ -286,3 +286,112 @@
     padding: 20px;
   }
 }
+
+.profilePublicLink {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--accent, #8f63ff);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.profilePublicLink:hover {
+  opacity: 0.75;
+}
+
+/* ── Anime list section ──────────────────────────────────────────────────── */
+.profileAnimeCount {
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.15em 0.55em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--muted);
+  margin-left: 8px;
+}
+
+.profileAnimeEmpty {
+  font-size: 0.9rem;
+  color: var(--muted);
+  padding: 4px 0 8px;
+}
+
+.profileAnimeGroup {
+  margin-top: 20px;
+}
+
+.profileAnimeGroup:first-child {
+  margin-top: 0;
+}
+
+.profileAnimeStatus {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profileAnimeStatusCount {
+  font-size: 0.72rem;
+  padding: 0.1em 0.45em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  font-weight: 500;
+}
+
+.profileAnimeGrid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.profileAnimeCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.profileAnimeCard:hover .profileAnimeCover {
+  opacity: 0.8;
+}
+
+.profileAnimeCover {
+  width: 100%;
+  aspect-ratio: 110 / 155;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  transition: opacity 0.15s;
+}
+
+.profileAnimeCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profileAnimeCoverEmpty {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.profileAnimeTitle {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -7,6 +7,7 @@ import type {
   CommentStatus,
   Episode,
   FavoriteTitle,
+  PublicProfile,
   PublicUser,
   TeamMember,
   Title,
@@ -380,4 +381,27 @@ export async function deleteTeamMember(id: string) {
   await request<void>(`/team-members/${encodedId}`, {
     method: 'DELETE',
   });
+}
+
+export async function getMyAnimeList() {
+  type Entry = { status: import('./types').AnimeListStatus; title: import('./types').AnimeListTitle };
+  try {
+    const data = await request<{ entries: Entry[] }>('/anime-list');
+    return data.entries;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) return [];
+    throw error;
+  }
+}
+
+export async function getUserProfile(username: string): Promise<PublicProfile | null> {
+  try {
+    const data = await request<{ user: Omit<PublicProfile, 'animeList'>; animeList: PublicProfile['animeList'] }>(
+      `/users/${encodeURIComponent(username)}`,
+    );
+    return { ...data.user, animeList: data.animeList };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
 }

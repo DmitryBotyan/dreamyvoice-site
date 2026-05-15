@@ -112,6 +112,7 @@ export function toPublicUser(user: User) {
     emailVerified: user.emailVerified,
     role: user.role,
     avatarKey: user.avatarKey,
+    bio: user.bio,
     createdAt: user.createdAt,
   };
 }

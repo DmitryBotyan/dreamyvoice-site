@@ -111,10 +111,11 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
         window.grecaptcha?.reset();
-        throw new Error(payload?.message ?? 'Ошибка авторизации');
+        throw new Error(payload?.message ?? (mode === 'login' ? 'Не удалось войти — проверьте подключение и попробуйте снова' : 'Не удалось создать аккаунт — попробуйте ещё раз'));
       }
 
-      if (mode === 'register') {
+      if (mode === 'register' && response.status === 202) {
+        // prod: 202 → показываем экран "Проверьте почту"
         setSuccessEmail(email);
         return;
       }

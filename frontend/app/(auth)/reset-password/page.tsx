@@ -89,7 +89,7 @@ function ResetPasswordContent() {
       if (!res.ok) {
         const payload = await res.json().catch(() => null);
         window.grecaptcha?.reset();
-        throw new Error(payload?.message ?? 'Ошибка сброса пароля');
+        throw new Error(payload?.message ?? 'Не удалось сохранить пароль — попробуйте ещё раз');
       }
 
       setSuccess(true);

@@ -43,7 +43,7 @@ export function CommentDeleteButton({ titleSlug, commentId, authorName }: Props)
     startTransition(async () => {
       const result = await deleteCommentAction(titleSlug, commentId);
       if (!result.success) {
-        setError(result.error ?? 'Не удалось удалить');
+        setError(result.error ?? 'Не удалось удалить комментарий — попробуйте ещё раз');
         return;
       }
       setIsOpen(false);

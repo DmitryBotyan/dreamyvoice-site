@@ -5,7 +5,7 @@ import { HttpError } from '../utils/http-error';
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
     const firstIssue = err.issues[0];
-    const message = firstIssue?.message?.trim() || 'Validation failed';
+    const message = firstIssue?.message?.trim() || 'Ошибка валидации';
     return res.status(400).json({
       message,
       issues: err.issues,
@@ -17,5 +17,5 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   }
 
   console.error(err);
-  return res.status(500).json({ message: 'Internal server error' });
+  return res.status(500).json({ message: 'Ошибка на сервере — попробуйте повторить запрос' });
 };

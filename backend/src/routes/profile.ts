@@ -20,12 +20,8 @@ const upload = multer({
 const allowedAvatarMimeTypes = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 const profileUpdateSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(3)
-    .max(32)
-    .optional(),
+  username: z.string().trim().min(3).max(32).optional(),
+  bio: z.string().trim().max(500).nullable().optional(),
 });
 
 router.get(
@@ -42,7 +38,7 @@ router.patch(
   upload.single('avatar'),
   asyncHandler(async (req: Request, res: Response) => {
     const user = req.currentUser!;
-    const { username } = profileUpdateSchema.parse(req.body);
+    const { username, bio } = profileUpdateSchema.parse(req.body);
 
     if (username && username !== user.username) {
       const existing = await prisma.user.findUnique({ where: { username } });
@@ -73,7 +69,7 @@ router.patch(
       }
     }
 
-    if (!username && !newAvatarKey) {
+    if (!username && !newAvatarKey && bio === undefined) {
       return res.json({ user: toPublicUser(user) });
     }
 
@@ -82,6 +78,7 @@ router.patch(
       data: {
         username: username ?? undefined,
         avatarKey: newAvatarKey ?? undefined,
+        bio: bio !== undefined ? (bio || null) : undefined,
       },
     });
 

@@ -20,6 +20,7 @@ import { detectTags, detectAgeRating } from "@/lib/catalog-keywords";
 import { getReleaseDate, sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
 import { TitleDescriptionExpander } from "./title-description";
 import { FavoriteToggle } from "./favorite-toggle";
+import { AnimeListButton } from "./anime-list-button";
 import { StarRating } from "./star-rating";
 import { EpisodeViewTracker } from "./episode-view-tracker";
 import {
@@ -210,6 +211,9 @@ export default async function TitlePage({ params }: Props) {
               <span>{title.name}</span>
               <FavoriteToggle slug={title.slug} />
             </h1>
+            <div className="title-hero-actions">
+              <AnimeListButton slug={title.slug} />
+            </div>
           </div>
           {hasDescription ? (
             <TitleDescriptionExpander description={descriptionText} />
@@ -392,7 +396,9 @@ function CommentBlock({
           )}
         </div>
         <div className="comment-card-author">
-          <strong>{comment.author.username}</strong>
+          <Link href={`/users/${encodeURIComponent(comment.author.username)}`} className="comment-card-username">
+            <strong>{comment.author.username}</strong>
+          </Link>
           <small>{dateTime}</small>
         </div>
         {status ? (

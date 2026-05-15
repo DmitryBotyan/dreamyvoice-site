@@ -14,6 +14,7 @@ import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email
 import { verifyRecaptcha } from '../utils/recaptcha';
 import { prisma } from '../prisma';
 import { HttpError } from '../utils/http-error';
+import { env } from '../env';
 
 const router = Router();
 
@@ -37,7 +38,28 @@ router.post(
 
     const captchaOk = await verifyRecaptcha(recaptchaToken);
     if (!captchaOk) {
-      throw new HttpError(400, 'Captcha verification failed');
+      throw new HttpError(400, 'Проверка капчи не прошла — обновите страницу и попробуйте снова');
+    }
+
+    // В dev: создаём юзера сразу с подтверждённым email, без письма
+    if (!env.isProduction) {
+      if (await prisma.user.findUnique({ where: { username } })) {
+        throw new HttpError(409, 'Никнейм уже занят');
+      }
+      if (await prisma.user.findUnique({ where: { email } })) {
+        throw new HttpError(409, 'Email уже зарегистрирован');
+      }
+      const passwordHash = await bcrypt.hash(password, 12);
+      const role = (await prisma.user.count()) === 0 ? 'ADMIN' : 'USER';
+      const user = await prisma.user.create({
+        data: { username, email, passwordHash, emailVerified: true, role },
+      });
+      const { session, expiresAt } = await createSession(user.id, {
+        userAgent: req.get('user-agent'),
+        ip: req.ip,
+      });
+      setSessionCookie(res, session.id, expiresAt);
+      return res.json({ user: toPublicUser(user) });
     }
 
     const pending = await createPendingRegistration({ username, password, email });
@@ -56,13 +78,13 @@ router.post(
 
     const captchaOk = await verifyRecaptcha(recaptchaToken);
     if (!captchaOk) {
-      throw new HttpError(400, 'Captcha verification failed');
+      throw new HttpError(400, 'Проверка капчи не прошла — обновите страницу и попробуйте снова');
     }
 
     const user = await authenticateUser({ login, password });
 
     if (!user) {
-      throw new HttpError(401, 'Invalid credentials');
+      throw new HttpError(401, 'Неверный логин или пароль');
     }
 
     const { session, expiresAt } = await createSession(user.id, {
@@ -120,7 +142,7 @@ router.post(
     // created before the double-opt-in change. Flip the verified flag.
     const userId = await validateVerificationToken(token, 'EMAIL_VERIFICATION');
     if (!userId) {
-      throw new HttpError(400, 'Invalid or expired verification link');
+      throw new HttpError(400, 'Ссылка недействительна или устарела');
     }
 
     await prisma.user.update({ where: { id: userId }, data: { emailVerified: true } });
@@ -160,7 +182,7 @@ router.post(
 
     const userId = await validateVerificationToken(token, 'PASSWORD_RESET');
     if (!userId) {
-      throw new HttpError(400, 'Invalid or expired reset link');
+      throw new HttpError(400, 'Ссылка для сброса недействительна или устарела');
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
@@ -178,11 +200,11 @@ router.post(
     }
 
     if (req.currentUser.emailVerified) {
-      throw new HttpError(400, 'Email already verified');
+      throw new HttpError(400, 'Email уже подтверждён');
     }
 
     if (!req.currentUser.email) {
-      throw new HttpError(400, 'No email on this account');
+      throw new HttpError(400, 'К аккаунту не привязан email');
     }
 
     const token = await createVerificationToken(req.currentUser.id, 'EMAIL_VERIFICATION');

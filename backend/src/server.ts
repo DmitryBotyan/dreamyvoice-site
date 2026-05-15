@@ -11,6 +11,8 @@ import { metadataRouter } from './routes/metadata';
 import { teamMembersRouter } from './routes/team-members';
 import { favoritesRouter } from './routes/favorites';
 import { cdnVideoHubRouter } from './routes/cdnvideohub';
+import { animeListRouter } from './routes/anime-list';
+import { usersRouter } from './routes/users';
 import { syncCatalogMetadata } from './services/catalog-metadata';
 
 async function bootstrap() {
@@ -34,6 +36,8 @@ async function bootstrap() {
   app.use('/team-members', teamMembersRouter);
   app.use('/media', mediaRouter);
   app.use('/profile', profileRouter);
+  app.use('/anime-list', animeListRouter);
+  app.use('/users', usersRouter);
   app.use('/cdnvideohub', cdnVideoHubRouter);
 
   await syncCatalogMetadata();

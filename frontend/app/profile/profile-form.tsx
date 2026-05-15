@@ -16,6 +16,7 @@ type Props = {
 export function ProfileForm({ user }: Props) {
   const router = useRouter();
   const [username, setUsername] = useState(user.username);
+  const [bio, setBio] = useState(user.bio ?? '');
   const [avatarPreview, setAvatarPreview] = useState(
     user.avatarKey ? buildMediaUrl("avatars", user.avatarKey) : null,
   );
@@ -32,7 +33,7 @@ export function ProfileForm({ user }: Props) {
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("Файл больше 5 МБ");
+      setError("Файл слишком большой — выберите изображение до 5 МБ");
       return;
     }
 
@@ -49,6 +50,7 @@ export function ProfileForm({ user }: Props) {
 
     const formData = new FormData();
     formData.append("username", username);
+    formData.append("bio", bio);
     if (avatarFile) {
       formData.append("avatar", avatarFile);
     }
@@ -63,7 +65,7 @@ export function ProfileForm({ user }: Props) {
 
     if (!response.ok) {
       const payload = await response.json().catch(() => null);
-      setError(payload?.message ?? "Не удалось обновить профиль");
+      setError(payload?.message ?? "Профиль не сохранился — данные в полях не потеряны, попробуйте снова");
       return;
     }
 
@@ -72,6 +74,7 @@ export function ProfileForm({ user }: Props) {
   }
 
   const usernameFieldId = "profile-username";
+  const bioFieldId = "profile-bio";
   const avatarFieldId = "profile-avatar";
 
   return (
@@ -90,6 +93,21 @@ export function ProfileForm({ user }: Props) {
           maxLength={32}
           required
         />
+      </div>
+      <div className={styles.fieldGroup}>
+        <label htmlFor={bioFieldId} className={styles.fieldLabel}>
+          О себе
+        </label>
+        <textarea
+          id={bioFieldId}
+          className={styles.textInput}
+          value={bio}
+          onChange={(event) => setBio(event.target.value)}
+          maxLength={500}
+          rows={3}
+          placeholder="Расскажите немного о себе..."
+        />
+        <p className={styles.fieldHint}>{bio.length}/500</p>
       </div>
       <div className={styles.fieldGroup}>
         <label htmlFor={avatarFieldId} className={styles.fieldLabel}>
