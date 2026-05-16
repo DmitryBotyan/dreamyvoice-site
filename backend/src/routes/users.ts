@@ -25,6 +25,7 @@ router.get(
         avatarKey: true,
         bio: true,
         role: true,
+        favoriteGenres: true,
         createdAt: true,
         animeListEntries: {
           orderBy: { updatedAt: 'desc' },
@@ -60,6 +61,12 @@ router.get(
       ]),
     );
 
+    const recentActivity = user.animeListEntries.slice(0, 6).map((e) => ({
+      status: e.status,
+      updatedAt: e.updatedAt.toISOString(),
+      title: { id: e.title.id, slug: e.title.slug, name: e.title.name },
+    }));
+
     res.json({
       user: {
         id: user.id,
@@ -67,9 +74,11 @@ router.get(
         avatarKey: user.avatarKey,
         bio: user.bio,
         role: user.role,
+        favoriteGenres: user.favoriteGenres,
         createdAt: user.createdAt,
       },
       animeList,
+      recentActivity,
     });
   }),
 );

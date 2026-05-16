@@ -8,6 +8,7 @@ export type PublicUser = {
   role: UserRole;
   avatarKey?: string | null;
   bio?: string | null;
+  favoriteGenres?: string[];
   createdAt: string;
 };
 
@@ -68,14 +69,22 @@ export type AnimeListTitle = {
   coverBlurHash?: string | null;
 };
 
+export type ActivityEntry = {
+  status: AnimeListStatus;
+  updatedAt: string;
+  title: { id: string; slug: string; name: string };
+};
+
 export type PublicProfile = {
   id: string;
   username: string;
   avatarKey?: string | null;
   bio?: string | null;
   role: UserRole;
+  favoriteGenres?: string[];
   createdAt: string;
   animeList: Record<AnimeListStatus, AnimeListTitle[]>;
+  recentActivity?: ActivityEntry[];
 };
 
 export type CommentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';

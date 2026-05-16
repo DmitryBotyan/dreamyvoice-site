@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BookOpen } from "lucide-react";
 import { getCurrentUser, getMyAnimeList } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import type { AnimeListStatus, AnimeListTitle } from "@/lib/types";
 import { ProfileForm } from "./profile-form";
 import { EmailSection } from "./email-section";
+import { AvatarUploadButton } from "./avatar-upload-button";
 import styles from "./profile.module.css";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 
@@ -28,6 +30,17 @@ const STATUS_LABELS: Record<AnimeListStatus, string> = {
 };
 const STATUS_ORDER: AnimeListStatus[] = ["WATCHING", "WATCHED", "PLANNED", "DROPPED"];
 
+function relativeTime(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return "сегодня";
+  if (days === 1) return "вчера";
+  if (days < 7) return `${days} дн. назад`;
+  if (days < 30) return `${Math.floor(days / 7)} нед. назад`;
+  if (days < 365) return `${Math.floor(days / 30)} мес. назад`;
+  return `${Math.floor(days / 365)} г. назад`;
+}
+
 export default async function ProfilePage() {
   const currentUser = await getCurrentUser();
 
@@ -48,32 +61,45 @@ export default async function ProfilePage() {
   const roleLabel =
     currentUser.role === "ADMIN" ? "Администратор" : null;
 
+  const statCounts = STATUS_ORDER.map((s) => ({
+    status: s,
+    count: animeEntries.filter((e) => e.status === s).length,
+  })).filter((s) => s.count > 0);
+
+  const recentActivity = animeEntries.slice(0, 6);
+
   return (
     <section className={styles.profileSection}>
       <header className={styles.profileHero}>
-        <div className={styles.profileAvatarFrame}>
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt="Текущий аватар"
-              width={108}
-              height={108}
-              className={styles.profileAvatar}
-            />
-          ) : (
-            <span className={styles.profileAvatarFallback}>
-              {currentUser.username[0]}
-            </span>
-          )}
-        </div>
+        <AvatarUploadButton
+          avatarUrl={avatarUrl}
+          fallbackLetter={currentUser.username[0].toUpperCase()}
+        />
         <div className={styles.profileHeroContent}>
           <h1>{currentUser.username}</h1>
           <div className={styles.profileMetaRow}>
             {roleLabel && <span className={styles.profileBadge}>{roleLabel}</span>}
             <span>С нами с {joinedDate}</span>
           </div>
+          {statCounts.length > 0 && (
+            <div className={styles.profileStats}>
+              {statCounts.map((s, i) => (
+                <span key={s.status} className={styles.profileStatItem}>
+                  {i > 0 && <span className={styles.profileStatDot} aria-hidden="true">·</span>}
+                  {STATUS_LABELS[s.status]} {s.count}
+                </span>
+              ))}
+            </div>
+          )}
           {currentUser.bio && (
             <p className={styles.profileBio}>{currentUser.bio}</p>
+          )}
+          {currentUser.favoriteGenres && currentUser.favoriteGenres.length > 0 && (
+            <div className={styles.profileGenres}>
+              {currentUser.favoriteGenres.map((g) => (
+                <span key={g} className={styles.profileGenreChip}>{g}</span>
+              ))}
+            </div>
           )}
           <Link href={`/users/${encodeURIComponent(currentUser.username)}`} className={styles.profilePublicLink}>
             Открыть публичный профиль →
@@ -89,9 +115,12 @@ export default async function ProfilePage() {
           )}
         </div>
         {animeEntries.length === 0 ? (
-          <p className={styles.profileAnimeEmpty}>
-            Вы ещё не добавили ни одного аниме. Найдите тайтл и нажмите «В список».
-          </p>
+          <div className={styles.emptyState}>
+            <BookOpen size={32} strokeWidth={1.5} className={styles.emptyStateIcon} />
+            <p className={styles.emptyStateTitle}>Список пока пуст</p>
+            <p className={styles.emptyStateText}>Найдите тайтл и нажмите «В список»</p>
+            <Link href="/" className={styles.emptyStateLink}>Перейти в каталог</Link>
+          </div>
         ) : (
           STATUS_ORDER.map((status) => {
             const entries = animeEntries.filter((e) => e.status === status);
@@ -108,6 +137,25 @@ export default async function ProfilePage() {
           })
         )}
       </div>
+
+      {recentActivity.length > 0 && (
+        <div className={styles.profilePanel}>
+          <div className={styles.profilePanelHeader}>
+            <h2>Последняя активность</h2>
+          </div>
+          <div className={styles.activityFeed}>
+            {recentActivity.map((e) => (
+              <div key={`${e.title.id}-${e.updatedAt}`} className={styles.activityItem}>
+                <span className={styles.activityStatus}>{STATUS_LABELS[e.status]}</span>
+                <Link href={`/titles/${e.title.slug}`} className={styles.activityTitle}>
+                  {e.title.name}
+                </Link>
+                <span className={styles.activityTime}>{relativeTime(e.updatedAt)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <EmailSection user={currentUser} />
 

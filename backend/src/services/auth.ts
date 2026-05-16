@@ -113,6 +113,7 @@ export function toPublicUser(user: User) {
     role: user.role,
     avatarKey: user.avatarKey,
     bio: user.bio,
+    favoriteGenres: user.favoriteGenres,
     createdAt: user.createdAt,
   };
 }

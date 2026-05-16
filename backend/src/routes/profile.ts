@@ -22,6 +22,10 @@ const allowedAvatarMimeTypes = new Set(['image/png', 'image/jpeg', 'image/webp']
 const profileUpdateSchema = z.object({
   username: z.string().trim().min(3).max(32).optional(),
   bio: z.string().trim().max(500).nullable().optional(),
+  favoriteGenres: z.preprocess(
+    (v) => { if (v === undefined || v === null) return undefined; if (typeof v !== 'string' || v === '') return []; try { return JSON.parse(v); } catch { return []; } },
+    z.array(z.string().trim().max(50)).max(5).optional(),
+  ),
 });
 
 router.get(
@@ -38,7 +42,7 @@ router.patch(
   upload.single('avatar'),
   asyncHandler(async (req: Request, res: Response) => {
     const user = req.currentUser!;
-    const { username, bio } = profileUpdateSchema.parse(req.body);
+    const { username, bio, favoriteGenres } = profileUpdateSchema.parse(req.body);
 
     if (username && username !== user.username) {
       const existing = await prisma.user.findUnique({ where: { username } });
@@ -69,7 +73,7 @@ router.patch(
       }
     }
 
-    if (!username && !newAvatarKey && bio === undefined) {
+    if (!username && !newAvatarKey && bio === undefined && favoriteGenres === undefined) {
       return res.json({ user: toPublicUser(user) });
     }
 
@@ -79,6 +83,7 @@ router.patch(
         username: username ?? undefined,
         avatarKey: newAvatarKey ?? undefined,
         bio: bio !== undefined ? (bio || null) : undefined,
+        favoriteGenres: favoriteGenres ?? undefined,
       },
     });
 

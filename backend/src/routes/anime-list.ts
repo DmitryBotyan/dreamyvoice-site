@@ -37,6 +37,7 @@ router.get(
     res.json({
       entries: entries.map((e) => ({
         status: e.status,
+        updatedAt: e.updatedAt.toISOString(),
         title: {
           id: e.title.id,
           slug: e.title.slug,

@@ -46,6 +46,7 @@ model User {
   role               Role                @default(USER)
   avatarKey          String?             @map("avatar_key")
   bio                String?
+  favoriteGenres     String[]            @default([]) @map("favorite_genres")
   createdAt          DateTime            @default(now()) @map("created_at")
   comments           Comment[]
   sessions           Session[]

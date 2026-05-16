@@ -384,7 +384,7 @@ export async function deleteTeamMember(id: string) {
 }
 
 export async function getMyAnimeList() {
-  type Entry = { status: import('./types').AnimeListStatus; title: import('./types').AnimeListTitle };
+  type Entry = { status: import('./types').AnimeListStatus; updatedAt: string; title: import('./types').AnimeListTitle };
   try {
     const data = await request<{ entries: Entry[] }>('/anime-list');
     return data.entries;
@@ -396,10 +396,10 @@ export async function getMyAnimeList() {
 
 export async function getUserProfile(username: string): Promise<PublicProfile | null> {
   try {
-    const data = await request<{ user: Omit<PublicProfile, 'animeList'>; animeList: PublicProfile['animeList'] }>(
+    const data = await request<{ user: Omit<PublicProfile, 'animeList' | 'recentActivity'>; animeList: PublicProfile['animeList']; recentActivity: PublicProfile['recentActivity'] }>(
       `/users/${encodeURIComponent(username)}`,
     );
-    return { ...data.user, animeList: data.animeList };
+    return { ...data.user, animeList: data.animeList, recentActivity: data.recentActivity };
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;

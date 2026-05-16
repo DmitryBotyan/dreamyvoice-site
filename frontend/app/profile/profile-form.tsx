@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { PublicUser } from "@/lib/types";
 import { clientConfig } from "@/lib/client-config";
 import { buildMediaUrl } from "@/lib/media";
+import { GENRE_KEYWORDS } from "@/lib/genres";
 import styles from "./profile.module.css";
 
 type Props = {
@@ -17,6 +18,7 @@ export function ProfileForm({ user }: Props) {
   const router = useRouter();
   const [username, setUsername] = useState(user.username);
   const [bio, setBio] = useState(user.bio ?? '');
+  const [favoriteGenres, setFavoriteGenres] = useState<string[]>(user.favoriteGenres ?? []);
   const [avatarPreview, setAvatarPreview] = useState(
     user.avatarKey ? buildMediaUrl("avatars", user.avatarKey) : null,
   );
@@ -24,6 +26,14 @@ export function ProfileForm({ user }: Props) {
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function toggleGenre(genre: string) {
+    setFavoriteGenres((prev) => {
+      if (prev.includes(genre)) return prev.filter((g) => g !== genre);
+      if (prev.length >= 5) return prev;
+      return [...prev, genre];
+    });
+  }
 
   function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -51,6 +61,7 @@ export function ProfileForm({ user }: Props) {
     const formData = new FormData();
     formData.append("username", username);
     formData.append("bio", bio);
+    formData.append("favoriteGenres", JSON.stringify(favoriteGenres));
     if (avatarFile) {
       formData.append("avatar", avatarFile);
     }
@@ -109,6 +120,29 @@ export function ProfileForm({ user }: Props) {
         />
         <p className={styles.fieldHint}>{bio.length}/500</p>
       </div>
+      <div className={styles.fieldGroup}>
+        <span className={styles.fieldLabel}>Любимые жанры</span>
+        <div className={styles.genrePickerGrid} role="group" aria-label="Выбор любимых жанров">
+          {GENRE_KEYWORDS.map((genre) => {
+            const active = favoriteGenres.includes(genre);
+            return (
+              <button
+                key={genre}
+                type="button"
+                onClick={() => toggleGenre(genre)}
+                className={`${styles.genreChipBtn}${active ? ` ${styles.genreChipBtnActive}` : ''}`}
+                aria-pressed={active}
+              >
+                {genre}
+              </button>
+            );
+          })}
+        </div>
+        <p className={styles.genrePickerHint}>
+          {favoriteGenres.length}/5 выбрано
+        </p>
+      </div>
+
       <div className={styles.fieldGroup}>
         <label htmlFor={avatarFieldId} className={styles.fieldLabel}>
           Аватар

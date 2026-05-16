@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BookOpen } from "lucide-react";
 import { getUserProfile } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import type { AnimeListStatus, AnimeListTitle } from "@/lib/types";
@@ -28,6 +29,17 @@ const STATUS_LABELS: Record<AnimeListStatus, string> = {
 
 const STATUSES: AnimeListStatus[] = ["WATCHING", "WATCHED", "PLANNED", "DROPPED"];
 
+function relativeTime(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return "сегодня";
+  if (days === 1) return "вчера";
+  if (days < 7) return `${days} дн. назад`;
+  if (days < 30) return `${Math.floor(days / 7)} нед. назад`;
+  if (days < 365) return `${Math.floor(days / 30)} мес. назад`;
+  return `${Math.floor(days / 365)} г. назад`;
+}
+
 export default async function UserProfilePage({ params }: Props) {
   const { username } = await params;
   const profile = await getUserProfile(username);
@@ -50,6 +62,11 @@ export default async function UserProfilePage({ params }: Props) {
     (sum, s) => sum + (profile.animeList[s]?.length ?? 0),
     0,
   );
+
+  const statCounts = STATUSES.map((s) => ({
+    status: s,
+    count: profile.animeList[s]?.length ?? 0,
+  })).filter((s) => s.count > 0);
 
   return (
     <section className={styles.page}>
@@ -75,7 +92,24 @@ export default async function UserProfilePage({ params }: Props) {
             {roleLabel && <span className={styles.badge}>{roleLabel}</span>}
             <span className={styles.since}>С нами с {joinedDate}</span>
           </div>
+          {statCounts.length > 0 && (
+            <div className={styles.stats}>
+              {statCounts.map((s, i) => (
+                <span key={s.status} className={styles.statItem}>
+                  {i > 0 && <span className={styles.statDot} aria-hidden="true">·</span>}
+                  {STATUS_LABELS[s.status]} {s.count}
+                </span>
+              ))}
+            </div>
+          )}
           {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
+          {profile.favoriteGenres && profile.favoriteGenres.length > 0 && (
+            <div className={styles.genres}>
+              {profile.favoriteGenres.map((g) => (
+                <span key={g} className={styles.genreChip}>{g}</span>
+              ))}
+            </div>
+          )}
         </div>
       </header>
 
@@ -88,7 +122,10 @@ export default async function UserProfilePage({ params }: Props) {
         </h2>
 
         {totalCount === 0 ? (
-          <p className={styles.empty}>Список пока пуст.</p>
+          <div className={styles.emptyState}>
+            <BookOpen size={32} strokeWidth={1.5} className={styles.emptyStateIcon} />
+            <p className={styles.emptyStateTitle}>Список пока пуст</p>
+          </div>
         ) : (
           STATUSES.map((status) => {
             const entries = profile.animeList[status];
@@ -105,6 +142,23 @@ export default async function UserProfilePage({ params }: Props) {
           })
         )}
       </div>
+
+      {profile.recentActivity && profile.recentActivity.length > 0 && (
+        <div className={styles.activitySection}>
+          <h2 className={styles.activityTitle}>Последняя активность</h2>
+          <div className={styles.activityFeed}>
+            {profile.recentActivity.map((e) => (
+              <div key={`${e.title.id}-${e.updatedAt}`} className={styles.activityItem}>
+                <span className={styles.activityStatus}>{STATUS_LABELS[e.status]}</span>
+                <Link href={`/titles/${e.title.slug}`} className={styles.activityLink}>
+                  {e.title.name}
+                </Link>
+                <span className={styles.activityTime}>{relativeTime(e.updatedAt)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
