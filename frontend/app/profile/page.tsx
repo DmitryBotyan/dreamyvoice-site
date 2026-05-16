@@ -72,6 +72,9 @@ export default async function ProfilePage() {
             {roleLabel && <span className={styles.profileBadge}>{roleLabel}</span>}
             <span>С нами с {joinedDate}</span>
           </div>
+          {currentUser.bio && (
+            <p className={styles.profileBio}>{currentUser.bio}</p>
+          )}
           <Link href={`/users/${encodeURIComponent(currentUser.username)}`} className={styles.profilePublicLink}>
             Открыть публичный профиль →
           </Link>
