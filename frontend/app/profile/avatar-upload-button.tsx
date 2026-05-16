@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Camera } from 'lucide-react';
 import { clientConfig } from '@/lib/client-config';
@@ -20,14 +20,20 @@ export function AvatarUploadButton({ avatarUrl, fallbackLetter }: Props) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Revoke cropSrc blob URL on unmount to avoid leaks
+  useEffect(() => {
+    return () => {
+      if (cropSrc) URL.revokeObjectURL(cropSrc);
+    };
+  }, [cropSrc]);
+
   function handleClick() {
     inputRef.current?.click();
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    // reset so the same file can be selected again after cancel
-    event.target.value = '';
+    event.target.value = ''; // reset so same file can be re-selected after cancel
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
@@ -40,6 +46,8 @@ export function AvatarUploadButton({ avatarUrl, fallbackLetter }: Props) {
   }
 
   async function handleCropConfirm(blob: Blob) {
+    // Revoke the crop source URL before discarding it
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
     setCropSrc(null);
     setUploading(true);
     setError(null);
@@ -47,28 +55,28 @@ export function AvatarUploadButton({ avatarUrl, fallbackLetter }: Props) {
     const formData = new FormData();
     formData.append('avatar', blob, 'avatar.jpg');
 
-    const response = await fetch(`${clientConfig.apiProxyBasePath}/profile`, {
-      method: 'PATCH',
-      credentials: 'include',
-      body: formData,
-    });
+    try {
+      const response = await fetch(`${clientConfig.apiProxyBasePath}/profile`, {
+        method: 'PATCH',
+        credentials: 'include',
+        body: formData,
+      });
 
-    setUploading(false);
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        setError(payload?.message ?? 'Не удалось загрузить аватар');
+        return;
+      }
 
-    if (!response.ok) {
-      const payload = await response.json().catch(() => null);
-      setError(payload?.message ?? 'Не удалось загрузить аватар');
-      return;
-    }
-
-    const data = await response.json().catch(() => null);
-    const newKey = data?.user?.avatarKey;
-    if (newKey) {
-      // optimistic preview — show the freshly cropped blob immediately
+      // Optimistic preview: show cropped blob immediately, router.refresh will
+      // eventually replace it with the server URL but state persists across soft nav
       setPreview(URL.createObjectURL(blob));
+      router.refresh();
+    } catch {
+      setError('Не удалось загрузить аватар — проверьте соединение');
+    } finally {
+      setUploading(false);
     }
-
-    router.refresh();
   }
 
   function handleCropCancel() {
