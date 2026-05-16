@@ -46,7 +46,7 @@ export default async function ProfilePage() {
     year: "numeric",
   }).format(new Date(currentUser.createdAt));
   const roleLabel =
-    currentUser.role === "ADMIN" ? "Администратор" : "Пользователь";
+    currentUser.role === "ADMIN" ? "Администратор" : null;
 
   return (
     <section className={styles.profileSection}>
@@ -69,7 +69,7 @@ export default async function ProfilePage() {
         <div className={styles.profileHeroContent}>
           <h1>{currentUser.username}</h1>
           <div className={styles.profileMetaRow}>
-            <span className={styles.profileBadge}>{roleLabel}</span>
+            {roleLabel && <span className={styles.profileBadge}>{roleLabel}</span>}
             <span>С нами с {joinedDate}</span>
           </div>
           <Link href={`/users/${encodeURIComponent(currentUser.username)}`} className={styles.profilePublicLink}>

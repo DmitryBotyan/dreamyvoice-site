@@ -44,7 +44,7 @@ export default async function UserProfilePage({ params }: Props) {
     year: "numeric",
   }).format(new Date(profile.createdAt));
 
-  const roleLabel = profile.role === "ADMIN" ? "Администратор" : "Пользователь";
+  const roleLabel = profile.role === "ADMIN" ? "Администратор" : null;
 
   const totalCount = STATUSES.reduce(
     (sum, s) => sum + (profile.animeList[s]?.length ?? 0),
@@ -72,7 +72,7 @@ export default async function UserProfilePage({ params }: Props) {
         <div className={styles.heroInfo}>
           <h1 className={styles.username}>{profile.username}</h1>
           <div className={styles.metaRow}>
-            <span className={styles.badge}>{roleLabel}</span>
+            {roleLabel && <span className={styles.badge}>{roleLabel}</span>}
             <span className={styles.since}>С нами с {joinedDate}</span>
           </div>
           {profile.bio && <p className={styles.bio}>{profile.bio}</p>}

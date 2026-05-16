@@ -2955,12 +2955,12 @@ video-player {
 }
 
 .anime-list-dropdown-item--remove {
-  color: rgba(248, 113, 113, 0.8);
+  color: #dc2626;
 }
 
-.anime-list-dropdown-item--remove:hover {
-  background: rgba(248, 113, 113, 0.1);
-  color: #fca5a5;
+.anime-list-dropdown-item.anime-list-dropdown-item--remove:hover {
+  background: #dc2626;
+  color: #fff;
 }
 
 .anime-list-error {
