@@ -30,6 +30,31 @@ const STATUS_LABELS: Record<AnimeListStatus, string> = {
 };
 const STATUS_ORDER: AnimeListStatus[] = ["WATCHING", "WATCHED", "PLANNED", "DROPPED"];
 
+const MOCK_ENTRIES: { status: AnimeListStatus; updatedAt: string; title: AnimeListTitle }[] = [
+  { status: "WATCHING", updatedAt: new Date(Date.now() - 1*86400000).toISOString(), title: { id:"m1", slug:"attack-on-titan",   name:"Атака Титанов",               coverKey: null } },
+  { status: "WATCHING", updatedAt: new Date(Date.now() - 2*86400000).toISOString(), title: { id:"m2", slug:"demon-slayer",      name:"Клинок, рассекающий демонов", coverKey: null } },
+  { status: "WATCHING", updatedAt: new Date(Date.now() - 3*86400000).toISOString(), title: { id:"m3", slug:"jujutsu-kaisen",    name:"Магическая битва",            coverKey: null } },
+  { status: "WATCHING", updatedAt: new Date(Date.now() - 4*86400000).toISOString(), title: { id:"m4", slug:"chainsaw-man",      name:"Человек-бензопила",           coverKey: null } },
+  { status: "WATCHING", updatedAt: new Date(Date.now() - 5*86400000).toISOString(), title: { id:"m5", slug:"spy-x-family",      name:"Семья шпиона",                coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now() - 6*86400000).toISOString(), title: { id:"m6", slug:"fma-brotherhood",   name:"Стальной алхимик: Братство",  coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now() - 7*86400000).toISOString(), title: { id:"m7", slug:"cowboy-bebop",      name:"Ковбой Бибоп",                coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now() - 8*86400000).toISOString(), title: { id:"m8", slug:"evangelion",        name:"Евангелион",                  coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now() - 9*86400000).toISOString(), title: { id:"m9", slug:"hxh",               name:"Хантер × Хантер",             coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now()-10*86400000).toISOString(), title: { id:"m10",slug:"death-note",        name:"Тетрадь смерти",              coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now()-11*86400000).toISOString(), title: { id:"m11",slug:"berserk",           name:"Берсерк",                     coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now()-12*86400000).toISOString(), title: { id:"m12",slug:"vinland-saga",      name:"Сага о Винланде",             coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now()-13*86400000).toISOString(), title: { id:"m13",slug:"mushishi",          name:"Мусихи",                      coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now()-14*86400000).toISOString(), title: { id:"m14",slug:"ping-pong",         name:"Пинг-понг",                   coverKey: null } },
+  { status: "WATCHED",  updatedAt: new Date(Date.now()-15*86400000).toISOString(), title: { id:"m15",slug:"your-name",         name:"Твоё имя",                    coverKey: null } },
+  { status: "PLANNED",  updatedAt: new Date(Date.now()-16*86400000).toISOString(), title: { id:"m16",slug:"violet-evergarden", name:"Вайолет Эвергарден",          coverKey: null } },
+  { status: "PLANNED",  updatedAt: new Date(Date.now()-17*86400000).toISOString(), title: { id:"m17",slug:"one-punch-man",     name:"Ванпанчмен",                  coverKey: null } },
+  { status: "PLANNED",  updatedAt: new Date(Date.now()-18*86400000).toISOString(), title: { id:"m18",slug:"rezero",            name:"Re:Zero",                     coverKey: null } },
+  { status: "PLANNED",  updatedAt: new Date(Date.now()-19*86400000).toISOString(), title: { id:"m19",slug:"mob-psycho",        name:"Моб Психо 100",               coverKey: null } },
+  { status: "DROPPED",  updatedAt: new Date(Date.now()-20*86400000).toISOString(), title: { id:"m20",slug:"boruto",            name:"Боруто",                      coverKey: null } },
+  { status: "DROPPED",  updatedAt: new Date(Date.now()-21*86400000).toISOString(), title: { id:"m21",slug:"fairy-tail",        name:"Сказка о хвосте феи",         coverKey: null } },
+  { status: "DROPPED",  updatedAt: new Date(Date.now()-22*86400000).toISOString(), title: { id:"m22",slug:"sword-art-online",  name:"Мастера Меча Онлайн",         coverKey: null } },
+];
+
 function relativeTime(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
@@ -48,7 +73,7 @@ export default async function ProfilePage() {
     redirect("/login?redirect=/profile");
   }
 
-  const animeEntries = await getMyAnimeList();
+  const animeEntries = MOCK_ENTRIES; // TODO: replace with await getMyAnimeList();
 
   const avatarUrl = currentUser.avatarKey
     ? buildMediaUrl("avatars", currentUser.avatarKey)
@@ -102,7 +127,7 @@ export default async function ProfilePage() {
             </div>
           )}
           <Link href={`/users/${encodeURIComponent(currentUser.username)}`} className={styles.profilePublicLink}>
-            Открыть публичный профиль →
+            Открыть публичный профиль
           </Link>
         </div>
       </header>

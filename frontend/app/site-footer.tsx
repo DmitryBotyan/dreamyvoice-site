@@ -91,7 +91,7 @@ export function SiteFooter({ titles, isAuthenticated }: SiteFooterProps) {
         <div className="site-footer-bottom-links">
           <Link href="/team#support">Поддержать проект</Link>
           <AdminLink isAuthenticated={isAuthenticated} />
-          <Link href="/#catalog">К каталогу ↑</Link>
+          <Link href="/#catalog">К каталогу</Link>
         </div>
       </div>
     </footer>

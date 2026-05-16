@@ -8,8 +8,8 @@ import { SORT_OPTIONS } from "./catalog-filter-config";
 import { buildCatalogFiltersFromUrl } from "./catalog-filter-utils";
 
 const SORT_LABELS: Record<SortOption, string> = {
-  name_asc: "Название (А→Я)",
-  name_desc: "Название (Я→А)",
+  name_asc: "Название (А–Я)",
+  name_desc: "Название (Я–А)",
   created_desc: "Сначала новые",
   created_asc: "Сначала старые",
 };

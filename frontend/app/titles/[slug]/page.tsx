@@ -172,7 +172,7 @@ export default async function TitlePage({ params }: Props) {
       />
       <article className="title-page">
       <Link className="title-page-back" href="/">
-        ← Назад к каталогу
+        Назад к каталогу
       </Link>
       <header className="title-hero">
         <div className="title-cover">

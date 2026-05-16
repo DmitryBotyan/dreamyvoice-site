@@ -41,7 +41,7 @@ export default async function AdminTitlePage({ params }: Props) {
   return (
     <section className={styles.adminSection}>
       <p className={styles.adminBreadcrumb}>
-        <Link href="/admin">← Назад к списку</Link>
+        <Link href="/admin">Назад к списку</Link>
       </p>
       <header className={styles.adminHero}>
         <p className={styles.adminEyebrow}>Редактирование</p>
