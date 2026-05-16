@@ -29,6 +29,7 @@ const STATUS_LABELS: Record<AnimeListStatus, string> = {
 
 const STATUSES: AnimeListStatus[] = ["WATCHING", "WATCHED", "PLANNED", "DROPPED"];
 
+
 function relativeTime(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
@@ -58,14 +59,18 @@ export default async function UserProfilePage({ params }: Props) {
 
   const roleLabel = profile.role === "ADMIN" ? "Администратор" : null;
 
+  const animeList = profile.animeList;
+  const recentActivity = profile.recentActivity;
+  const favoriteGenres = profile.favoriteGenres;
+
   const totalCount = STATUSES.reduce(
-    (sum, s) => sum + (profile.animeList[s]?.length ?? 0),
+    (sum, s) => sum + (animeList[s]?.length ?? 0),
     0,
   );
 
   const statCounts = STATUSES.map((s) => ({
     status: s,
-    count: profile.animeList[s]?.length ?? 0,
+    count: animeList[s]?.length ?? 0,
   })).filter((s) => s.count > 0);
 
   return (
@@ -103,9 +108,9 @@ export default async function UserProfilePage({ params }: Props) {
             </div>
           )}
           {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
-          {profile.favoriteGenres && profile.favoriteGenres.length > 0 && (
+          {favoriteGenres && favoriteGenres.length > 0 && (
             <div className={styles.genres}>
-              {profile.favoriteGenres.map((g) => (
+              {favoriteGenres.map((g) => (
                 <span key={g} className={styles.genreChip}>{g}</span>
               ))}
             </div>
@@ -128,7 +133,7 @@ export default async function UserProfilePage({ params }: Props) {
           </div>
         ) : (
           STATUSES.map((status) => {
-            const entries = profile.animeList[status];
+            const entries = animeList[status];
             if (!entries || entries.length === 0) return null;
             return (
               <div key={status} className={styles.statusGroup}>
@@ -143,11 +148,11 @@ export default async function UserProfilePage({ params }: Props) {
         )}
       </div>
 
-      {profile.recentActivity && profile.recentActivity.length > 0 && (
+      {recentActivity && recentActivity.length > 0 && (
         <div className={styles.activitySection}>
           <h2 className={styles.activityTitle}>Последняя активность</h2>
           <div className={styles.activityFeed}>
-            {profile.recentActivity.map((e) => (
+            {recentActivity.map((e) => (
               <div key={`${e.title.id}-${e.updatedAt}`} className={styles.activityItem}>
                 <span className={styles.activityStatus}>{STATUS_LABELS[e.status]}</span>
                 <Link href={`/titles/${e.title.slug}`} className={styles.activityLink}>
