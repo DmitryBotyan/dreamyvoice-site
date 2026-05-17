@@ -2,8 +2,6 @@ import Link from "next/link";
 import { HeaderSearch } from "./header-search";
 import { SiteNav } from "./site-nav";
 
-import { AdminLink } from "./admin-link";
-
 type SiteFooterProps = {
   titles: Array<{
     id: string;
@@ -89,8 +87,9 @@ export function SiteFooter({ titles, isAuthenticated }: SiteFooterProps) {
         <span>© {currentYear} DreamyVoice</span>
 
         <div className="site-footer-bottom-links">
+          <Link href="/privacy">Конфиденциальность</Link>
+          <Link href="/terms">Условия</Link>
           <Link href="/team#support">Поддержать проект</Link>
-          <AdminLink isAuthenticated={isAuthenticated} />
           <Link href="/#catalog">К каталогу</Link>
         </div>
       </div>

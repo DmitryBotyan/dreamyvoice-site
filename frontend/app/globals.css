@@ -74,7 +74,6 @@ a {
   gap: 32px;
   padding: 24px 48px;
   background: transparent;
-  border-bottom: 1px solid transparent;
   box-shadow: none;
   backdrop-filter: none;
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease,
@@ -88,7 +87,6 @@ a {
   right: 0;
   z-index: 30;
   background: var(--surface-primary-translucent);
-  border-bottom-color: rgba(255, 255, 255, 0.18);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(18px);
 }
@@ -593,7 +591,6 @@ a {
   margin-top: auto;
   padding: 48px;
   background: var(--background);
-  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -700,7 +697,6 @@ a {
 
 .site-footer-bottom {
   padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -857,7 +853,6 @@ button:disabled {
 .auth-modal {
   width: min(460px, 100%);
   background: var(--surface-primary);
-  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 32px;
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.75);
@@ -877,23 +872,22 @@ button:disabled {
 }
 
 .auth-modal-close {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border-radius: 10px;
-  border: 1px solid var(--border);
   background: transparent;
-  color: var(--foreground);
+  color: rgba(247, 245, 255, 0.4);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: color 0.15s ease;
 }
 
 .auth-modal-close:hover,
 .auth-modal-close:focus-visible {
-  background: var(--accent-strong);
-  border-color: var(--accent-strong);
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
   color: #fff;
 }
 
@@ -1138,6 +1132,24 @@ button:disabled {
   text-align: left;
   font-size: 0.9rem;
   color: var(--muted);
+}
+
+.auth-legal-note {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: rgba(247, 245, 255, 0.35);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.auth-legal-note a {
+  color: rgba(247, 245, 255, 0.55);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth-legal-note a:hover {
+  color: var(--foreground);
 }
 
 .auth-alt-action a,
@@ -1663,7 +1675,6 @@ button:disabled {
   gap: 6px;
   padding: 6px 14px;
   border-radius: 10px;
-  border: 1px solid transparent;
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(8px);
   font-size: 0.75rem;
@@ -1672,19 +1683,16 @@ button:disabled {
 }
 
 .title-badge--success {
-  border-color: rgba(74, 222, 128, 0.6);
   background: rgba(34, 197, 94, 0.15);
   color: #bbf7d0;
 }
 
 .title-badge--warning {
-  border-color: rgba(251, 191, 36, 0.5);
   background: rgba(251, 191, 36, 0.12);
   color: #fde68a;
 }
 
 .title-badge--rating {
-  border-color: rgba(59, 130, 246, 0.65);
   background: rgba(59, 130, 246, 0.15);
   color: #bfdbfe;
 }
@@ -1828,7 +1836,6 @@ button:disabled {
   gap: 0;
   margin-top: 8px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .title-meta > div {
@@ -1861,7 +1868,6 @@ button:disabled {
   flex-direction: column;
   gap: 24px;
   padding: 32px 0 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .episode-player-heading {
@@ -1959,7 +1965,6 @@ video-player {
   gap: 14px;
   margin-top: 12px;
   padding-top: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .episode-player-selector-label {
@@ -2121,7 +2126,6 @@ video-player {
   flex-direction: column;
   gap: 24px;
   padding: 48px 0 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .comments-heading {
@@ -2158,11 +2162,6 @@ video-player {
   flex-direction: column;
   gap: 12px;
   padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.comment-card:last-child {
-  border-bottom-color: transparent;
 }
 
 .comment-card-header {
@@ -2575,7 +2574,6 @@ video-player {
   flex-direction: column;
   gap: 0;
   padding-left: 56px;
-  border-left: 2px solid rgba(255, 255, 255, 0.06);
   margin-left: 20px;
   margin-top: 4px;
 }
@@ -2586,12 +2584,6 @@ video-player {
 
 .comment-card--reply {
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.comment-card--reply:last-child,
-.comment-reply-item:last-child .comment-card--reply {
-  border-bottom: none;
 }
 
 .comment-card-avatar--sm {

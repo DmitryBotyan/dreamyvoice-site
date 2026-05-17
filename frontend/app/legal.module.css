@@ -1,0 +1,51 @@
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.updated {
+  font-size: 0.85rem;
+  color: rgba(247, 245, 255, 0.4);
+  margin: 0 0 48px;
+}
+
+.section {
+  margin-top: 40px;
+}
+
+.section h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-strong);
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+}
+
+.section p,
+.section li {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: rgba(247, 245, 255, 0.75);
+  margin: 0 0 8px;
+}
+
+.section ul {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.section a {
+  color: var(--accent-strong);
+  text-decoration: none;
+}
+
+.section a:hover {
+  text-decoration: underline;
+}

@@ -13,6 +13,7 @@
     "prisma:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "backfill:blurhash": "node node_modules/.pnpm/tsx@4.20.6/node_modules/tsx/dist/cli.mjs scripts/backfill-blurhash.ts",
+    "db:seed": "tsx prisma/seed.ts",
     "test": "echo \"No tests yet\" && exit 0"
   },
   "keywords": [],

@@ -232,9 +232,9 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
         </p>
       ) : currentEpisode != null ? (
         <>
-          {/* Source indicator / toggle — above episode label */}
-          <div className="episode-player-source-row">
-            {bothSources ? (
+          {/* Source toggle — only shown when episode has both sources */}
+          {bothSources && (
+            <div className="episode-player-source-row">
               <div
                 className="episode-player-source-toggle"
                 role="group"
@@ -263,16 +263,8 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
                   Внешний плеер
                 </button>
               </div>
-            ) : (
-              <p className="episode-player-source-label">{singleSourceLabel}</p>
-            )}
-          </div>
-
-          <div className="episode-player-current">
-            <p className="episode-player-current-number">
-              Серия {currentEpisode.number}
-            </p>
-          </div>
+            </div>
+          )}
 
           {source === "cdn" && currentEpisode.cvhVideoId ? (
             <div className="episode-player-frame episode-player-frame--cdn">

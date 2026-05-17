@@ -236,6 +236,14 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
       <button type="submit" disabled={isSubmitting}>
         {mode === 'login' ? 'Войти' : 'Создать аккаунт'}
       </button>
+      {mode === 'register' && (
+        <p className="auth-legal-note">
+          Создавая аккаунт, вы соглашаетесь с{' '}
+          <Link href="/terms" target="_blank">Условиями использования</Link>
+          {' '}и{' '}
+          <Link href="/privacy" target="_blank">Политикой конфиденциальности</Link>.
+        </p>
+      )}
       {error ? <p>{error}</p> : null}
     </form>
   );

@@ -81,7 +81,10 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
                 aria-label="Закрыть окно"
                 onClick={closeModal}
               >
-                ✕
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                  <line x1="2" y1="2" x2="16" y2="16" />
+                  <line x1="16" y1="2" x2="2" y2="16" />
+                </svg>
               </button>
             </div>
             <AuthForm
