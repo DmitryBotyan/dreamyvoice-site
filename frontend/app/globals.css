@@ -2566,6 +2566,16 @@ video-player {
   transform: none;
 }
 
+.comment-replies-thread {
+  margin-top: 4px;
+  margin-left: 22px;
+  padding-left: 20px;
+  border-left: 2px solid rgba(143, 99, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
 .comment-replies-list {
   list-style: none;
   padding: 0;
@@ -2573,13 +2583,33 @@ video-player {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding-left: 56px;
-  margin-left: 20px;
-  margin-top: 4px;
 }
 
 .comment-reply-item {
   padding: 0;
+}
+
+.comment-replies-toggle {
+  align-self: flex-start;
+  margin-top: 2px;
+  margin-bottom: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(143, 99, 255, 0.7);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  box-shadow: none;
+}
+
+.comment-replies-toggle:hover:not(:disabled) {
+  color: rgba(143, 99, 255, 1);
+  background: transparent;
+  box-shadow: none;
+  transform: none;
 }
 
 .comment-card--reply {
