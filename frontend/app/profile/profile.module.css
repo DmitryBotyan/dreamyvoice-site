@@ -671,6 +671,80 @@
   border-color: rgba(143, 99, 255, 0.6);
 }
 
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+.tabsRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tabBar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.tabBtn {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  box-shadow: none;
+}
+
+.tabBtn:hover:not(:disabled) {
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.tabBtnActive:hover:not(:disabled) {
+  color: var(--foreground);
+}
+
+.tabBtnActive {
+  color: var(--foreground);
+  border-bottom-color: var(--accent, #8f63ff);
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Anime group collapse ─────────────────────────────────────────────────── */
+.animeGroupToggle {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 5px 14px;
+  cursor: pointer;
+  margin-top: 2px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  box-shadow: none;
+}
+
+.animeGroupToggle:hover:not(:disabled) {
+  color: rgba(255, 255, 255, 0.75);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
 /* ── Crop modal ──────────────────────────────────────────────────────────── */
 .cropOverlay {
   position: fixed;

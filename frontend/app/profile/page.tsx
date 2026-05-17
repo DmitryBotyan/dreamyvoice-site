@@ -4,10 +4,12 @@ import { redirect } from "next/navigation";
 import { BookOpen } from "lucide-react";
 import { getCurrentUser, getMyAnimeList } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
-import type { AnimeListStatus, AnimeListTitle } from "@/lib/types";
+import type { AnimeListStatus } from "@/lib/types";
 import { ProfileForm } from "./profile-form";
 import { EmailSection } from "./email-section";
 import { AvatarUploadButton } from "./avatar-upload-button";
+import { ProfileTabs } from "./profile-tabs";
+import { AnimeGroup } from "./anime-group";
 import styles from "./profile.module.css";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 
@@ -29,7 +31,6 @@ const STATUS_LABELS: Record<AnimeListStatus, string> = {
   DROPPED: "Брошено",
 };
 const STATUS_ORDER: AnimeListStatus[] = ["WATCHING", "WATCHED", "PLANNED", "DROPPED"];
-
 
 function relativeTime(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -62,52 +63,10 @@ export default async function ProfilePage() {
   const roleLabel =
     currentUser.role === "ADMIN" ? "Администратор" : null;
 
-  const statCounts = STATUS_ORDER.map((s) => ({
-    status: s,
-    count: animeEntries.filter((e) => e.status === s).length,
-  })).filter((s) => s.count > 0);
-
   const recentActivity = animeEntries.slice(0, 6);
 
-  return (
-    <section className={styles.profileSection}>
-      <header className={styles.profileHero}>
-        <AvatarUploadButton
-          avatarUrl={avatarUrl}
-          fallbackLetter={currentUser.username[0].toUpperCase()}
-        />
-        <div className={styles.profileHeroContent}>
-          <h1>{currentUser.username}</h1>
-          <div className={styles.profileMetaRow}>
-            {roleLabel && <span className={styles.profileBadge}>{roleLabel}</span>}
-            <span>С нами с {joinedDate}</span>
-          </div>
-          {statCounts.length > 0 && (
-            <div className={styles.profileStats}>
-              {statCounts.map((s, i) => (
-                <span key={s.status} className={styles.profileStatItem}>
-                  {i > 0 && <span className={styles.profileStatDot} aria-hidden="true">·</span>}
-                  {STATUS_LABELS[s.status]} {s.count}
-                </span>
-              ))}
-            </div>
-          )}
-          {currentUser.bio && (
-            <p className={styles.profileBio}>{currentUser.bio}</p>
-          )}
-          {currentUser.favoriteGenres && currentUser.favoriteGenres.length > 0 && (
-            <div className={styles.profileGenres}>
-              {currentUser.favoriteGenres.map((g) => (
-                <span key={g} className={styles.profileGenreChip}>{g}</span>
-              ))}
-            </div>
-          )}
-          <Link href={`/users/${encodeURIComponent(currentUser.username)}`} className={styles.profilePublicLink}>
-            Открыть публичный профиль
-          </Link>
-        </div>
-      </header>
-
+  const profileContent = (
+    <div className={styles.tabContent}>
       <div className={styles.profilePanel}>
         <div className={styles.profilePanelHeader}>
           <h2>Мой аниме-лист</h2>
@@ -127,13 +86,12 @@ export default async function ProfilePage() {
             const entries = animeEntries.filter((e) => e.status === status);
             if (entries.length === 0) return null;
             return (
-              <div key={status} className={styles.profileAnimeGroup}>
-                <h3 className={styles.profileAnimeStatus}>
-                  {STATUS_LABELS[status]}
-                  <span className={styles.profileAnimeStatusCount}>{entries.length}</span>
-                </h3>
-                <AnimeGrid titles={entries.map((e) => e.title)} />
-              </div>
+              <AnimeGroup
+                key={status}
+                status={status}
+                label={STATUS_LABELS[status]}
+                entries={entries.map((e) => e.title)}
+              />
             );
           })
         )}
@@ -157,37 +115,47 @@ export default async function ProfilePage() {
           </div>
         </div>
       )}
+    </div>
+  );
 
+  const settingsContent = (
+    <div className={styles.tabContent}>
       <EmailSection user={currentUser} />
-
       <div className={styles.profilePanel}>
         <div className={styles.profilePanelHeader}>
           <h2>Основная информация</h2>
         </div>
         <ProfileForm user={currentUser} />
       </div>
-    </section>
+    </div>
   );
-}
 
-function AnimeGrid({ titles }: { titles: AnimeListTitle[] }) {
   return (
-    <ul className={styles.profileAnimeGrid} role="list">
-      {titles.map((title) => {
-        const coverUrl = title.coverKey ? buildMediaUrl("covers", title.coverKey) : null;
-        return (
-          <li key={title.id}>
-            <Link href={`/titles/${title.slug}`} className={styles.profileAnimeCard} aria-label={title.name}>
-              <div className={`${styles.profileAnimeCover}${coverUrl ? "" : ` ${styles.profileAnimeCoverEmpty}`}`}>
-                {coverUrl && (
-                  <img src={coverUrl} alt={title.name} width={110} height={155} />
-                )}
-              </div>
-              <span className={styles.profileAnimeTitle}>{title.name}</span>
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
+    <section className={styles.profileSection}>
+      <header className={styles.profileHero}>
+        <AvatarUploadButton
+          avatarUrl={avatarUrl}
+          fallbackLetter={currentUser.username[0].toUpperCase()}
+        />
+        <div className={styles.profileHeroContent}>
+          <h1>{currentUser.username}</h1>
+          <div className={styles.profileMetaRow}>
+            {roleLabel && <span className={styles.profileBadge}>{roleLabel}</span>}
+            <span>С нами с {joinedDate}</span>
+          </div>
+          {currentUser.bio && (
+            <p className={styles.profileBio}>{currentUser.bio}</p>
+          )}
+          <Link href={`/users/${encodeURIComponent(currentUser.username)}`} className={styles.profilePublicLink}>
+            Открыть публичный профиль
+          </Link>
+        </div>
+      </header>
+
+      <ProfileTabs
+        profileContent={profileContent}
+        settingsContent={settingsContent}
+      />
+    </section>
   );
 }

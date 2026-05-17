@@ -6,6 +6,7 @@ import { BookOpen } from "lucide-react";
 import { getUserProfile } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import type { AnimeListStatus, AnimeListTitle } from "@/lib/types";
+import { AnimeGroup } from "@/app/profile/anime-group";
 import styles from "./page.module.css";
 
 type Props = {
@@ -61,17 +62,11 @@ export default async function UserProfilePage({ params }: Props) {
 
   const animeList = profile.animeList;
   const recentActivity = profile.recentActivity;
-  const favoriteGenres = profile.favoriteGenres;
 
   const totalCount = STATUSES.reduce(
     (sum, s) => sum + (animeList[s]?.length ?? 0),
     0,
   );
-
-  const statCounts = STATUSES.map((s) => ({
-    status: s,
-    count: animeList[s]?.length ?? 0,
-  })).filter((s) => s.count > 0);
 
   return (
     <section className={styles.page}>
@@ -97,24 +92,7 @@ export default async function UserProfilePage({ params }: Props) {
             {roleLabel && <span className={styles.badge}>{roleLabel}</span>}
             <span className={styles.since}>С нами с {joinedDate}</span>
           </div>
-          {statCounts.length > 0 && (
-            <div className={styles.stats}>
-              {statCounts.map((s, i) => (
-                <span key={s.status} className={styles.statItem}>
-                  {i > 0 && <span className={styles.statDot} aria-hidden="true">·</span>}
-                  {STATUS_LABELS[s.status]} {s.count}
-                </span>
-              ))}
-            </div>
-          )}
           {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
-          {favoriteGenres && favoriteGenres.length > 0 && (
-            <div className={styles.genres}>
-              {favoriteGenres.map((g) => (
-                <span key={g} className={styles.genreChip}>{g}</span>
-              ))}
-            </div>
-          )}
         </div>
       </header>
 
@@ -136,13 +114,12 @@ export default async function UserProfilePage({ params }: Props) {
             const entries = animeList[status];
             if (!entries || entries.length === 0) return null;
             return (
-              <div key={status} className={styles.statusGroup}>
-                <h3 className={styles.statusLabel}>
-                  {STATUS_LABELS[status]}
-                  <span className={styles.statusCount}>{entries.length}</span>
-                </h3>
-                <AnimeGrid titles={entries} />
-              </div>
+              <AnimeGroup
+                key={status}
+                status={status}
+                label={STATUS_LABELS[status]}
+                entries={entries}
+              />
             );
           })
         )}
@@ -168,35 +145,3 @@ export default async function UserProfilePage({ params }: Props) {
   );
 }
 
-function AnimeGrid({ titles }: { titles: AnimeListTitle[] }) {
-  return (
-    <ul className={styles.grid} role="list">
-      {titles.map((title) => {
-        const coverUrl = title.coverKey
-          ? buildMediaUrl("covers", title.coverKey)
-          : null;
-        return (
-          <li key={title.id} className={styles.card}>
-            <Link
-              href={`/titles/${title.slug}`}
-              className={styles.cardLink}
-              aria-label={title.name}
-            >
-              <div className={`${styles.cover}${coverUrl ? "" : ` ${styles.coverEmpty}`}`}>
-                {coverUrl ? (
-                  <img
-                    src={coverUrl}
-                    alt={title.name}
-                    width={130}
-                    height={180}
-                  />
-                ) : null}
-              </div>
-              <span className={styles.cardName}>{title.name}</span>
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
