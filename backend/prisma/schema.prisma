@@ -30,6 +30,11 @@ enum TokenType {
   PASSWORD_RESET
 }
 
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
 enum AnimeListStatus {
   WATCHING
   WATCHED
@@ -54,6 +59,7 @@ model User {
   ratings            Rating[]
   verificationTokens VerificationToken[]
   animeListEntries   AnimeListEntry[]
+  commentReactions   CommentReaction[]
 
   @@map("users")
 }
@@ -127,13 +133,30 @@ model Comment {
   id        String         @id @default(cuid())
   titleId   String         @map("title_id")
   userId    String         @map("user_id")
+  parentId  String?        @map("parent_id")
   body      String
   status    CommentStatus  @default(PENDING)
   createdAt DateTime       @default(now()) @map("created_at")
   title     Title          @relation(fields: [titleId], references: [id], onDelete: Cascade)
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Comment?       @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]      @relation("CommentReplies")
+  reactions CommentReaction[]
 
   @@map("comments")
+}
+
+model CommentReaction {
+  id        String       @id @default(cuid())
+  commentId String       @map("comment_id")
+  userId    String       @map("user_id")
+  type      ReactionType
+  createdAt DateTime     @default(now()) @map("created_at")
+  comment   Comment      @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+  @@map("comment_reactions")
 }
 
 model Session {

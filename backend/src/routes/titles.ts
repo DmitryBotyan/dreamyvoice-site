@@ -23,6 +23,9 @@ type TitleWithEpisodes = Prisma.TitleGetPayload<{
   };
 }>;
 type CommentWithUser = Prisma.CommentGetPayload<{ include: { user: true } }>;
+type CommentWithReactions = Prisma.CommentGetPayload<{
+  include: { user: true; reactions: true; replies: { include: { user: true; reactions: true } } };
+}>;
 
 const router = Router();
 const commentsRouter = Router({ mergeParams: true });
@@ -331,6 +334,7 @@ const commentBodySchema = z.object({
     .trim()
     .min(3, 'Комментарий слишком короткий')
     .max(2000, 'Комментарий слишком длинный'),
+  parentId: z.string().optional(),
 });
 const commentStatusSchema = z.object({
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED']),
@@ -350,16 +354,23 @@ commentsRouter.get(
       throw new HttpError(404, 'Title not found');
     }
 
+    const statusFilter = includeModeration ? {} : { status: 'APPROVED' as const };
+    const currentUserId = req.currentUser?.id ?? null;
     const comments = await prisma.comment.findMany({
-      where: {
-        titleId: title.id,
-        ...(includeModeration ? {} : { status: 'APPROVED' }),
-      },
+      where: { titleId: title.id, parentId: null, ...statusFilter },
       orderBy: { createdAt: 'asc' },
-      include: { user: true },
+      include: {
+        user: true,
+        reactions: true,
+        replies: {
+          where: statusFilter,
+          orderBy: { createdAt: 'asc' },
+          include: { user: true, reactions: true },
+        },
+      },
     });
 
-    res.json({ comments: comments.map(toCommentDto(includeModeration)) });
+    res.json({ comments: comments.map(toCommentDto(includeModeration, currentUserId)) });
   }),
 );
 
@@ -368,7 +379,7 @@ commentsRouter.post(
   requireAuth,
   asyncHandler(async (req: Request, res: Response) => {
     const { slug } = slugSchema.parse(req.params);
-    const { body } = commentBodySchema.parse(req.body);
+    const { body, parentId } = commentBodySchema.parse(req.body);
     const user = req.currentUser!;
     const title = await prisma.title.findFirst({ where: buildSlugWhere(slug) });
 
@@ -376,17 +387,20 @@ commentsRouter.post(
       throw new HttpError(404, 'Title not found');
     }
 
+    if (parentId) {
+      const parent = await prisma.comment.findFirst({
+        where: { id: parentId, titleId: title.id, parentId: null },
+        select: { id: true },
+      });
+      if (!parent) throw new HttpError(400, 'Parent comment not found');
+    }
+
     const comment = await prisma.comment.create({
-      data: {
-        titleId: title.id,
-        userId: user.id,
-        body,
-        status: 'APPROVED',
-      },
-      include: { user: true },
+      data: { titleId: title.id, userId: user.id, body, status: 'APPROVED', parentId: parentId ?? null },
+      include: { user: true, reactions: true, replies: { include: { user: true, reactions: true } } },
     });
 
-    res.status(201).json({ comment: toCommentDto(user.role === 'ADMIN')(comment) });
+    res.status(201).json({ comment: toCommentDto(user.role === 'ADMIN', user.id)(comment) });
   }),
 );
 
@@ -414,7 +428,7 @@ commentsRouter.patch(
     const updated = await prisma.comment.update({
       where: { id: comment.id },
       data: { status },
-      include: { user: true },
+      include: { user: true, reactions: true, replies: { include: { user: true, reactions: true } } },
     });
 
     res.json({ comment: toCommentDto(true)(updated) });
@@ -444,6 +458,43 @@ commentsRouter.delete(
     await prisma.comment.delete({ where: { id: comment.id } });
 
     res.status(204).send();
+  }),
+);
+
+const reactionTypeSchema = z.object({ type: z.enum(['LIKE', 'DISLIKE']) });
+
+commentsRouter.post(
+  '/:commentId/reactions',
+  requireAuth,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { slug, commentId } = commentParamsSchema.parse(req.params);
+    const { type } = reactionTypeSchema.parse(req.body);
+    const user = req.currentUser!;
+    const title = await prisma.title.findFirst({ where: buildSlugWhere(slug) });
+    if (!title) throw new HttpError(404, 'Title not found');
+
+    const comment = await prisma.comment.findFirst({
+      where: { id: commentId, titleId: title.id },
+      select: { id: true },
+    });
+    if (!comment) throw new HttpError(404, 'Comment not found');
+
+    const existing = await prisma.commentReaction.findUnique({
+      where: { commentId_userId: { commentId, userId: user.id } },
+    });
+
+    if (existing?.type === type) {
+      await prisma.commentReaction.delete({ where: { commentId_userId: { commentId, userId: user.id } } });
+    } else {
+      await prisma.commentReaction.upsert({
+        where: { commentId_userId: { commentId, userId: user.id } },
+        create: { commentId, userId: user.id, type },
+        update: { type },
+      });
+    }
+
+    const reactions = await prisma.commentReaction.findMany({ where: { commentId } });
+    res.json(reactionCounts(reactions as { type: string; userId: string }[], user.id));
   }),
 );
 
@@ -880,13 +931,33 @@ function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
   };
 }
 
-function toCommentDto(includeStatus: boolean) {
-  return (comment: CommentWithUser) => ({
+function reactionCounts(reactions: { type: string }[], userId: string | null) {
+  return {
+    likeCount: reactions.filter((r) => r.type === 'LIKE').length,
+    dislikeCount: reactions.filter((r) => r.type === 'DISLIKE').length,
+    userReaction: userId
+      ? (reactions.find((r) => (r as { userId: string }).userId === userId)?.type ?? null)
+      : null,
+  };
+}
+
+function toCommentDto(includeStatus: boolean, userId: string | null = null) {
+  return (comment: CommentWithReactions) => ({
     id: comment.id,
     body: comment.body,
     status: includeStatus ? comment.status : undefined,
     createdAt: comment.createdAt,
     author: toCommentAuthor(comment.user),
+    ...reactionCounts(comment.reactions as { type: string; userId: string }[], userId),
+    replies: (comment.replies ?? []).map((r) => ({
+      id: r.id,
+      body: r.body,
+      status: includeStatus ? r.status : undefined,
+      createdAt: r.createdAt,
+      author: toCommentAuthor(r.user),
+      ...reactionCounts(r.reactions as { type: string; userId: string }[], userId),
+      replies: [],
+    })),
   });
 }
 

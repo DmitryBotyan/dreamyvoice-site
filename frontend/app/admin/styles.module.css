@@ -9,7 +9,7 @@
 .adminHero {
   padding: 32px 36px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+
   background: linear-gradient(
     145deg,
     rgba(33, 33, 44, 0.95),
@@ -35,7 +35,7 @@
 .adminPanel {
   padding: 28px 30px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+
   background: var(--surface-primary);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   display: flex;
@@ -94,7 +94,7 @@
   gap: 6px;
   padding: 4px 12px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+
   font-size: 0.7rem;
   letter-spacing: 0.1em;
 }
@@ -174,7 +174,7 @@
 .adminEmpty {
   padding: 18px;
   border-radius: 10px;
-  border: 1px dashed var(--border);
+
   color: var(--muted);
   text-align: center;
 }
@@ -185,14 +185,14 @@
   gap: 18px;
   padding: 28px 30px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+
   background: var(--surface-primary);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
 .adminFieldset,
 .adminList {
-  border: 1px solid var(--border);
+
   border-radius: 10px;
   padding: 20px 22px;
   display: flex;
@@ -218,7 +218,7 @@
 .adminFieldset textarea {
   width: 100%;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   padding: 12px 14px;
@@ -229,7 +229,7 @@
 .adminFieldset select {
   width: 100%;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   padding: 12px 14px;
@@ -288,7 +288,7 @@
 
 .metadataGrid input {
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   padding: 10px 12px;
@@ -306,7 +306,7 @@
   flex: 1;
   min-width: 0;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   padding: 10px 12px;
@@ -318,7 +318,7 @@
 .inlineRow button {
   padding: 8px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.04);
   color: var(--foreground);
   font-size: 0.9rem;
@@ -344,7 +344,7 @@
   padding: 4px 12px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+
   font-size: 0.85rem;
   display: inline-flex;
   align-items: center;
@@ -401,7 +401,7 @@
 .coverPreview {
   margin-top: 8px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+
   width: 160px;
   height: auto;
 }
@@ -409,7 +409,7 @@
 .avatarPreview {
   margin-top: 8px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+
   width: 120px;
   height: 120px;
   object-fit: cover;
@@ -547,7 +547,7 @@
 
 .adminCommentCard {
   border-radius: 10px;
-  border: 1px solid var(--border);
+
   padding: 18px 20px;
   background: var(--surface-secondary);
   display: flex;
@@ -606,7 +606,7 @@
 
 .adminCommentStatusControl select {
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   padding: 10px 12px;
@@ -640,7 +640,7 @@
 .pendingCommentsSection {
   padding: 28px 30px;
   border-radius: 16px;
-  border: 1px solid var(--border);
+
   background: var(--surface-primary);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   display: flex;
@@ -675,7 +675,7 @@
   min-width: 48px;
   padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   font-weight: 600;
   letter-spacing: 0.08em;
   color: #ffd9a4;
@@ -686,7 +686,7 @@
   margin: 0;
   padding: 18px;
   border-radius: 12px;
-  border: 1px dashed var(--border);
+
   color: var(--muted);
   text-align: center;
 }
@@ -702,7 +702,7 @@
 
 .pendingCommentCard {
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+
   background: var(--surface-secondary);
   padding: 18px 20px;
   display: flex;
@@ -769,7 +769,7 @@
   gap: 14px;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+
   background: var(--surface-secondary);
 }
 
@@ -837,7 +837,7 @@
   gap: 0;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.03);
   width: fit-content;
 }
@@ -885,7 +885,7 @@
   margin-top: 14px;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+
   background: rgba(255, 255, 255, 0.03);
   display: flex;
   flex-direction: column;
@@ -904,7 +904,7 @@
 .editEpisodeForm input {
   width: 100%;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   padding: 10px 12px;

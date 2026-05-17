@@ -99,4 +99,8 @@ export type Comment = {
     username: string;
     avatarKey?: string | null;
   };
+  likeCount: number;
+  dislikeCount: number;
+  userReaction: 'LIKE' | 'DISLIKE' | null;
+  replies: Comment[];
 };

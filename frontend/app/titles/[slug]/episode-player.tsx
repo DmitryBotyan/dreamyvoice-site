@@ -306,7 +306,6 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
       ) : null}
 
       <div className="episode-player-selector">
-        <p className="episode-player-selector-label">Выбор серии</p>
         <div className="episode-player-selector-grid">
           {episodes.map((episode) => {
             const isActive = currentEpisode?.id === episode.id;

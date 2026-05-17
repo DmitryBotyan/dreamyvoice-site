@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
-import Script from "next/script";
 import { notFound } from "next/navigation";
 import {
   getCurrentUser,
@@ -12,7 +11,7 @@ import {
 import type { Comment } from "@/lib/types";
 import { EpisodePlayer } from "./episode-player";
 import { CommentForm } from "./comment-form";
-import { CommentDeleteButton } from "./comment-delete-button";
+import { CommentBlock } from "./comment-block";
 import { buildMediaUrl } from "@/lib/media";
 import { CoverImage } from "@/app/cover-image";
 import { detectGenres } from "@/lib/genres";
@@ -163,12 +162,9 @@ export default async function TitlePage({ params }: Props) {
 
   return (
     <>
-      <Script
-        id="title-jsonld"
+      <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(titleJsonLd),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(titleJsonLd) }}
       />
       <article className="title-page">
       <Link className="title-page-back" href="/">
@@ -278,12 +274,9 @@ export default async function TitlePage({ params }: Props) {
 
       <section className="comments-section" id="comments">
         <div className="comments-heading">
-          <div>
-            <h2 className="comments-title">Комментарии</h2>
-          </div>
-          <p className="comments-count">
-            {comments.length === 0 ? "Нет сообщений" : `${comments.length} шт.`}
-          </p>
+          <h2 className="comments-title">
+            Комментарии{comments.length > 0 ? ` ${comments.length}` : ""}
+          </h2>
         </div>
         {comments.length === 0 ? (
           <p className="comments-empty">
@@ -298,6 +291,7 @@ export default async function TitlePage({ params }: Props) {
                   comment={comment}
                   titleSlug={title.slug}
                   isAdmin={currentUser?.role === "ADMIN"}
+                  isAuthenticated={Boolean(currentUser)}
                 />
               </li>
             ))}
@@ -354,73 +348,3 @@ export default async function TitlePage({ params }: Props) {
   );
 }
 
-function CommentBlock({
-  comment,
-  titleSlug,
-  isAdmin,
-}: {
-  comment: Comment;
-  titleSlug: string;
-  isAdmin: boolean;
-}) {
-  const avatarUrl = comment.author.avatarKey
-    ? buildMediaUrl("avatars", comment.author.avatarKey)
-    : null;
-  const dateTime = new Intl.DateTimeFormat("ru-RU", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(comment.createdAt));
-  const status =
-    comment.status && comment.status !== "APPROVED"
-      ? comment.status === "REJECTED"
-        ? "Отклонен"
-        : "На модерации"
-      : null;
-
-  return (
-    <article className="comment-card">
-      <header className="comment-card-header">
-        <div className="comment-card-avatar" aria-hidden={!avatarUrl}>
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={comment.author.username}
-              width={48}
-              height={48}
-            />
-          ) : (
-            <span>{comment.author.username.charAt(0).toUpperCase()}</span>
-          )}
-        </div>
-        <div className="comment-card-author">
-          <Link href={`/users/${encodeURIComponent(comment.author.username)}`} className="comment-card-username">
-            <strong>{comment.author.username}</strong>
-          </Link>
-          <small>{dateTime}</small>
-        </div>
-        {status ? (
-          <span
-            className={`comment-card-status ${
-              comment.status === "REJECTED"
-                ? "comment-card-status--rejected"
-                : "comment-card-status--pending"
-            }`}
-          >
-            {status}
-          </span>
-        ) : null}
-        {isAdmin ? (
-          <CommentDeleteButton
-            titleSlug={titleSlug}
-            commentId={comment.id}
-            authorName={comment.author.username}
-          />
-        ) : null}
-      </header>
-      <p className="comment-card-body">{comment.body}</p>
-    </article>
-  );
-}

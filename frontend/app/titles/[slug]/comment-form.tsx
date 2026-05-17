@@ -91,9 +91,6 @@ export function CommentForm({ titleSlug, isAuthenticated }: Props) {
 
   return (
     <form className="comment-form" onSubmit={handleSubmit}>
-      <label className="comment-form-label" htmlFor="comment-body">
-        Сообщение
-      </label>
       <textarea
         id="comment-body"
         className="comment-form-textarea"

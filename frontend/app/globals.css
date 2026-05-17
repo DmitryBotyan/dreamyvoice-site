@@ -42,6 +42,15 @@ body {
   margin: 0;
 }
 
+input, textarea, select {
+  border: none;
+  outline: none;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -500,7 +509,7 @@ a {
 
 .header-search-input {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   color: var(--foreground);
@@ -529,7 +538,7 @@ a {
   margin: 0;
   padding: 8px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+
   background: var(--surface-primary);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
   z-index: 20;
@@ -780,7 +789,7 @@ a {
 button {
   padding: 14px 28px;
   border-radius: 10px;
-  border: 1px solid transparent;
+  border: none;
   background: var(--accent);
   color: #fefbff;
   font-size: 0.95rem;
@@ -905,7 +914,7 @@ button:disabled {
 .auth-modal input {
   padding: 14px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   font-size: 1rem;
@@ -983,7 +992,7 @@ button:disabled {
 .auth-page-card input {
   padding: 14px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+
   background: rgba(255, 255, 255, 0.03);
   color: var(--foreground);
   font-size: 1rem;
@@ -1071,7 +1080,7 @@ button:disabled {
   color: var(--accent-strong);
   font-size: 1.6rem;
   font-weight: 700;
-  border: 1px solid rgba(143, 99, 255, 0.45);
+
 }
 
 .auth-success-title {
@@ -1324,7 +1333,7 @@ button:disabled {
   gap: 20px;
   padding: 24px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+
   background: var(--surface-secondary);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
@@ -1357,7 +1366,7 @@ button:disabled {
   width: 100%;
   padding: 14px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+
   background-color: rgba(255, 255, 255, 0.04);
   color: var(--foreground);
   font-size: 0.95rem;
@@ -1802,7 +1811,7 @@ button:disabled {
   align-items: center;
   padding: 8px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+
   background: rgba(255, 255, 255, 0.06);
   font-size: 1rem;
   text-transform: capitalize;
@@ -1968,7 +1977,7 @@ video-player {
 .episode-player-selector-button {
   padding: 14px 28px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+
   background: rgba(255, 255, 255, 0.04);
   color: var(--foreground);
   font-weight: 600;
@@ -1981,7 +1990,6 @@ video-player {
   gap: 4px;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease,
     border-color 0.2s ease;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
 }
 
 .episode-player-selector-button-number {
@@ -2002,7 +2010,6 @@ video-player {
   ):not(:disabled):focus-visible {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.35);
   transform: translateY(-1px);
 }
 
@@ -2010,7 +2017,6 @@ video-player {
   background: var(--accent-strong);
   color: #fefbff;
   border-color: transparent;
-  box-shadow: 0 18px 38px var(--accent-muted);
   transform: translateY(0);
 }
 
@@ -2044,7 +2050,7 @@ video-player {
   gap: 0;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.03);
   width: fit-content;
 }
@@ -2093,7 +2099,7 @@ video-player {
 }
 
 .episode-player-frame--cdn {
-  border: 1px solid rgba(108, 71, 255, 0.35);
+
   box-shadow: 0 35px 90px rgba(108, 71, 255, 0.25), 0 0 0 1px rgba(108, 71, 255, 0.12);
 }
 
@@ -2104,19 +2110,10 @@ video-player {
 
 .episode-player-selector-button--cdn.episode-player-selector-button--active {
   background: linear-gradient(135deg, #6c47ff 0%, #8b5cf6 100%);
-  box-shadow: 0 18px 38px rgba(108, 71, 255, 0.4);
 }
 
 .episode-player-selector-button-cdn-dot {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #a87cff;
-  flex-shrink: 0;
+  display: none;
 }
 
 .comments-section {
@@ -2255,7 +2252,7 @@ video-player {
   height: 30px;
   padding: 0;
   border-radius: 8px;
-  border: 1px solid rgba(248, 113, 113, 0.35);
+
   background: rgba(248, 113, 113, 0.08);
   color: #fca5a5;
   display: inline-flex;
@@ -2332,7 +2329,7 @@ video-player {
   font-size: 0.85rem;
   color: #fecaca;
   background: rgba(248, 113, 113, 0.12);
-  border: 1px solid rgba(248, 113, 113, 0.3);
+
   border-radius: 8px;
 }
 
@@ -2370,7 +2367,7 @@ video-player {
 
 .comment-delete-modal-confirm {
   background: rgba(248, 113, 113, 0.85);
-  border: 1px solid rgba(248, 113, 113, 0.85);
+
   color: #fff;
 }
 
@@ -2425,7 +2422,7 @@ video-player {
   min-height: 160px;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+
   background: rgba(255, 255, 255, 0.02);
   color: var(--foreground);
   font-size: 1rem;
@@ -2458,6 +2455,154 @@ video-player {
 .comment-form-error {
   font-size: 0.9rem;
   color: #fca5a5;
+}
+
+/* ── Comment replies ───────────────────────────────────────────────────── */
+.comment-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.comment-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.comment-reactions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.comment-reaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  box-shadow: none;
+  line-height: 1;
+}
+
+.comment-reaction-btn:hover:not(:disabled) {
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  transform: none;
+}
+
+.comment-reaction-btn:disabled {
+  cursor: default;
+  opacity: 1;
+  background: transparent;
+}
+
+.comment-reaction-btn--active {
+  color: #8f63ff;
+}
+
+.comment-reaction-btn--active.comment-reaction-btn--dislike {
+  color: #f87171;
+}
+
+.comment-reply-btn {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  box-shadow: none;
+}
+
+.comment-reply-btn:hover:not(:disabled) {
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  transform: none;
+}
+
+.comment-reply-form-wrapper {
+  margin-top: 8px;
+  padding-left: 56px;
+}
+
+.comment-reply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comment-reply-textarea {
+  font-size: 0.9rem;
+  padding: 10px 14px;
+}
+
+.comment-reply-cancel {
+  background: rgba(255, 255, 255, 0.06);
+
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.88rem;
+  padding: 10px 18px;
+}
+
+.comment-reply-cancel:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+  transform: none;
+}
+
+.comment-replies-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 56px;
+  border-left: 2px solid rgba(255, 255, 255, 0.06);
+  margin-left: 20px;
+  margin-top: 4px;
+}
+
+.comment-reply-item {
+  padding: 0;
+}
+
+.comment-card--reply {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.comment-card--reply:last-child,
+.comment-reply-item:last-child .comment-card--reply {
+  border-bottom: none;
+}
+
+.comment-card-avatar--sm {
+  width: 36px;
+  height: 36px;
+  font-size: 0.9rem;
+}
+
+.comment-card-avatar--sm img {
+  width: 36px;
+  height: 36px;
 }
 
 @media (max-width: 1500px) {
@@ -2870,7 +3015,7 @@ video-player {
   gap: 6px;
   padding: 7px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   background: rgba(255, 255, 255, 0.07);
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.82rem;
@@ -2912,7 +3057,7 @@ video-player {
   left: 0;
   min-width: 160px;
   background: #1e1e2e;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+
   border-radius: 10px;
   padding: 4px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
