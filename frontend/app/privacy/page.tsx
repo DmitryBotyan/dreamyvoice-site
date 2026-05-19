@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import styles from '../legal.module.css';
 
 export const metadata: Metadata = {
-  title: 'Политика конфиденциальностиDreamyVoice',
+  title: 'Политика конфиденциальности — DreamyVoice',
   robots: { index: false, follow: false },
 };
 
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         <h2>1. Общие положения</h2>
         <p>
           Настоящая Политика конфиденциальности описывает, какие данные собирает
-          сервис DreamyVoice (далее«Сервис»), как они используются и защищаются.
+          сервис DreamyVoice (далее «Сервис»), как они используются и защищаются.
           Используя Сервис, вы соглашаетесь с условиями настоящей Политики.
         </p>
       </div>

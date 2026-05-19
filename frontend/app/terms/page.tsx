@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import styles from '../legal.module.css';
 
 export const metadata: Metadata = {
-  title: 'Условия использованияDreamyVoice',
+  title: 'Условия использования — DreamyVoice',
   robots: { index: false, follow: false },
 };
 
@@ -15,16 +15,16 @@ export default function TermsPage() {
       <div className={styles.section}>
         <h2>1. Принятие условий</h2>
         <p>
-          Используя сервис DreamyVoice (далее«Сервис»), вы подтверждаете, что
+          Используя сервис DreamyVoice (далее «Сервис»), вы подтверждаете, что
           ознакомились с настоящими Условиями и принимаете их в полном объёме.
-          Если вы не согласны с условиямипожалуйста, не используйте Сервис.
+          Если вы не согласны с условиями, пожалуйста, не используйте Сервис.
         </p>
       </div>
 
       <div className={styles.section}>
         <h2>2. Описание Сервиса</h2>
         <p>
-          DreamyVoiceнекоммерческий каталог аниме-озвучек студии DreamyVoice.
+          DreamyVoice: некоммерческий каталог аниме-озвучек студии DreamyVoice.
           Сервис предоставляет доступ к видеоматериалам, личным спискам просмотра
           и разделу комментариев.
         </p>
