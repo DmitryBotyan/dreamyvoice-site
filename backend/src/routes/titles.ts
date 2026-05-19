@@ -931,12 +931,12 @@ function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
   };
 }
 
-function reactionCounts(reactions: { type: string }[], userId: string | null) {
+function reactionCounts(reactions: { type: string; userId?: string }[], userId: string | null) {
   return {
     likeCount: reactions.filter((r) => r.type === 'LIKE').length,
     dislikeCount: reactions.filter((r) => r.type === 'DISLIKE').length,
     userReaction: userId
-      ? (reactions.find((r) => (r as { userId: string }).userId === userId)?.type ?? null)
+      ? (reactions.find((r) => r.userId === userId)?.type ?? null)
       : null,
   };
 }
