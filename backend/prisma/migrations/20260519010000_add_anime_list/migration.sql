@@ -1,4 +1,8 @@
-CREATE TYPE "AnimeListStatus" AS ENUM ('WATCHING', 'WATCHED', 'DROPPED', 'PLANNED');
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'AnimeListStatus') THEN
+    CREATE TYPE "AnimeListStatus" AS ENUM ('WATCHING', 'WATCHED', 'DROPPED', 'PLANNED');
+  END IF;
+END $$;
 
 CREATE TABLE "anime_list_entries" (
     "id"         TEXT NOT NULL,
