@@ -394,10 +394,10 @@ export async function getMyAnimeList() {
   }
 }
 
-export async function getUserProfile(username: string): Promise<PublicProfile | null> {
+export async function getUserProfile(id: number): Promise<PublicProfile | null> {
   try {
     const data = await request<{ user: Omit<PublicProfile, 'animeList' | 'recentActivity'>; animeList: PublicProfile['animeList']; recentActivity: PublicProfile['recentActivity'] }>(
-      `/users/${encodeURIComponent(username)}`,
+      `/users/${id}`,
     );
     return { ...data.user, animeList: data.animeList, recentActivity: data.recentActivity };
   } catch (error) {

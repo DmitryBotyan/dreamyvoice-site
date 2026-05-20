@@ -107,6 +107,7 @@ export async function authenticateUser(input: { login: string; password: string 
 export function toPublicUser(user: User) {
   return {
     id: user.id,
+    profileId: user.profileId,
     username: user.username,
     email: user.email,
     emailVerified: user.emailVerified,

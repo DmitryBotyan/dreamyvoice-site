@@ -63,7 +63,7 @@ function CommentAuthorBlock({
           )}
         </div>
         <div className="comment-card-author">
-          <Link href={`/users/${encodeURIComponent(comment.author.username)}`} className="comment-card-username">
+          <Link href={`/users/${comment.author.profileId}`} className="comment-card-username">
             <strong>{comment.author.username}</strong>
           </Link>
           <small suppressHydrationWarning>{formatDate(comment.createdAt)}</small>
@@ -188,7 +188,7 @@ function ReplyCard({
           )}
         </div>
         <div className="comment-card-author">
-          <Link href={`/users/${encodeURIComponent(reply.author.username)}`} className="comment-card-username">
+          <Link href={`/users/${reply.author.profileId}`} className="comment-card-username">
             <strong>{reply.author.username}</strong>
           </Link>
           <small suppressHydrationWarning>{formatDate(reply.createdAt)}</small>

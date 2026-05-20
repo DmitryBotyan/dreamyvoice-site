@@ -44,6 +44,7 @@ enum AnimeListStatus {
 
 model User {
   id                 String              @id @default(cuid())
+  profileId          Int                 @unique @default(autoincrement()) @map("profile_id")
   username           String              @unique
   email              String?             @unique
   emailVerified      Boolean             @default(false) @map("email_verified")

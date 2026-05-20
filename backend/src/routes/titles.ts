@@ -964,6 +964,7 @@ function toCommentDto(includeStatus: boolean, userId: string | null = null) {
 function toCommentAuthor(user: CommentAuthor) {
   return {
     id: user.id,
+    profileId: user.profileId,
     username: user.username,
     avatarKey: user.avatarKey,
   };

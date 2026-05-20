@@ -10,13 +10,18 @@ import { AnimeGroup } from "@/app/profile/anime-group";
 import styles from "./page.module.css";
 
 type Props = {
-  params: Promise<{ username: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { username } = await params;
+  const { id } = await params;
+  const numericId = Number(id);
+  if (!Number.isInteger(numericId) || numericId <= 0) {
+    return { title: "Профиль не найден" };
+  }
+  const profile = await getUserProfile(numericId);
   return {
-    title: `Профиль ${username}`,
+    title: profile ? `Профиль ${profile.username}` : "Профиль не найден",
     robots: { index: false, follow: false },
   };
 }
@@ -30,7 +35,6 @@ const STATUS_LABELS: Record<AnimeListStatus, string> = {
 
 const STATUSES: AnimeListStatus[] = ["WATCHING", "WATCHED", "PLANNED", "DROPPED"];
 
-
 function relativeTime(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
@@ -43,9 +47,11 @@ function relativeTime(dateStr: string): string {
 }
 
 export default async function UserProfilePage({ params }: Props) {
-  const { username } = await params;
-  const profile = await getUserProfile(username);
+  const { id } = await params;
+  const numericId = Number(id);
+  if (!Number.isInteger(numericId) || numericId <= 0) notFound();
 
+  const profile = await getUserProfile(numericId);
   if (!profile) notFound();
 
   const avatarUrl = profile.avatarKey
@@ -144,4 +150,3 @@ export default async function UserProfilePage({ params }: Props) {
     </section>
   );
 }
-

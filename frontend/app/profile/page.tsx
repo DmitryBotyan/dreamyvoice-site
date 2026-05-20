@@ -146,7 +146,7 @@ export default async function ProfilePage() {
           {currentUser.bio && (
             <p className={styles.profileBio}>{currentUser.bio}</p>
           )}
-          <Link href={`/users/${encodeURIComponent(currentUser.username)}`} className={styles.profilePublicLink}>
+          <Link href={`/users/${currentUser.profileId}`} className={styles.profilePublicLink}>
             Открыть публичный профиль
           </Link>
         </div>

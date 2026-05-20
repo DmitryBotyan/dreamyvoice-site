@@ -6,21 +6,22 @@ import { HttpError } from '../utils/http-error';
 
 const router = Router();
 
-const usernameParamsSchema = z.object({
-  username: z.string().trim().min(1),
+const idParamsSchema = z.object({
+  id: z.string().regex(/^\d+$/).transform(Number),
 });
 
 const STATUSES = ['WATCHING', 'WATCHED', 'DROPPED', 'PLANNED'] as const;
 
 router.get(
-  '/:username',
+  '/:id',
   asyncHandler(async (req: Request, res: Response) => {
-    const { username } = usernameParamsSchema.parse(req.params);
+    const { id } = idParamsSchema.parse(req.params);
 
-    const user = await prisma.user.findFirst({
-      where: { username: { equals: username.trim(), mode: 'insensitive' } },
+    const user = await prisma.user.findUnique({
+      where: { profileId: id },
       select: {
         id: true,
+        profileId: true,
         username: true,
         avatarKey: true,
         bio: true,
@@ -70,6 +71,7 @@ router.get(
     res.json({
       user: {
         id: user.id,
+        profileId: user.profileId,
         username: user.username,
         avatarKey: user.avatarKey,
         bio: user.bio,

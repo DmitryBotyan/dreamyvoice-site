@@ -2,6 +2,7 @@ export type UserRole = 'USER' | 'ADMIN';
 
 export type PublicUser = {
   id: string;
+  profileId: number;
   username: string;
   email?: string | null;
   emailVerified: boolean;
@@ -77,6 +78,7 @@ export type ActivityEntry = {
 
 export type PublicProfile = {
   id: string;
+  profileId: number;
   username: string;
   avatarKey?: string | null;
   bio?: string | null;
@@ -96,6 +98,7 @@ export type Comment = {
   createdAt: string;
   author: {
     id: string;
+    profileId: number;
     username: string;
     avatarKey?: string | null;
   };
