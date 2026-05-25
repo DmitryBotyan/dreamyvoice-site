@@ -114,7 +114,7 @@ export function StarRating({
               aria-label={`Оценить ${star} из 5`}
               disabled={isSubmitting}
             >
-              <Star size={20} aria-hidden="true" />
+              <Star size={30} aria-hidden="true" />
             </button>
           );
         })}
