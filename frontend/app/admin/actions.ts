@@ -66,7 +66,7 @@ export async function createTitleAction(
     return { success: false, error: 'Название должно содержать минимум 3 символа' };
   }
 
-  if (name.length > 128) {
+  if (name.length > 255) {
     return { success: false, error: 'Название слишком длинное' };
   }
 

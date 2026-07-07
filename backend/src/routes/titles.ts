@@ -149,7 +149,7 @@ const titleCreateSchema = z.object({
     .string()
     .trim()
     .min(3)
-    .max(128),
+    .max(255),
   description: z
     .string()
     .trim()
@@ -190,7 +190,7 @@ const titleUpdateSchema = z.object({
     .string()
     .trim()
     .min(3)
-    .max(128)
+    .max(255)
     .optional(),
   description: z
     .union([z.string().trim().max(5000), z.null()])

@@ -163,7 +163,7 @@ export function EditTitleForm({ action, initialValues }: Props) {
             type="text"
             name="name"
             minLength={3}
-            maxLength={128}
+            maxLength={255}
             defaultValue={initialValues.name}
             required
           />

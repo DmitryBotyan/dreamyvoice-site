@@ -120,7 +120,7 @@ export function CreateTitleForm() {
             name="name"
             type="text"
             minLength={3}
-            maxLength={128}
+            maxLength={255}
             required
           />
         </label>
