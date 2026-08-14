@@ -8,7 +8,9 @@ import type { UpdateTitleFormState } from "./actions";
 import { clientConfig } from "@/lib/client-config";
 import { buildMediaUrl } from "@/lib/media";
 import { AGE_RATINGS, TAG_KEYWORDS } from "@/lib/catalog-keywords";
-import styles from "../styles.module.css";
+import styles from "../../styles.module.css";
+import { Select } from "../../ui/select";
+import { FileField } from "../../ui/file-field";
 import { GENRE_KEYWORDS } from "@/lib/genres";
 import {
   DEFAULT_TITLE_STATUS,
@@ -19,6 +21,21 @@ import {
 } from "@/lib/title-status";
 
 const initialState: UpdateTitleFormState = { success: false };
+
+const AGE_RATING_OPTIONS = [
+  { value: "", label: "Не указан" },
+  ...AGE_RATINGS.map((rating) => ({ value: rating, label: rating })),
+];
+
+const AGGREGATOR_OPTIONS = [
+  { value: "", label: "Не задан" },
+  { value: "kp", label: "Кинопоиск (kp)" },
+  { value: "mali", label: "MyAnimeList (mali)" },
+  { value: "mdl", label: "MyDramaList (mdl)" },
+];
+
+const toOptions = (values: string[]) =>
+  values.map((value) => ({ value, label: value }));
 
 type Props = {
   action: (state: UpdateTitleFormState, formData: FormData) => Promise<UpdateTitleFormState>;
@@ -64,7 +81,8 @@ export function EditTitleForm({ action, initialValues }: Props) {
   const [addedTags, setAddedTags] = useState<string[]>(
     stripStatusTags(initialValues.tags)
   );
-  const [, setMetadataError] = useState<string | null>(null);
+  const [ageRating, setAgeRating] = useState(initialValues.ageRating ?? "");
+  const [aggregator, setAggregator] = useState(initialValues.cvhAggregator ?? "");
   const releaseDateValue = initialValues.originalReleaseDate
     ? initialValues.originalReleaseDate.split('T')[0]
     : '';
@@ -105,10 +123,8 @@ export function EditTitleForm({ action, initialValues }: Props) {
             filteredTags.includes(prev) ? prev : filteredTags[0]
           );
         }
-      } catch (error) {
-        if (active) {
-          // ignore metadata errors silently
-        }
+      } catch {
+        // справочники не критичны — остаются значения по умолчанию
       }
     }
     loadMetadata();
@@ -117,12 +133,7 @@ export function EditTitleForm({ action, initialValues }: Props) {
     };
   }, []);
 
-  async function handleCoverUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
+  async function handleCoverUpload(file: File) {
     if (file.size > 5 * 1024 * 1024) {
       setCoverUploadError('Файл больше 5 МБ');
       return;
@@ -177,105 +188,33 @@ export function EditTitleForm({ action, initialValues }: Props) {
             defaultValue={initialValues.description ?? ""}
           />
         </label>
-        <label className={styles.adminStatusControl}>
-          <span>Статус сериала</span>
-          <select
-            name="titleStatus"
-            value={titleStatus}
-            onChange={(event) =>
-              setTitleStatus(event.target.value as TitleStatus)
-            }
-          >
-            {TITLE_STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <small>Показывается в карточке и влияет на фильтры каталога.</small>
-        </label>
-        <div className={styles.selectorRow}>
-          <label className={styles.selectorField}>
-            <span>Жанр</span>
-            <div className={styles.inlineRow}>
-              <select
-                name="genrePicker"
-                value={selectedGenre}
-                onChange={(event) => setSelectedGenre(event.target.value)}
-              >
-                {genreOptions.map((genre) => (
-                  <option key={genre} value={genre}>
-                    {genre}
-                  </option>
-                ))}
-              </select>
-              <button type="button" onClick={handleAddGenre}>
-                Добавить
-              </button>
-            </div>
-            <div className={styles.previewBlock}>
-              {addedGenres.length === 0 ? (
-                <span className={styles.previewPlaceholder}>Жанры пока не добавлены</span>
-              ) : (
-                <div className={styles.chipRow}>
-                  {addedGenres.map((genre) => (
-                    <span className={styles.chip} key={`genre-chip-${genre}`}>
-                      {genre}
-                      <input type="hidden" name="genres" value={genre} />
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </label>
-          <label className={styles.selectorField}>
-            <span>Тег</span>
-            <div className={styles.inlineRow}>
-              <select
-                name="tagPicker"
-                value={selectedTag}
-                onChange={(event) => setSelectedTag(event.target.value)}
-              >
-                {tagOptions.map((tag) => (
-                  <option key={tag} value={tag}>
-                    {tag}
-                  </option>
-                ))}
-              </select>
-              <button type="button" onClick={handleAddTag}>
-                Добавить
-              </button>
-            </div>
-            <div className={styles.previewBlock}>
-              {addedTags.length === 0 ? (
-                <span className={styles.previewPlaceholder}>Теги пока не добавлены</span>
-              ) : (
-                <div className={styles.chipRow}>
-                  {addedTags.map((tag) => (
-                    <span className={`${styles.chip} ${styles.hashtagChip}`} key={`tag-chip-${tag}`}>
-                      #{tag}
-                      <input type="hidden" name="tags" value={tag} />
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </label>
-        </div>
-        <div className={styles.metadataGrid}>
+        <input type="hidden" name="titleStatus" value={titleStatus} />
+        <input type="hidden" name="ageRating" value={ageRating} />
+        <input type="hidden" name="cvhAggregator" value={aggregator} />
+        <input type="hidden" name="coverBlurHash" value={coverBlurHash} />
+
+        <div className={styles.fieldRow}>
+          <div className={styles.selectorField}>
+            <span>Статус</span>
+            <Select
+              options={TITLE_STATUS_OPTIONS}
+              value={titleStatus}
+              onChange={(value) => setTitleStatus(value as TitleStatus)}
+              ariaLabel="Статус сериала"
+            />
+          </div>
+          <div className={styles.selectorField}>
+            <span>Возрастной рейтинг</span>
+            <Select
+              options={AGE_RATING_OPTIONS}
+              value={ageRating}
+              onChange={setAgeRating}
+              placeholder="Не указан"
+              ariaLabel="Возрастной рейтинг"
+            />
+          </div>
           <label>
-            Возрастной рейтинг
-            <select name="ageRating" defaultValue={initialValues.ageRating ?? ""}>
-              <option value="">Не указан</option>
-              {AGE_RATINGS.map((rating) => (
-                <option key={rating} value={rating}>
-                  {rating}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Оригинальная дата релиза
+            Дата релиза
             <input
               type="date"
               name="originalReleaseDate"
@@ -283,48 +222,113 @@ export function EditTitleForm({ action, initialValues }: Props) {
             />
           </label>
         </div>
-        <label>
-          CDNVideoHub Агрегатор
-          <select name="cvhAggregator" defaultValue={initialValues.cvhAggregator ?? ""}>
-            <option value="">— не задан —</option>
-            <option value="kp">Кинопоиск (kp)</option>
-            <option value="mali">MyAnimeList (mali)</option>
-            <option value="mdl">MyDramaList (mdl)</option>
-          </select>
-        </label>
-        <input type="hidden" name="coverBlurHash" value={coverBlurHash} />
-        <label>
-          Ключ обложки
-          <input
-            type="text"
-            name="coverKey"
-            maxLength={255}
-            value={coverKey}
-            onChange={(event) => {
-              setCoverKey(event.target.value);
-              setCoverBlurHash('');
-            }}
-          />
-        </label>
-        <label>
-          Загрузить новую обложку
-          <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleCoverUpload} />
-          {isUploadingCover ? <span className={styles.formHint}>Загрузка...</span> : null}
-          {coverUploadError ? (
-            <p role="alert" className={`${styles.formStatus} ${styles.formStatusError}`}>
-              {coverUploadError}
-            </p>
-          ) : null}
-          {coverKey ? (
-            <img
-              className={styles.coverPreview}
-              src={buildMediaUrl("covers", coverKey)!}
-              alt="Текущая обложка"
-              width={160}
-              height={220}
+
+        <div className={styles.fieldRow}>
+          <div className={styles.selectorField}>
+            <span>Жанр</span>
+            <div className={styles.inlineRow}>
+              <Select
+                options={toOptions(genreOptions)}
+                value={selectedGenre}
+                onChange={setSelectedGenre}
+                ariaLabel="Жанр"
+              />
+              <button type="button" onClick={handleAddGenre}>
+                Добавить
+              </button>
+            </div>
+            <div className={styles.chipRow}>
+              {addedGenres.length === 0 ? (
+                <span className={styles.chipEmpty}>—</span>
+              ) : (
+                addedGenres.map((genre) => (
+                  <span className={styles.chip} key={`genre-chip-${genre}`}>
+                    {genre}
+                    <input type="hidden" name="genres" value={genre} />
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className={styles.selectorField}>
+            <span>Тег</span>
+            <div className={styles.inlineRow}>
+              <Select
+                options={toOptions(tagOptions)}
+                value={selectedTag}
+                onChange={setSelectedTag}
+                ariaLabel="Тег"
+              />
+              <button type="button" onClick={handleAddTag}>
+                Добавить
+              </button>
+            </div>
+            <div className={styles.chipRow}>
+              {addedTags.length === 0 ? (
+                <span className={styles.chipEmpty}>—</span>
+              ) : (
+                addedTags.map((tag) => (
+                  <span className={styles.chip} key={`tag-chip-${tag}`}>
+                    #{tag}
+                    <input type="hidden" name="tags" value={tag} />
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.fieldRow}>
+          <div className={styles.selectorField}>
+            <span>Агрегатор CDNVideoHub</span>
+            <Select
+              options={AGGREGATOR_OPTIONS}
+              value={aggregator}
+              onChange={setAggregator}
+              placeholder="Не задан"
+              ariaLabel="Агрегатор CDNVideoHub"
             />
-          ) : null}
-        </label>
+          </div>
+          <label>
+            Ключ обложки
+            <input
+              type="text"
+              name="coverKey"
+              maxLength={255}
+              value={coverKey}
+              onChange={(event) => {
+                setCoverKey(event.target.value);
+                setCoverBlurHash('');
+              }}
+            />
+          </label>
+        </div>
+
+        <div className={styles.selectorField}>
+          <span>Обложка</span>
+          <FileField
+            onSelect={handleCoverUpload}
+            disabled={isUploadingCover}
+            buttonLabel={isUploadingCover ? "Загружаем…" : "Заменить обложку"}
+          >
+            {coverUploadError ? (
+              <p role="alert" className={`${styles.formStatus} ${styles.formStatusError}`}>
+                {coverUploadError}
+              </p>
+            ) : null}
+            {coverKey ? (
+              <img
+                className={styles.coverPreview}
+                src={buildMediaUrl("covers", coverKey)!}
+                alt="Текущая обложка"
+                width={104}
+                height={140}
+              />
+            ) : null}
+          </FileField>
+        </div>
+
         <label className={styles.checkboxRow}>
           <input type="checkbox" name="published" defaultChecked={initialValues.published} />
           Опубликован

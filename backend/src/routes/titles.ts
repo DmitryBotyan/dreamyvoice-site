@@ -3,7 +3,7 @@ import { z } from 'zod';
 import slugify from 'slugify';
 import { prisma } from '../prisma';
 import { Prisma } from '@prisma/client';
-import type { Episode as EpisodeModel, Genre, Tag, Rating } from '@prisma/client';
+import type { Genre, Tag, Rating } from '@prisma/client';
 import { asyncHandler } from '../utils/async-handler';
 import { HttpError } from '../utils/http-error';
 import { requireAuth } from '../middleware/require-auth';
@@ -14,9 +14,23 @@ import { env } from '../env';
 
 const titleAgeRatingEnum = z.enum(AGE_RATINGS);
 
+// Кредиты серии (кто озвучивал, переводил, сводил и т.д.) всегда едут вместе с серией.
+const episodeCreditsInclude = {
+  credits: {
+    orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+    include: { teamMember: true },
+  },
+} satisfies Prisma.EpisodeInclude;
+
+type EpisodeWithCredits = Prisma.EpisodeGetPayload<{
+  include: {
+    credits: { include: { teamMember: true } };
+  };
+}>;
+
 type TitleWithEpisodes = Prisma.TitleGetPayload<{
   include: {
-    episodes: true;
+    episodes: { include: { credits: { include: { teamMember: true } } } };
     genres: true;
     tags: true;
     ratings: true;
@@ -209,6 +223,33 @@ const titleUpdateSchema = z.object({
   cvhAggregator: z.union([z.enum(['kp', 'mali', 'mdl']), z.null()]).optional(),
 });
 
+const MAX_EPISODE_CREDITS = 50;
+
+const episodeCreditSchema = z
+  .object({
+    role: z.string().trim().min(1).max(128),
+    name: z
+      .string()
+      .trim()
+      .max(128)
+      .optional()
+      .nullable()
+      .transform((value) => value || null),
+    teamMemberId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(64)
+      .optional()
+      .nullable()
+      .transform((value) => value || null),
+  })
+  .refine((credit) => Boolean(credit.name || credit.teamMemberId), {
+    message: 'Укажите участника команды или имя',
+  });
+
+const episodeCreditsSchema = z.array(episodeCreditSchema).max(MAX_EPISODE_CREDITS);
+
 const episodeCreateSchema = z
   .object({
     number: z.coerce.number().int().positive().max(10000),
@@ -218,10 +259,41 @@ const episodeCreateSchema = z
       .union([z.coerce.number().int().positive().max(2000), z.literal(null)])
       .optional(),
     published: z.boolean().optional().default(false),
+    credits: episodeCreditsSchema.optional(),
   })
   .refine((data) => data.playerSrc || data.cvhVideoId, {
     message: 'Необходимо указать либо ссылку на плеер (playerSrc), либо Content ID CDNVideoHub (cvhVideoId)',
   });
+
+type EpisodeCreditInput = z.infer<typeof episodeCreditSchema>;
+
+/**
+ * Проверяет, что все указанные участники команды существуют, и возвращает
+ * данные для записи кредитов в порядке, заданном админом.
+ */
+const buildEpisodeCreditsData = async (credits: EpisodeCreditInput[]) => {
+  const teamMemberIds = Array.from(
+    new Set(credits.map((credit) => credit.teamMemberId).filter((id): id is string => Boolean(id))),
+  );
+
+  if (teamMemberIds.length > 0) {
+    const found = await prisma.teamMember.findMany({
+      where: { id: { in: teamMemberIds } },
+      select: { id: true },
+    });
+
+    if (found.length !== teamMemberIds.length) {
+      throw new HttpError(400, 'Один из указанных участников команды не найден');
+    }
+  }
+
+  return credits.map((credit, index) => ({
+    role: credit.role,
+    name: credit.name,
+    teamMemberId: credit.teamMemberId,
+    position: index,
+  }));
+};
 
 router.get(
   '/',
@@ -248,6 +320,7 @@ router.get(
           orderBy: {
             number: 'asc',
           },
+          include: episodeCreditsInclude,
         },
         genres: true,
         tags: true,
@@ -313,6 +386,7 @@ router.get(
                 published: true,
               },
           orderBy: { number: 'asc' },
+          include: episodeCreditsInclude,
         },
         genres: true,
         tags: true,
@@ -336,9 +410,6 @@ const commentBodySchema = z.object({
     .max(2000, 'Комментарий слишком длинный'),
   parentId: z.string().optional(),
 });
-const commentStatusSchema = z.object({
-  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']),
-});
 const commentParamsSchema = slugSchema.extend({
   commentId: z.string().min(1),
 });
@@ -347,30 +418,28 @@ commentsRouter.get(
   '/',
   asyncHandler(async (req: Request, res: Response) => {
     const { slug } = slugSchema.parse(req.params);
-    const includeModeration = req.currentUser?.role === 'ADMIN';
+    const isAdmin = req.currentUser?.role === 'ADMIN';
     const title = await prisma.title.findFirst({ where: buildSlugWhere(slug) });
 
-    if (!title || (!title.published && !includeModeration)) {
+    if (!title || (!title.published && !isAdmin)) {
       throw new HttpError(404, 'Title not found');
     }
 
-    const statusFilter = includeModeration ? {} : { status: 'APPROVED' as const };
     const currentUserId = req.currentUser?.id ?? null;
     const comments = await prisma.comment.findMany({
-      where: { titleId: title.id, parentId: null, ...statusFilter },
+      where: { titleId: title.id, parentId: null },
       orderBy: { createdAt: 'asc' },
       include: {
         user: true,
         reactions: true,
         replies: {
-          where: statusFilter,
           orderBy: { createdAt: 'asc' },
           include: { user: true, reactions: true },
         },
       },
     });
 
-    res.json({ comments: comments.map(toCommentDto(includeModeration, currentUserId)) });
+    res.json({ comments: comments.map(toCommentDto(currentUserId)) });
   }),
 );
 
@@ -396,42 +465,11 @@ commentsRouter.post(
     }
 
     const comment = await prisma.comment.create({
-      data: { titleId: title.id, userId: user.id, body, status: 'APPROVED', parentId: parentId ?? null },
+      data: { titleId: title.id, userId: user.id, body, parentId: parentId ?? null },
       include: { user: true, reactions: true, replies: { include: { user: true, reactions: true } } },
     });
 
-    res.status(201).json({ comment: toCommentDto(user.role === 'ADMIN', user.id)(comment) });
-  }),
-);
-
-commentsRouter.patch(
-  '/:commentId',
-  requireAdmin,
-  asyncHandler(async (req: Request, res: Response) => {
-    const { slug, commentId } = commentParamsSchema.parse(req.params);
-    const { status } = commentStatusSchema.parse(req.body);
-    const title = await prisma.title.findFirst({ where: buildSlugWhere(slug) });
-
-    if (!title) {
-      throw new HttpError(404, 'Title not found');
-    }
-
-    const comment = await prisma.comment.findFirst({
-      where: { id: commentId, titleId: title.id },
-      include: { user: true },
-    });
-
-    if (!comment) {
-      throw new HttpError(404, 'Comment not found');
-    }
-
-    const updated = await prisma.comment.update({
-      where: { id: comment.id },
-      data: { status },
-      include: { user: true, reactions: true, replies: { include: { user: true, reactions: true } } },
-    });
-
-    res.json({ comment: toCommentDto(true)(updated) });
+    res.status(201).json({ comment: toCommentDto(user.id)(comment) });
   }),
 );
 
@@ -528,7 +566,7 @@ router.post(
           cvhAggregator: data.cvhAggregator ?? null,
         },
         include: {
-          episodes: true,
+          episodes: { include: episodeCreditsInclude },
           genres: true,
           tags: true,
           ratings: true,
@@ -609,6 +647,7 @@ router.patch(
       include: {
         episodes: {
           orderBy: { number: 'asc' },
+          include: episodeCreditsInclude,
         },
         genres: true,
         tags: true,
@@ -634,6 +673,7 @@ episodesRouter.post(
     }
 
     const data = episodeCreateSchema.parse(req.body);
+    const creditsData = data.credits ? await buildEpisodeCreditsData(data.credits) : [];
 
     try {
       const episode = await prisma.episode.create({
@@ -644,7 +684,9 @@ episodesRouter.post(
           cvhVideoId: data.cvhVideoId ?? null,
           durationMinutes: data.durationMinutes ?? null,
           published: data.published ?? false,
+          credits: creditsData.length > 0 ? { create: creditsData } : undefined,
         },
+        include: episodeCreditsInclude,
       });
 
       res.status(201).json({ episode: toEpisodeDto(true, episode) });
@@ -670,6 +712,7 @@ const episodeUpdateSchema = z
       .union([z.coerce.number().int().positive().max(2000), z.null()])
       .optional(),
     published: z.boolean().optional(),
+    credits: episodeCreditsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -725,10 +768,26 @@ episodesRouter.patch(
       throw new HttpError(400, 'Серия должна иметь хотя бы один источник (playerSrc или cvhVideoId)');
     }
 
+    // Кредиты заменяются целиком: админка всегда присылает полный список.
+    const creditsData =
+      updates.credits !== undefined ? await buildEpisodeCreditsData(updates.credits) : null;
+
     try {
-      const updated = await prisma.episode.update({
-        where: { id: episode.id },
-        data,
+      const updated = await prisma.$transaction(async (tx) => {
+        if (creditsData) {
+          await tx.episodeCredit.deleteMany({ where: { episodeId: episode.id } });
+          if (creditsData.length > 0) {
+            await tx.episodeCredit.createMany({
+              data: creditsData.map((credit) => ({ ...credit, episodeId: episode.id })),
+            });
+          }
+        }
+
+        return tx.episode.update({
+          where: { id: episode.id },
+          data,
+          include: episodeCreditsInclude,
+        });
       });
       res.json({ episode: toEpisodeDto(true, updated) });
     } catch (error) {
@@ -918,7 +977,7 @@ function toTitleDto(includeDrafts: boolean, userId?: string) {
   };
 }
 
-function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
+function toEpisodeDto(includeDrafts: boolean, episode: EpisodeWithCredits) {
   const isVisible = includeDrafts || episode.published;
 
   return {
@@ -928,6 +987,13 @@ function toEpisodeDto(includeDrafts: boolean, episode: EpisodeModel) {
     playerSrc: isVisible ? (episode.playerSrc ?? undefined) : undefined,
     cvhVideoId: isVisible ? (episode.cvhVideoId ?? undefined) : undefined,
     published: episode.published,
+    credits: (episode.credits ?? []).map((credit) => ({
+      id: credit.id,
+      role: credit.role,
+      teamMemberId: credit.teamMemberId,
+      name: credit.teamMember?.name ?? credit.name ?? '',
+      avatarKey: credit.teamMember?.avatarKey ?? null,
+    })),
   };
 }
 
@@ -941,18 +1007,16 @@ function reactionCounts(reactions: { type: string; userId?: string }[], userId: 
   };
 }
 
-function toCommentDto(includeStatus: boolean, userId: string | null = null) {
+function toCommentDto(userId: string | null = null) {
   return (comment: CommentWithReactions) => ({
     id: comment.id,
     body: comment.body,
-    status: includeStatus ? comment.status : undefined,
     createdAt: comment.createdAt,
     author: toCommentAuthor(comment.user),
     ...reactionCounts(comment.reactions as { type: string; userId: string }[], userId),
     replies: (comment.replies ?? []).map((r) => ({
       id: r.id,
       body: r.body,
-      status: includeStatus ? r.status : undefined,
       createdAt: r.createdAt,
       author: toCommentAuthor(r.user),
       ...reactionCounts(r.reactions as { type: string; userId: string }[], userId),

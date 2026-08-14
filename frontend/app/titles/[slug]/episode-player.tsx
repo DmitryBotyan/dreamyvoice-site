@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Episode } from "@/lib/types";
+import { EpisodeCredits } from "./episode-credits";
 
 
 type Props = {
@@ -294,6 +295,11 @@ export function EpisodePlayer({ episodes, cvhAggregator }: Props) {
               />
             </div>
           ) : null}
+
+          <EpisodeCredits
+            credits={currentEpisode.credits}
+            episodeNumber={currentEpisode.number}
+          />
         </>
       ) : null}
 

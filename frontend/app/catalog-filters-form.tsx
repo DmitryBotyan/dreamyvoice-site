@@ -75,6 +75,8 @@ export function CatalogFiltersForm({
           nextParams.set(key, value);
         }
       });
+      // Новая выборка — всегда с первой страницы.
+      nextParams.delete("page");
 
       const query = nextParams.toString();
       startTransition(() => {

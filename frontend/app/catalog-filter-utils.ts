@@ -9,16 +9,13 @@ import {
   detectTags,
 } from "@/lib/catalog-keywords";
 import {
+  CATALOG_PAGE_SIZE,
   CatalogFilterState,
   DEFAULT_SORT,
   SortOption,
   SORT_OPTIONS,
 } from "./catalog-filter-config";
-import {
-  extractStatusFromTags,
-  stripStatusTags,
-  titleStatusToProgress,
-} from "@/lib/title-status";
+import { resolveTitleProgress, stripStatusTags } from "@/lib/title-status";
 
 export type HomePageSearchParams = {
   query?: string | string[];
@@ -31,6 +28,7 @@ export type HomePageSearchParams = {
   tag?: string | string[];
   rating?: string | string[];
   sort?: string | string[];
+  page?: string | string[];
 };
 
 export type EnrichedTitle = Title & {
@@ -52,10 +50,24 @@ const SEARCH_PARAM_KEYS: Array<keyof HomePageSearchParams> = [
   "tag",
   "rating",
   "sort",
+  "page",
 ];
 
 const getParamValue = (value?: string | string[]) =>
   Array.isArray(value) ? value[0] : value;
+
+/** Номер страницы из URL: только положительное целое, иначе первая страница. */
+export const parsePageParam = (value?: string | string[]): number => {
+  const raw = getParamValue(value)?.trim();
+  if (!raw || !/^\d+$/.test(raw)) {
+    return 1;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  return parsed >= 1 ? parsed : 1;
+};
+
+export const getTotalPages = (totalItems: number) =>
+  Math.max(1, Math.ceil(totalItems / CATALOG_PAGE_SIZE));
 
 const parseYear = (value?: string) =>
   value && /^\d{4}$/.test(value) ? Number.parseInt(value, 10) : undefined;
@@ -144,23 +156,10 @@ export const buildCatalogFiltersFromUrl = (
   searchParams: ReadonlyURLSearchParams
 ): CatalogFilterState => buildCatalogFilters(buildHomePageSearchParamsFromUrl(searchParams));
 
-const detectEpisodeProgress = (title: Title): EnrichedTitle["progress"] => {
-  const hasUnreleasedEpisodes = title.episodes.some(
-    (episode) => !episode.published
-  );
-  if (title.published && !hasUnreleasedEpisodes) {
-    return "completed";
-  }
-  return "ongoing";
-};
-
 export const enrichTitles = (titles: Title[]): EnrichedTitle[] =>
   titles.map((title) => {
     const releaseYear = getReleaseDate(title).getFullYear();
-    const explicitStatus = extractStatusFromTags(title.tags);
-    const progress = explicitStatus
-      ? titleStatusToProgress(explicitStatus)
-      : detectEpisodeProgress(title);
+    const progress = resolveTitleProgress(title);
     const publicTags = stripStatusTags(title.tags ?? []);
     return {
       ...title,

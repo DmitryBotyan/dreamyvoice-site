@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import type { Episode } from "@/lib/types";
+import type { Episode, TeamMember } from "@/lib/types";
 import type { UpdateEpisodeFormState } from "./actions";
-import styles from "../styles.module.css";
+import { EpisodeCreditsEditor } from "./episode-credits-editor";
+import styles from "../../styles.module.css";
 
 type Props = {
   episode: Episode;
@@ -12,6 +13,7 @@ type Props = {
     state: UpdateEpisodeFormState,
     formData: FormData
   ) => Promise<UpdateEpisodeFormState>;
+  teamMembers: TeamMember[];
 };
 
 const initialState: UpdateEpisodeFormState = { success: false };
@@ -25,7 +27,7 @@ function SubmitButton() {
   );
 }
 
-export function EditEpisodeForm({ episode, action }: Props) {
+export function EditEpisodeForm({ episode, action, teamMembers }: Props) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -53,38 +55,35 @@ export function EditEpisodeForm({ episode, action }: Props) {
           className={styles.editEpisodeForm}
         >
           <label>
-            Ссылка на плеер (iframe src)
+            Ссылка на плеер
             <input
               type="url"
               name="playerSrc"
               defaultValue={episode.playerSrc ?? ""}
               placeholder="https://aniqit.com/embed/..."
             />
-            <span className={styles.fieldHint}>Оставьте пустым, чтобы убрать</span>
           </label>
 
-          <label>
-            CDNVideoHub ID тайтла
-            <input
-              type="text"
-              name="cvhVideoId"
-              defaultValue={episode.cvhVideoId ?? ""}
-              placeholder="Например: 3536"
-            />
-            <span className={styles.fieldHint}>
-              ID тайтла в агрегаторе (KP / MAL / MDL). Оставьте пустым, чтобы убрать.
-            </span>
-          </label>
-
-          <label>
-            Длительность в минутах
-            <input
-              type="number"
-              name="durationMinutes"
-              defaultValue={episode.durationMinutes ?? ""}
-              min={1}
-            />
-          </label>
+          <div className={`${styles.fieldRow} ${styles.fieldRowNarrow}`}>
+            <label>
+              CDNVideoHub ID
+              <input
+                type="text"
+                name="cvhVideoId"
+                defaultValue={episode.cvhVideoId ?? ""}
+                placeholder="3536"
+              />
+            </label>
+            <label>
+              Длительность, мин
+              <input
+                type="number"
+                name="durationMinutes"
+                defaultValue={episode.durationMinutes ?? ""}
+                min={1}
+              />
+            </label>
+          </div>
 
           <label className={styles.checkboxRow}>
             <input
@@ -94,6 +93,11 @@ export function EditEpisodeForm({ episode, action }: Props) {
             />
             Опубликована
           </label>
+
+          <EpisodeCreditsEditor
+            teamMembers={teamMembers}
+            initialCredits={episode.credits}
+          />
 
           <div className={styles.formFooter}>
             <SubmitButton />

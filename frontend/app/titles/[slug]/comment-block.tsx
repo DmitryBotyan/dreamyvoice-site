@@ -45,13 +45,6 @@ function CommentAuthorBlock({
   const avatarUrl = comment.author.avatarKey
     ? buildMediaUrl('avatars', comment.author.avatarKey)
     : null;
-  const status =
-    comment.status && comment.status !== 'APPROVED'
-      ? comment.status === 'REJECTED'
-        ? 'Отклонён'
-        : 'На модерации'
-      : null;
-
   return (
     <article className="comment-card">
       <header className="comment-card-header">
@@ -68,11 +61,6 @@ function CommentAuthorBlock({
           </Link>
           <small suppressHydrationWarning>{formatDate(comment.createdAt)}</small>
         </div>
-        {status ? (
-          <span className={`comment-card-status ${comment.status === 'REJECTED' ? 'comment-card-status--rejected' : 'comment-card-status--pending'}`}>
-            {status}
-          </span>
-        ) : null}
         {isAdmin ? (
           <CommentDeleteButton titleSlug={titleSlug} commentId={comment.id} authorName={comment.author.username} />
         ) : null}
@@ -172,11 +160,6 @@ function ReplyCard({
   const avatarUrl = reply.author.avatarKey
     ? buildMediaUrl('avatars', reply.author.avatarKey)
     : null;
-  const replyStatus =
-    reply.status && reply.status !== 'APPROVED'
-      ? reply.status === 'REJECTED' ? 'Отклонён' : 'На модерации'
-      : null;
-
   return (
     <article className="comment-card comment-card--reply">
       <header className="comment-card-header">
@@ -193,11 +176,6 @@ function ReplyCard({
           </Link>
           <small suppressHydrationWarning>{formatDate(reply.createdAt)}</small>
         </div>
-        {replyStatus ? (
-          <span className={`comment-card-status ${reply.status === 'REJECTED' ? 'comment-card-status--rejected' : 'comment-card-status--pending'}`}>
-            {replyStatus}
-          </span>
-        ) : null}
         {isAdmin ? (
           <CommentDeleteButton titleSlug={titleSlug} commentId={reply.id} authorName={reply.author.username} />
         ) : null}

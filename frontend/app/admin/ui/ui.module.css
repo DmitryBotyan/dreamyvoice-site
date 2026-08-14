@@ -1,0 +1,129 @@
+/* Кастомные контролы админки: свой select и свой выбор файла,
+   чтобы форма не смешивала системные виджеты браузера со своими. */
+
+.select {
+  position: relative;
+  width: 100%;
+}
+
+.select .selectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--admin-line);
+  border-radius: 8px;
+  background: var(--admin-field);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.94rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.select .selectTrigger:hover:not(:disabled),
+.select .selectTrigger[data-open="true"] {
+  border-color: var(--admin-line-strong);
+}
+
+.select .selectTrigger:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.select .selectTrigger:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.selectPlaceholder {
+  color: var(--muted);
+}
+
+.selectChevron {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.selectList {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 8px;
+  background: var(--surface-primary);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  list-style: none;
+}
+
+.selectList:focus {
+  outline: none;
+}
+
+.selectOption {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.94rem;
+  cursor: pointer;
+}
+
+.selectOptionActive {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.selectOption[aria-selected="true"] {
+  color: var(--accent-strong);
+}
+
+/* --- Выбор файла --- */
+
+.fileField {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.fileField .fileButton {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.fileField .fileButton:hover:not(:disabled) {
+  border-color: var(--admin-line-strong);
+}
+
+.fileField .fileButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.fileName {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

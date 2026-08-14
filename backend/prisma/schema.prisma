@@ -19,12 +19,6 @@ enum Role {
   ADMIN
 }
 
-enum CommentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 enum TokenType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
@@ -61,8 +55,29 @@ model User {
   verificationTokens VerificationToken[]
   animeListEntries   AnimeListEntry[]
   commentReactions   CommentReaction[]
+  newsPosts          NewsPost[]
 
   @@map("users")
+}
+
+/// Новость сайта. `body` хранит уже очищенный на сервере HTML из редактора админки.
+model NewsPost {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  excerpt       String?
+  body          String
+  coverKey      String?   @map("cover_key")
+  coverBlurHash String?   @map("cover_blur_hash")
+  published     Boolean   @default(false)
+  publishedAt   DateTime? @map("published_at")
+  authorId      String?   @map("author_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  author        User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([published, publishedAt])
+  @@map("news_posts")
 }
 
 model Title {
@@ -106,11 +121,12 @@ model Tag {
 }
 
 model TeamMember {
-  id        String   @id @default(cuid())
-  name      String
-  role      String
-  avatarKey String?  @map("avatar_key")
-  createdAt DateTime @default(now()) @map("created_at")
+  id             String          @id @default(cuid())
+  name           String
+  role           String
+  avatarKey      String?         @map("avatar_key")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  episodeCredits EpisodeCredit[]
 
   @@map("team_members")
 }
@@ -125,9 +141,28 @@ model Episode {
   published       Boolean   @default(false)
   createdAt       DateTime  @default(now()) @map("created_at")
   title           Title     @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  credits         EpisodeCredit[]
 
   @@map("episodes")
   @@unique([titleId, number])
+}
+
+/// Кто работал над серией: озвучка, перевод, сведение и т.д.
+/// Либо ссылка на участника команды (teamMemberId), либо произвольное имя (name).
+model EpisodeCredit {
+  id           String      @id @default(cuid())
+  episodeId    String      @map("episode_id")
+  teamMemberId String?     @map("team_member_id")
+  name         String?
+  role         String
+  position     Int         @default(0)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  episode      Episode     @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  teamMember   TeamMember? @relation(fields: [teamMemberId], references: [id], onDelete: SetNull)
+
+  @@index([episodeId])
+  @@index([teamMemberId])
+  @@map("episode_credits")
 }
 
 model Comment {
@@ -136,7 +171,6 @@ model Comment {
   userId    String         @map("user_id")
   parentId  String?        @map("parent_id")
   body      String
-  status    CommentStatus  @default(PENDING)
   createdAt DateTime       @default(now()) @map("created_at")
   title     Title          @relation(fields: [titleId], references: [id], onDelete: Cascade)
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useActionState } from "react";
+import { useEffect, useRef, useState, useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import type { TeamMember } from "@/lib/types";
 import type { CreateEpisodeFormState } from "./actions";
-import styles from "../styles.module.css";
+import { EpisodeCreditsEditor } from "./episode-credits-editor";
+import styles from "../../styles.module.css";
 
 const initialState: CreateEpisodeFormState = { success: false };
 
@@ -12,6 +14,7 @@ type Props = {
     state: CreateEpisodeFormState,
     formData: FormData
   ) => Promise<CreateEpisodeFormState>;
+  teamMembers: TeamMember[];
 };
 
 function SubmitButton() {
@@ -23,13 +26,16 @@ function SubmitButton() {
   );
 }
 
-export function AddEpisodeForm({ action }: Props) {
+export function AddEpisodeForm({ action, teamMembers }: Props) {
   const [state, formAction] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  // form.reset() не трогает состояние React, поэтому список кредитов сбрасываем сигналом.
+  const [creditsResetSignal, setCreditsResetSignal] = useState(0);
 
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
+      setCreditsResetSignal((value) => value + 1);
     }
   }, [state.success]);
 
@@ -38,43 +44,42 @@ export function AddEpisodeForm({ action }: Props) {
       <fieldset className={styles.adminFieldset}>
         <legend>Новая серия</legend>
 
-        <label>
-          Номер
-          <input type="number" name="number" min={1} required />
-        </label>
+        <div className={`${styles.fieldRow} ${styles.fieldRowNarrow}`}>
+          <label>
+            Номер
+            <input type="number" name="number" min={1} required />
+          </label>
+          <label>
+            Длительность, мин
+            <input type="number" name="durationMinutes" min={1} />
+          </label>
+          <label>
+            CDNVideoHub ID
+            <input type="text" name="cvhVideoId" placeholder="3536" />
+          </label>
+        </div>
 
         <label>
-          Ссылка на плеер (iframe src)
+          Ссылка на плеер
           <input
             type="url"
             name="playerSrc"
             placeholder="https://aniqit.com/embed/..."
           />
-          <span className={styles.fieldHint}>Оставьте пустым, если не нужен</span>
-        </label>
-
-        <label>
-          CDNVideoHub ID тайтла
-          <input
-            type="text"
-            name="cvhVideoId"
-            placeholder="Например: 3536"
-            title="ID тайтла в агрегаторе (KP / MAL / MDL)"
-          />
           <span className={styles.fieldHint}>
-            ID тайтла в агрегаторе (KP / MAL / MDL). Оставьте пустым, если не нужен.
+            Нужен хотя бы один источник: ссылка или CDNVideoHub ID.
           </span>
-        </label>
-
-        <label>
-          Длительность в минутах
-          <input type="number" name="durationMinutes" min={1} />
         </label>
 
         <label className={styles.checkboxRow}>
           <input type="checkbox" name="episodePublished" />
           Опубликована
         </label>
+
+        <EpisodeCreditsEditor
+          teamMembers={teamMembers}
+          resetSignal={creditsResetSignal}
+        />
       </fieldset>
 
       <div className={styles.formFooter}>

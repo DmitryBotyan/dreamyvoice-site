@@ -1,8 +1,14 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ApiError, createEpisode, updateEpisode, updateTitle, deleteEpisode, updateCommentStatus } from '@/lib/server-api';
-import type { CommentStatus } from '@/lib/types';
+import {
+  ApiError,
+  createEpisode,
+  updateEpisode,
+  updateTitle,
+  deleteEpisode,
+  type EpisodeCreditInput,
+} from '@/lib/server-api';
 import {
   DEFAULT_TITLE_STATUS,
   encodeStatusTag,
@@ -19,6 +25,48 @@ const collectList = (formData: FormData, key: string) =>
         .filter(Boolean),
     ),
   );
+
+type CreditsParseResult =
+  | { success: true; credits: EpisodeCreditInput[] }
+  | { success: false; error: string };
+
+/**
+ * Собирает список «кто работал над серией». Поля идут тремя параллельными
+ * массивами, поэтому индексы строк совпадают по порядку в DOM.
+ */
+const collectCredits = (formData: FormData): CreditsParseResult => {
+  const roles = formData.getAll('creditRole');
+  const names = formData.getAll('creditName');
+  const teamMemberIds = formData.getAll('creditTeamMemberId');
+  const credits: EpisodeCreditInput[] = [];
+
+  for (let index = 0; index < roles.length; index += 1) {
+    const role = (roles[index] ?? '').toString().trim();
+    const name = (names[index] ?? '').toString().trim();
+    const teamMemberId = (teamMemberIds[index] ?? '').toString().trim();
+
+    // Полностью пустую строку просто пропускаем — админ мог добавить её случайно.
+    if (!role && !name && !teamMemberId) {
+      continue;
+    }
+
+    if (!teamMemberId && !name) {
+      return { success: false, error: 'Укажите участника команды или имя для каждой роли' };
+    }
+
+    if (!role) {
+      return { success: false, error: 'Укажите роль для каждого участника' };
+    }
+
+    credits.push({
+      role,
+      name: name || null,
+      teamMemberId: teamMemberId || null,
+    });
+  }
+
+  return { success: true, credits };
+};
 
 export type UpdateTitleFormState = {
   success: boolean;
@@ -104,8 +152,8 @@ export async function updateTitleAction(
     return { success: false, error: 'Не удалось сохранить изменения' };
   }
 
-  revalidatePath('/admin');
-  revalidatePath(`/admin/${slug}`);
+  revalidatePath('/admin/titles');
+  revalidatePath(`/admin/titles/${slug}`);
 
   return { success: true };
 }
@@ -155,6 +203,11 @@ export async function createEpisodeAction(
     durationMinutes = parsedDuration;
   }
 
+  const creditsResult = collectCredits(formData);
+  if (!creditsResult.success) {
+    return { success: false, error: creditsResult.error };
+  }
+
   try {
     await createEpisode(slug, {
       number,
@@ -162,6 +215,7 @@ export async function createEpisodeAction(
       cvhVideoId,
       durationMinutes,
       published,
+      credits: creditsResult.credits,
     });
   } catch (error) {
     if (error instanceof ApiError) {
@@ -171,8 +225,8 @@ export async function createEpisodeAction(
     return { success: false, error: 'Не удалось добавить серию' };
   }
 
-  revalidatePath('/admin');
-  revalidatePath(`/admin/${slug}`);
+  revalidatePath('/admin/titles');
+  revalidatePath(`/admin/titles/${slug}`);
 
   return { success: true };
 }
@@ -219,12 +273,18 @@ export async function updateEpisodeAction(
     }
   }
 
+  const creditsResult = collectCredits(formData);
+  if (!creditsResult.success) {
+    return { success: false, error: creditsResult.error };
+  }
+
   try {
     await updateEpisode(slug, episodeId, {
       playerSrc,
       cvhVideoId,
       durationMinutes,
       published,
+      credits: creditsResult.credits,
     });
   } catch (error) {
     if (error instanceof ApiError) {
@@ -233,8 +293,8 @@ export async function updateEpisodeAction(
     return { success: false, error: 'Не удалось сохранить серию' };
   }
 
-  revalidatePath('/admin');
-  revalidatePath(`/admin/${slug}`);
+  revalidatePath('/admin/titles');
+  revalidatePath(`/admin/titles/${slug}`);
 
   return { success: true };
 }
@@ -255,42 +315,6 @@ export async function deleteEpisodeAction(slug: string, formData: FormData) {
     throw new Error('Не удалось удалить серию');
   }
 
-  revalidatePath('/admin');
-  revalidatePath(`/admin/${slug}`);
-}
-
-export type UpdateCommentStatusFormState = {
-  success: boolean;
-  error?: string;
-};
-
-export async function updateCommentStatusAction(
-  slug: string,
-  _prevState: UpdateCommentStatusFormState,
-  formData: FormData,
-): Promise<UpdateCommentStatusFormState> {
-  const commentId = (formData.get('commentId') ?? '').toString().trim();
-  const statusValue = (formData.get('status') ?? '').toString().trim().toUpperCase();
-
-  if (!commentId) {
-    return { success: false, error: 'Не удалось определить комментарий' };
-  }
-
-  const allowedStatuses: CommentStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
-  if (!allowedStatuses.includes(statusValue as CommentStatus)) {
-    return { success: false, error: 'Некорректный статус' };
-  }
-
-  try {
-    await updateCommentStatus(slug, commentId, statusValue as CommentStatus);
-  } catch (error) {
-    if (error instanceof ApiError) {
-      return { success: false, error: error.message };
-    }
-    return { success: false, error: 'Не удалось обновить статус' };
-  }
-
-  revalidatePath(`/admin/${slug}`);
-
-  return { success: true };
+  revalidatePath('/admin/titles');
+  revalidatePath(`/admin/titles/${slug}`);
 }

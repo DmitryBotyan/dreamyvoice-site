@@ -1507,13 +1507,181 @@ button:disabled {
   gap: 32px;
 }
 
-.catalog-load-indicator {
+.catalog-pagination {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 0;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 32px 0 8px;
+}
+
+.catalog-pagination-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+.catalog-pagination-page,
+.catalog-pagination-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-secondary);
+  color: var(--foreground);
+  font-size: 0.95rem;
+  line-height: 1;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.catalog-pagination-arrow {
+  width: 40px;
+  padding: 0;
   color: var(--muted);
+}
+
+.catalog-pagination-page:hover,
+.catalog-pagination-arrow:hover {
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
+
+.catalog-pagination-arrow:hover {
+  color: var(--foreground);
+}
+
+.catalog-pagination-page--current,
+.catalog-pagination-page--current:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: default;
+}
+
+.catalog-pagination-arrow--disabled,
+.catalog-pagination-arrow--disabled:hover {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--muted);
+  opacity: 0.35;
+  cursor: default;
+}
+
+.catalog-pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 40px;
+  color: var(--muted);
+}
+
+@media (max-width: 480px) {
+  .catalog-pagination-page,
+  .catalog-pagination-arrow {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    font-size: 0.875rem;
+  }
+
+  .catalog-pagination-arrow {
+    width: 36px;
+    padding: 0;
+  }
+}
+
+.episode-credits {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-secondary);
+}
+
+.episode-credits-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.episode-credits-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+.episode-credits-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.episode-credits-role {
+  min-width: 160px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.episode-credits-people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  list-style: none;
+}
+
+.episode-credits-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-primary);
+}
+
+.episode-credits-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--accent-muted);
+  color: var(--foreground);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.episode-credits-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.episode-credits-name {
   font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .episode-credits-role {
+    min-width: 0;
+    width: 100%;
+  }
 }
 
 .catalog-card {
@@ -2217,32 +2385,10 @@ video-player {
   color: rgba(255, 255, 255, 0.55);
 }
 
-.comment-card-status {
-  margin-left: auto;
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-}
-
-.comment-card-status--pending {
-  background: rgba(251, 191, 36, 0.18);
-  color: #fde68a;
-}
-
-.comment-card-status--rejected {
-  background: rgba(248, 113, 113, 0.2);
-  color: #fecaca;
-}
-
 .comment-card-body {
   font-size: 0.95rem;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.9);
-}
-
-.comment-card-status + .comment-card-delete {
-  margin-left: 8px;
 }
 
 .comment-card-delete {

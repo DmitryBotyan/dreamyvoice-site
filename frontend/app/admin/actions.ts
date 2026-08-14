@@ -102,7 +102,7 @@ export async function createTitleAction(
   }
 
   revalidatePath('/');
-  revalidatePath('/admin');
+  revalidatePath('/admin/titles');
 
   return { success: true };
 }
@@ -124,5 +124,5 @@ export async function deleteTitleAction(formData: FormData) {
   }
 
   revalidatePath('/');
-  revalidatePath('/admin');
+  revalidatePath('/admin/titles');
 }

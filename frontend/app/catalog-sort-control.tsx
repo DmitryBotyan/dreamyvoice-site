@@ -30,6 +30,8 @@ export function CatalogSortControl() {
       } else {
         nextParams.delete("sort");
       }
+      // Смена сортировки перестраивает выдачу — возвращаемся на первую страницу.
+      nextParams.delete("page");
 
       const query = nextParams.toString();
       startTransition(() => {

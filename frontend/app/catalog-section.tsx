@@ -1,23 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { buildMediaUrl } from "@/lib/media";
 import { CoverImage } from "./cover-image";
 import { CatalogFiltersDock } from "./catalog-filters-dock";
 import { CatalogFiltersForm } from "./catalog-filters-form";
 import { CatalogSortControl } from "./catalog-sort-control";
+import { CatalogPagination } from "./catalog-pagination";
+import { CATALOG_PAGE_SIZE } from "./catalog-filter-config";
 import {
   buildCatalogFiltersFromUrl,
   filterTitles,
+  getTotalPages,
+  parsePageParam,
   sortTitles,
   type EnrichedTitle,
 } from "./catalog-filter-utils";
 import { NewEpisodeBadge } from "./new-episode-badge";
 
-const INITIAL_BATCH = 8;
-const LOAD_STEP = 8;
+export const CATALOG_ANCHOR_ID = "catalog";
 
 type CatalogSectionProps = {
   titles: EnrichedTitle[];
@@ -30,6 +33,8 @@ export function CatalogSection({
   genreOptions,
   tagOptions,
 }: CatalogSectionProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const catalogFilters = useMemo(
     () => buildCatalogFiltersFromUrl(searchParams),
@@ -43,37 +48,32 @@ export function CatalogSection({
     () => sortTitles(filteredTitles, catalogFilters.sort),
     [filteredTitles, catalogFilters.sort]
   );
-  const [visibleCount, setVisibleCount] = useState(() =>
-    Math.min(INITIAL_BATCH, sortedTitles.length)
-  );
-  const [loadMoreNode, setLoadMoreNode] = useState<HTMLDivElement | null>(null);
-  const hasMore = visibleCount < sortedTitles.length;
 
-  useEffect(() => {
-    setVisibleCount(Math.min(INITIAL_BATCH, sortedTitles.length));
-  }, [sortedTitles]);
+  const totalPages = getTotalPages(sortedTitles.length);
+  const requestedPage = parsePageParam(searchParams.get("page") ?? undefined);
+  const currentPage = Math.min(requestedPage, totalPages);
 
+  // Страница вне диапазона (после смены фильтров или из чужой ссылки) —
+  // чиним URL, чтобы не плодить дубли одного и того же содержимого.
   useEffect(() => {
-    if (!hasMore || !loadMoreNode) {
+    if (requestedPage === currentPage) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setVisibleCount((current) =>
-            Math.min(current + LOAD_STEP, sortedTitles.length)
-          );
-        }
-      },
-      { rootMargin: "300px 0px" }
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    if (currentPage <= 1) {
+      params.delete("page");
+    } else {
+      params.set("page", currentPage.toString());
+    }
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [currentPage, pathname, requestedPage, router, searchParams]);
 
-    observer.observe(loadMoreNode);
-    return () => observer.disconnect();
-  }, [hasMore, loadMoreNode, sortedTitles.length, visibleCount]);
-
-  const visibleTitles = sortedTitles.slice(0, visibleCount);
+  const visibleTitles = sortedTitles.slice(
+    (currentPage - 1) * CATALOG_PAGE_SIZE,
+    currentPage * CATALOG_PAGE_SIZE
+  );
 
   return (
     <div className="catalog-layout">
@@ -110,6 +110,7 @@ export function CatalogSection({
                         <NewEpisodeBadge
                           slug={title.slug}
                           episodeCount={title.episodes.filter((e) => e.published).length}
+                          isOngoing={title.progress === "ongoing"}
                         />
                       </div>
                     ) : (
@@ -118,6 +119,7 @@ export function CatalogSection({
                         <NewEpisodeBadge
                           slug={title.slug}
                           episodeCount={title.episodes.filter((e) => e.published).length}
+                          isOngoing={title.progress === "ongoing"}
                         />
                       </div>
                     )}
@@ -128,15 +130,11 @@ export function CatalogSection({
                 </li>
               ))}
             </ul>
-            {hasMore && (
-              <div
-                className="catalog-load-indicator"
-                ref={setLoadMoreNode}
-                aria-live="polite"
-              >
-                Подгружаем ещё…
-              </div>
-            )}
+            <CatalogPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              scrollTargetId={CATALOG_ANCHOR_ID}
+            />
           </>
         )}
       </div>

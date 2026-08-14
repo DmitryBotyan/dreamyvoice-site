@@ -26,7 +26,7 @@ export async function deleteCommentAction(
   }
 
   revalidatePath(`/titles/${slug}`);
-  revalidatePath(`/admin/${slug}`);
+  revalidatePath(`/admin/titles/${slug}`);
 
   return { success: true };
 }

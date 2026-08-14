@@ -4,18 +4,39 @@ import Link from "next/link";
 import { getTitles, getGenres, getTags } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import { sortTitlesByReleaseDateDesc } from "@/lib/title-utils";
-import { CatalogSection } from "./catalog-section";
-import { enrichTitles } from "./catalog-filter-utils";
+import { CATALOG_ANCHOR_ID, CatalogSection } from "./catalog-section";
+import {
+  enrichTitles,
+  parsePageParam,
+  type HomePageSearchParams,
+} from "./catalog-filter-utils";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 import { NewEpisodeBadge } from "./new-episode-badge";
+import { isOngoingTitle } from "@/lib/title-status";
 import { CoverImage } from "./cover-image";
 
-export const metadata: Metadata = createBaseMetadata({
-  title: "DreamyVoice — Каталог аниме в озвучке команды",
-  description:
-    "Смотрите аниме в профессиональной озвучке команды DreamyVoice. Каталог тайтлов с сериями, комментариями и удобным просмотром. Все релизы доступны онлайн бесплатно. Удобный поиск, фильтры по жанрам и возможность добавлять тайтлы в избранное.",
-  url: getAbsoluteUrl("/"),
-});
+const BASE_TITLE = "DreamyVoice — Каталог аниме в озвучке команды";
+const BASE_DESCRIPTION =
+  "Смотрите аниме в профессиональной озвучке команды DreamyVoice. Каталог тайтлов с сериями, комментариями и удобным просмотром. Все релизы доступны онлайн бесплатно. Удобный поиск, фильтры по жанрам и возможность добавлять тайтлы в избранное.";
+
+type Props = {
+  searchParams?: Promise<HomePageSearchParams>;
+};
+
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  const params = (await searchParams) ?? {};
+  const page = parsePageParam(params.page);
+  const isFirstPage = page <= 1;
+
+  return createBaseMetadata({
+    title: isFirstPage ? BASE_TITLE : `${BASE_TITLE} — страница ${page}`,
+    description: BASE_DESCRIPTION,
+    // Канонический URL страниц каталога — с номером страницы, чтобы не плодить дубли.
+    url: getAbsoluteUrl(isFirstPage ? "/" : `/?page=${page}`),
+  });
+}
 
 export default async function HomePage() {
   const [titles, genreOptions, tagOptions] = await Promise.all([
@@ -65,6 +86,7 @@ export default async function HomePage() {
                     <NewEpisodeBadge
                       slug={title.slug}
                       episodeCount={title.episodes.filter((e) => e.published).length}
+                      isOngoing={isOngoingTitle(title)}
                     />
                   </div>
                 </Link>
@@ -73,7 +95,7 @@ export default async function HomePage() {
           </ul>
         )}
       </section>
-      <section className="catalog-section" id="catalog">
+      <section className="catalog-section" id={CATALOG_ANCHOR_ID}>
         {titles.length === 0 ? (
           <p className="catalog-empty">
             Пока ничего нет. Добавьте первый тайтл через админку.

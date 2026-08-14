@@ -152,6 +152,11 @@ export function SiteNav({
 
   const navItems: NavItem[] = [
     {
+      key: "news",
+      href: "/news",
+      label: "Новости",
+    },
+    {
       key: "random",
       href: "/titles/random",
       label: "Рандом",

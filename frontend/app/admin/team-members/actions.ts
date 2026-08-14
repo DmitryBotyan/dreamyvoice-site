@@ -42,7 +42,7 @@ export async function createTeamMemberAction(
   }
 
   revalidatePath('/team');
-  revalidatePath('/admin');
+  revalidatePath('/admin/team');
 
   return { success: true };
 }
@@ -64,5 +64,5 @@ export async function deleteTeamMemberAction(formData: FormData) {
   }
 
   revalidatePath('/team');
-  revalidatePath('/admin');
+  revalidatePath('/admin/team');
 }

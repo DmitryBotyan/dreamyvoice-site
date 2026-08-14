@@ -1,3 +1,5 @@
+import type { Title } from './types';
+
 const STATUS_TAG_PREFIX = 'status:';
 
 export const TITLE_STATUS_LABELS = {
@@ -51,3 +53,24 @@ export const titleStatusToProgress = (status: TitleStatus): 'ongoing' | 'complet
 export function isValidStatus(value: string): value is TitleStatus {
   return Object.prototype.hasOwnProperty.call(TITLE_STATUS_LABELS, value);
 }
+
+type TitleProgressSource = Pick<Title, 'published' | 'episodes' | 'tags'>;
+
+/** Тайтл считается завершённым, когда он опубликован и в нём нет неопубликованных серий. */
+const detectEpisodeProgress = (
+  title: TitleProgressSource,
+): 'ongoing' | 'completed' => {
+  const hasUnreleasedEpisodes = title.episodes.some((episode) => !episode.published);
+  return title.published && !hasUnreleasedEpisodes ? 'completed' : 'ongoing';
+};
+
+/** Явный статус из тега `status:*` приоритетнее автоматического определения по сериям. */
+export const resolveTitleProgress = (
+  title: TitleProgressSource,
+): 'ongoing' | 'completed' => {
+  const explicitStatus = extractStatusFromTags(title.tags);
+  return explicitStatus ? titleStatusToProgress(explicitStatus) : detectEpisodeProgress(title);
+};
+
+export const isOngoingTitle = (title: TitleProgressSource) =>
+  resolveTitleProgress(title) === 'ongoing';

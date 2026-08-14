@@ -21,6 +21,15 @@ export type TeamMember = {
   createdAt: string;
 };
 
+/** Кто работал над серией: роль (озвучка, перевод, сведение…) и исполнитель. */
+export type EpisodeCredit = {
+  id: string;
+  role: string;
+  name: string;
+  teamMemberId?: string | null;
+  avatarKey?: string | null;
+};
+
 export type Episode = {
   id: string;
   number: number;
@@ -29,6 +38,7 @@ export type Episode = {
   playerSrc?: string;
   cvhVideoId?: string;
   published: boolean;
+  credits?: EpisodeCredit[];
 };
 
 export type Title = {
@@ -50,6 +60,27 @@ export type Title = {
   avgRating?: number | null;
   ratingCount?: number;
   myRating?: number | null;
+};
+
+export type NewsPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt?: string | null;
+  /** Очищенный на сервере HTML из редактора админки. */
+  body: string;
+  coverKey?: string | null;
+  coverBlurHash?: string | null;
+  published: boolean;
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  author?: {
+    id: string;
+    profileId: number;
+    username: string;
+    avatarKey?: string | null;
+  } | null;
 };
 
 export type FavoriteTitle = {
@@ -89,12 +120,9 @@ export type PublicProfile = {
   recentActivity?: ActivityEntry[];
 };
 
-export type CommentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
-
 export type Comment = {
   id: string;
   body: string;
-  status?: CommentStatus;
   createdAt: string;
   author: {
     id: string;
@@ -106,4 +134,22 @@ export type Comment = {
   dislikeCount: number;
   userReaction: 'LIKE' | 'DISLIKE' | null;
   replies: Comment[];
+};
+
+/** Комментарий в сквозном списке админки — с тайтлом, к которому он относится. */
+export type AdminComment = {
+  id: string;
+  body: string;
+  createdAt: string;
+  isReply: boolean;
+  author: {
+    id: string;
+    profileId: number;
+    username: string;
+    avatarKey?: string | null;
+  };
+  title: {
+    slug: string;
+    name: string;
+  };
 };

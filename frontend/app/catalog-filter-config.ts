@@ -11,6 +11,9 @@ export const SORT_OPTIONS: SortOption[] = [
 
 export const DEFAULT_SORT: SortOption = "created_desc";
 
+/** Сколько карточек показывается на одной странице каталога. */
+export const CATALOG_PAGE_SIZE = 8;
+
 export type CatalogFilterState = {
   query: string;
   yearFrom?: number;

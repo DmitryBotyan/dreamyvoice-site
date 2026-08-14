@@ -4,6 +4,9 @@ import { env } from './env';
 import { sessionMiddleware } from './middleware/session';
 import { authRouter } from './routes/auth';
 import { titlesRouter } from './routes/titles';
+import { newsRouter } from './routes/news';
+import { commentsAdminRouter } from './routes/comments';
+import { adminSearchRouter } from './routes/search';
 import { errorHandler } from './middleware/error-handler';
 import { mediaRouter } from './routes/media';
 import { profileRouter } from './routes/profile';
@@ -31,6 +34,9 @@ async function bootstrap() {
 
   app.use('/auth', authRouter);
   app.use('/titles', titlesRouter);
+  app.use('/news', newsRouter);
+  app.use('/comments', commentsAdminRouter);
+  app.use('/admin-search', adminSearchRouter);
   app.use('/favorites', favoritesRouter);
   app.use('/metadata', metadataRouter);
   app.use('/team-members', teamMembersRouter);

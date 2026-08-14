@@ -3,10 +3,11 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { serverConfig } from './server-config';
 import type {
+  AdminComment,
   Comment,
-  CommentStatus,
   Episode,
   FavoriteTitle,
+  NewsPost,
   PublicProfile,
   PublicUser,
   TeamMember,
@@ -106,6 +107,62 @@ export async function getTitle(slug: string) {
   }
 }
 
+// ─── Новости ──────────────────────────────────────────────────────────────────
+
+export async function getNewsPosts(options: { includeDrafts?: boolean } = {}) {
+  const query = options.includeDrafts ? '?includeDrafts=1' : '';
+  const data = await request<{ posts: NewsPost[] }>(`/news${query}`);
+  return data.posts;
+}
+
+export async function getNewsPost(slug: string) {
+  const encodedSlug = encodeURIComponent(slug);
+  try {
+    const data = await request<{ post: NewsPost }>(`/news/${encodedSlug}`);
+    return data.post;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export type CreateNewsPostInput = {
+  title: string;
+  excerpt?: string | null;
+  body: string;
+  coverKey?: string | null;
+  coverBlurHash?: string | null;
+  published?: boolean;
+};
+
+export async function createNewsPost(input: CreateNewsPostInput) {
+  const data = await request<{ post: NewsPost }>('/news', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  return data.post;
+}
+
+export type UpdateNewsPostInput = Partial<CreateNewsPostInput>;
+
+export async function updateNewsPost(slug: string, input: UpdateNewsPostInput) {
+  const encodedSlug = encodeURIComponent(slug);
+  const data = await request<{ post: NewsPost }>(`/news/${encodedSlug}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  return data.post;
+}
+
+export async function deleteNewsPost(slug: string) {
+  const encodedSlug = encodeURIComponent(slug);
+  await request<void>(`/news/${encodedSlug}`, { method: 'DELETE' });
+}
+
 export async function getFavoriteTitles() {
   try {
     const data = await request<{ favorites: FavoriteTitle[] }>('/favorites');
@@ -132,18 +189,16 @@ export async function getTitleComments(slug: string) {
   }
 }
 
-export async function updateCommentStatus(slug: string, commentId: string, status: CommentStatus) {
-  const encodedSlug = encodeURIComponent(slug);
-  const encodedCommentId = encodeURIComponent(commentId);
-  const data = await request<{ comment: Comment }>(`/titles/${encodedSlug}/comments/${encodedCommentId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ status }),
-  });
+/** Сквозной список комментариев для админки. */
+export async function getAllComments(limit = 100) {
+  const data = await request<{ comments: AdminComment[] }>(`/comments?limit=${limit}`);
+  return data.comments;
+}
 
-  return data.comment;
+/** Удаление из сквозного списка админки — тайтл знать не нужно. */
+export async function deleteCommentById(commentId: string) {
+  const encodedId = encodeURIComponent(commentId);
+  await request<void>(`/comments/${encodedId}`, { method: 'DELETE' });
 }
 
 export async function deleteComment(slug: string, commentId: string) {
@@ -204,12 +259,19 @@ export async function updateTitle(slug: string, input: UpdateTitleInput) {
   return data.title;
 }
 
+export type EpisodeCreditInput = {
+  role: string;
+  name?: string | null;
+  teamMemberId?: string | null;
+};
+
 export type CreateEpisodeInput = {
   number: number;
   playerSrc?: string | null;
   cvhVideoId?: string | null;
   durationMinutes?: number | null;
   published?: boolean;
+  credits?: EpisodeCreditInput[];
 };
 
 export async function createEpisode(slug: string, input: CreateEpisodeInput) {
@@ -355,6 +417,7 @@ export type UpdateEpisodeInput = {
   cvhVideoId?: string | null;
   durationMinutes?: number | null;
   published?: boolean;
+  credits?: EpisodeCreditInput[];
 };
 
 export async function updateEpisode(slug: string, episodeId: string, input: UpdateEpisodeInput) {
