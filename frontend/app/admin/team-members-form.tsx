@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { clientConfig } from "@/lib/client-config";
 import { buildMediaUrl } from "@/lib/media";
-import { FileField } from "./ui/file-field";
+import { FileField } from "../ui/file-field";
 import styles from "./styles.module.css";
 import { createTeamMemberAction, type CreateTeamMemberFormState } from "./team-members/actions";
 

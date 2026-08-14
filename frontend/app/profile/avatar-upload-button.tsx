@@ -98,8 +98,8 @@ export function AvatarUploadButton({ avatarUrl, fallbackLetter }: Props) {
             <img
               src={preview}
               alt="Текущий аватар"
-              width={108}
-              height={108}
+              width={84}
+              height={84}
               className={styles.profileAvatar}
             />
           ) : (

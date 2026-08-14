@@ -1,73 +1,74 @@
 .favoritesPage {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding-top: 4px;
+  gap: 20px;
 }
 
 .favoritesHeading {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.favoritesEyebrow {
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.65);
+  gap: 4px;
 }
 
 .favoritesTitle {
   margin: 0;
-  font-size: clamp(2rem, 3vw, 2.4rem);
+  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
   line-height: 1.2;
 }
 
 .favoritesSubtitle {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
 }
 
+/* Своя сетка, а не каталожная: здесь нет колонки фильтров,
+   поэтому при тех же четырёх колонках карточка выходила заметно крупнее. */
 .favoritesGrid {
-  gap: 28px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 24px 20px;
 }
 
 .favoritesEmpty {
-  border-radius: 12px;
-  padding: 28px;
+  padding: 8px 0;
   color: var(--muted);
-  font-size: 1rem;
-  text-align: center;
+  font-size: 0.95rem;
 }
 
 .favoritesEmpty p {
-  margin-bottom: 16px;
+  margin-bottom: 0;
+}
+
+@media (max-width: 1500px) {
+  .favoritesGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1280px) {
+  .favoritesGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .favoritesGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
-  .favoritesPage {
-    gap: 24px;
-  }
-
   .favoritesTitle {
-    font-size: clamp(1.8rem, 6vw, 2.1rem);
+    font-size: clamp(1.35rem, 5vw, 1.7rem);
   }
 
   .favoritesGrid {
-    gap: 18px;
-  }
-
-  .favoritesEmpty {
-    padding: 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 14px;
   }
 }
 
-@media (max-width: 480px) {
-  .favoritesSubtitle {
-    font-size: 0.95rem;
-  }
-
-  .favoritesEmpty {
-    font-size: 0.95rem;
+@media (max-width: 400px) {
+  .favoritesGrid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

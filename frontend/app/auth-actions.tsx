@@ -68,6 +68,8 @@ export function AuthActions({ currentUser }: Props) {
     ? buildMediaUrl("avatars", currentUser.avatarKey)
     : null;
   const avatarInitial = currentUser.username.charAt(0).toUpperCase();
+  // Админу из шапки нужнее админка, чем собственный профиль.
+  const accountHref = currentUser.role === "ADMIN" ? "/admin" : "/profile";
 
   async function handleLogout() {
     setIsLoading(true);
@@ -108,7 +110,7 @@ export function AuthActions({ currentUser }: Props) {
         )}
       </div>
       <span className="auth-greeting">
-        Привет, <Link href="/profile">{currentUser.username}</Link>
+        Привет, <Link href={accountHref}>{currentUser.username}</Link>
       </span>
       <button onClick={handleLogout} disabled={isLoading}>
         Выйти

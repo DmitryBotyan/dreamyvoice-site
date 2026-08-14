@@ -111,6 +111,7 @@ export function toPublicUser(user: User) {
     username: user.username,
     email: user.email,
     emailVerified: user.emailVerified,
+    pendingEmail: user.pendingEmail,
     role: user.role,
     avatarKey: user.avatarKey,
     bio: user.bio,

@@ -7,7 +7,7 @@ import { useFormStatus } from "react-dom";
 import { clientConfig } from "@/lib/client-config";
 import { buildMediaUrl } from "@/lib/media";
 import { ImageCropModal } from "../image-crop-modal";
-import { FileField } from "../ui/file-field";
+import { FileField } from "../../ui/file-field";
 import { RichTextEditor } from "./rich-text-editor";
 import type { NewsFormState } from "./actions";
 import styles from "../styles.module.css";

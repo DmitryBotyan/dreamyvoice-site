@@ -1,12 +1,9 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { PublicUser } from "@/lib/types";
 import { clientConfig } from "@/lib/client-config";
-import { buildMediaUrl } from "@/lib/media";
 import styles from "./profile.module.css";
 
 type Props = {
@@ -17,30 +14,9 @@ export function ProfileForm({ user }: Props) {
   const router = useRouter();
   const [username, setUsername] = useState(user.username);
   const [bio, setBio] = useState(user.bio ?? '');
-  const [avatarPreview, setAvatarPreview] = useState(
-    user.avatarKey ? buildMediaUrl("avatars", user.avatarKey) : null,
-  );
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) {
-      setAvatarFile(null);
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Файл слишком большой — выберите изображение до 5 МБ");
-      return;
-    }
-
-    setAvatarFile(file);
-    setError(null);
-    setAvatarPreview(URL.createObjectURL(file));
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,9 +27,6 @@ export function ProfileForm({ user }: Props) {
     const formData = new FormData();
     formData.append("username", username);
     formData.append("bio", bio);
-    if (avatarFile) {
-      formData.append("avatar", avatarFile);
-    }
 
     const response = await fetch(`${clientConfig.apiProxyBasePath}/profile`, {
       method: "PATCH",
@@ -75,7 +48,6 @@ export function ProfileForm({ user }: Props) {
 
   const usernameFieldId = "profile-username";
   const bioFieldId = "profile-bio";
-  const avatarFieldId = "profile-avatar";
 
   return (
     <form onSubmit={handleSubmit} className={styles.profileForm}>
@@ -108,28 +80,6 @@ export function ProfileForm({ user }: Props) {
           placeholder="Расскажите немного о себе..."
         />
         <p className={styles.fieldHint}>{bio.length}/500</p>
-      </div>
-      <div className={styles.fieldGroup}>
-        <label htmlFor={avatarFieldId} className={styles.fieldLabel}>
-          Аватар
-        </label>
-        <input
-          id={avatarFieldId}
-          className={styles.fileInput}
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          onChange={handleAvatarChange}
-        />
-        <p className={styles.fieldHint}>PNG, JPEG или WEBP, размером до 5 МБ.</p>
-      </div>
-
-      <div className={styles.avatarPreview}>
-        <p className={styles.fieldLabel}>Предпросмотр</p>
-        {avatarPreview ? (
-          <img src={avatarPreview} alt="Текущий аватар" className={styles.avatarPreviewImage} width={96} height={96} />
-        ) : (
-          <p className={styles.avatarPreviewEmpty}>Изображение появится после выбора файла.</p>
-        )}
       </div>
 
       <div className={styles.formActions}>

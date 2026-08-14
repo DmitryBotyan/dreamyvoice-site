@@ -9,6 +9,7 @@ import { SiteLogo } from "./site-logo";
 import { SiteFooter } from "./site-footer";
 import { AuthModalProvider } from "./auth-modal-context";
 import { ScrollTopOnNavigation } from "./scroll-top";
+import { CookieNotice } from "./cookie-notice";
 import {
   createBaseMetadata,
   createOrganizationJsonLd,
@@ -112,10 +113,8 @@ export default async function RootLayout({
           <main className="site-main">
             <div className="site-main-inner">{children}</div>
           </main>
-          <SiteFooter
-            titles={headerSearchOptions}
-            isAuthenticated={Boolean(currentUser)}
-          />
+          <SiteFooter isAuthenticated={Boolean(currentUser)} />
+          <CookieNotice />
         </AuthModalProvider>
       </body>
     </html>

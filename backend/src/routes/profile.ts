@@ -113,12 +113,14 @@ router.post(
       throw new HttpError(409, 'Этот email уже используется другим аккаунтом');
     }
 
+    // Адрес аккаунта не меняем: до подтверждения новый живёт отдельно,
+    // иначе опечатка или чужая сессия уводят почту вместе с восстановлением пароля.
     await prisma.user.update({
       where: { id: user.id },
-      data: { email, emailVerified: false },
+      data: { pendingEmail: email },
     });
 
-    const token = await createVerificationToken(user.id, 'EMAIL_VERIFICATION');
+    const token = await createVerificationToken(user.id, 'EMAIL_CHANGE');
     sendVerificationEmail(email, token).catch((err) => {
       console.error('[profile] failed to send verification email', err);
     });

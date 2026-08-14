@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
+import { MailIcon } from "../auth-icons";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!;
 const IS_DEV = process.env.NODE_ENV === 'development';
@@ -82,7 +83,9 @@ export default function ForgotPasswordPage() {
           <h1 className="auth-page-title">Письмо отправлено</h1>
         </header>
         <div className="auth-success">
-          <div className="auth-success-icon" aria-hidden="true">✉</div>
+          <div className="auth-success-icon" aria-hidden="true">
+            <MailIcon />
+          </div>
           <p className="auth-success-text">
             Если аккаунт с адресом <strong>{email}</strong> существует, мы отправили на него ссылку для сброса пароля.
           </p>

@@ -15,8 +15,8 @@ import {
   TITLE_STATUS_OPTIONS,
   type TitleStatus,
 } from "@/lib/title-status";
-import { Select } from "./ui/select";
-import { FileField } from "./ui/file-field";
+import { Select } from "../ui/select";
+import { FileField } from "../ui/file-field";
 
 import styles from "./styles.module.css";
 

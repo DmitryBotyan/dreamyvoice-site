@@ -6,6 +6,8 @@ export type PublicUser = {
   username: string;
   email?: string | null;
   emailVerified: boolean;
+  /** Новый адрес ждёт подтверждения по ссылке из письма. */
+  pendingEmail?: string | null;
   role: UserRole;
   avatarKey?: string | null;
   bio?: string | null;

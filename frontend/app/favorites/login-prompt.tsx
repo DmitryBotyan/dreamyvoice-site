@@ -14,17 +14,11 @@ export function FavoritesLoginPrompt() {
   return (
     <section className={styles.favoritesPage}>
       <header className={styles.favoritesHeading}>
-        <div>
-          <p className={styles.favoritesEyebrow}>Вход</p>
-          <h1 className={styles.favoritesTitle}>Ваши избранные</h1>
-        </div>
+        <h1 className={styles.favoritesTitle}>Избранное</h1>
         <p className={styles.favoritesSubtitle}>
-          Войдите или зарегистрируйтесь, чтобы сохранять тайтлы.
+          Войдите, чтобы сохранять тайтлы и возвращаться к ним с любого устройства.
         </p>
       </header>
-      <div className={styles.favoritesEmpty}>
-        <p>Вы не авторизованы на нашем сайте</p>
-      </div>
     </section>
   );
 }

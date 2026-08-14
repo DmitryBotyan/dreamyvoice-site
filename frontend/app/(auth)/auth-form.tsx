@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
+import { MailIcon } from "./auth-icons";
 
 declare global {
   interface Window {
@@ -133,7 +134,9 @@ export function AuthForm({ mode, onSwitchMode, onSuccess }: Props) {
   if (successEmail) {
     return (
       <div className="auth-success">
-        <div className="auth-success-icon" aria-hidden="true">✉</div>
+        <div className="auth-success-icon" aria-hidden="true">
+          <MailIcon />
+        </div>
         <h3 className="auth-success-title">Проверьте почту</h3>
         <p className="auth-success-text">
           Мы отправили письмо со ссылкой на <strong>{successEmail}</strong>.

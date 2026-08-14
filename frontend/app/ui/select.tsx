@@ -176,11 +176,6 @@ export function Select({
           tabIndex={-1}
           aria-activedescendant={`${listboxId}-${activeIndex}`}
           onKeyDown={handleListKeyDown}
-          onBlur={(event) => {
-            if (!rootRef.current?.contains(event.relatedTarget as Node)) {
-              setIsOpen(false);
-            }
-          }}
         >
           {options.map((option, index) => (
             <li

@@ -99,6 +99,31 @@ export default async function UserProfilePage({ params }: Props) {
             <span className={styles.since}>С нами с {joinedDate}</span>
           </div>
           {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
+
+          {totalCount > 0 && (
+            <dl className={styles.stats}>
+              {STATUSES.map((status) => {
+                const count = animeList[status]?.length ?? 0;
+                if (count === 0) return null;
+                return (
+                  <div key={status} className={styles.statsItem}>
+                    <dt>{STATUS_LABELS[status]}</dt>
+                    <dd>{count}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          )}
+
+          {profile.favoriteGenres && profile.favoriteGenres.length > 0 && (
+            <ul className={styles.genreRow} role="list">
+              {profile.favoriteGenres.slice(0, 6).map((genre) => (
+                <li key={genre} className={styles.genreTag}>
+                  {genre}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </header>
 
@@ -113,7 +138,9 @@ export default async function UserProfilePage({ params }: Props) {
         {totalCount === 0 ? (
           <div className={styles.emptyState}>
             <BookOpen size={32} strokeWidth={1.5} className={styles.emptyStateIcon} />
-            <p className={styles.emptyStateTitle}>Список пока пуст</p>
+            <p className={styles.emptyStateTitle}>
+              {profile.username} ещё не добавил ни одного тайтла
+            </p>
           </div>
         ) : (
           STATUSES.map((status) => {

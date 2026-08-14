@@ -41,8 +41,8 @@ export function HeaderSearch({ titles }: HeaderSearchProps) {
             strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
-            width="20"
-            height="20"
+            width="16"
+            height="16"
           >
             <circle cx="11" cy="11" r="7.5" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { clientConfig } from '@/lib/client-config';
+import { CheckIcon } from "../auth-icons";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!;
 const IS_DEV = process.env.NODE_ENV === 'development';
@@ -103,7 +104,9 @@ function ResetPasswordContent() {
   if (success) {
     return (
       <div className="auth-success">
-        <div className="auth-success-icon" aria-hidden="true">✓</div>
+        <div className="auth-success-icon" aria-hidden="true">
+          <CheckIcon />
+        </div>
         <h3 className="auth-success-title">Пароль обновлён</h3>
         <Link className="auth-success-action" href="/login">Войти в аккаунт</Link>
       </div>

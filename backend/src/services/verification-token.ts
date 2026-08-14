@@ -5,6 +5,7 @@ import type { TokenType } from '@prisma/client';
 const TTL: Record<TokenType, number> = {
   EMAIL_VERIFICATION: 24 * 60 * 60 * 1000,
   PASSWORD_RESET: 60 * 60 * 1000,
+  EMAIL_CHANGE: 24 * 60 * 60 * 1000,
 };
 
 export async function createVerificationToken(userId: string, type: TokenType) {

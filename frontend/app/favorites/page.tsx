@@ -30,9 +30,9 @@ export default async function FavoritesPage() {
       </header>
 
       {favorites.length === 0 ? (
-        <div className={styles.favoritesEmpty}>
-          <p>Пока нет ни одного релиза. </p>
-        </div>
+        <p className={styles.favoritesEmpty}>
+          Здесь появятся тайтлы, которые вы отметите сердечком на странице релиза.
+        </p>
       ) : (
         <ul className={`catalog-grid ${styles.favoritesGrid}`} role="list">
           {favorites.map((title) => {

@@ -3,7 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import type { EpisodeCredit, TeamMember } from "@/lib/types";
 import { EPISODE_CREDIT_ROLE_SUGGESTIONS } from "@/lib/episode-credits";
-import { Select } from "../../ui/select";
+import { Select } from "../../../ui/select";
 import styles from "../../styles.module.css";
 
 type Row = {

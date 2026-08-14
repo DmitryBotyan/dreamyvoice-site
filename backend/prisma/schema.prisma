@@ -22,6 +22,7 @@ enum Role {
 enum TokenType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
+  EMAIL_CHANGE
 }
 
 enum ReactionType {
@@ -42,6 +43,8 @@ model User {
   username           String              @unique
   email              String?             @unique
   emailVerified      Boolean             @default(false) @map("email_verified")
+  /// Новый адрес ждёт подтверждения; в `email` он попадёт только после перехода по ссылке.
+  pendingEmail       String?             @map("pending_email")
   passwordHash       String              @map("password_hash")
   role               Role                @default(USER)
   avatarKey          String?             @map("avatar_key")

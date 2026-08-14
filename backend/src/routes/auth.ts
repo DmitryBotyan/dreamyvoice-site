@@ -138,6 +138,39 @@ router.post(
       return;
     }
 
+    // Смена почты: адрес ждал подтверждения в pendingEmail — переносим его в email.
+    const changeUserId = await validateVerificationToken(token, 'EMAIL_CHANGE');
+    if (changeUserId) {
+      const changingUser = await prisma.user.findUnique({ where: { id: changeUserId } });
+      if (!changingUser?.pendingEmail) {
+        throw new HttpError(400, 'Запрос на смену email уже неактуален');
+      }
+
+      // Пока письмо шло, адрес мог занять кто-то другой.
+      const taken = await prisma.user.findUnique({
+        where: { email: changingUser.pendingEmail },
+      });
+      if (taken && taken.id !== changingUser.id) {
+        await prisma.user.update({
+          where: { id: changingUser.id },
+          data: { pendingEmail: null },
+        });
+        throw new HttpError(409, 'Этот email уже используется другим аккаунтом');
+      }
+
+      await prisma.user.update({
+        where: { id: changingUser.id },
+        data: {
+          email: changingUser.pendingEmail,
+          emailVerified: true,
+          pendingEmail: null,
+        },
+      });
+
+      res.json({ message: 'Email confirmed' });
+      return;
+    }
+
     // Legacy flow: token belongs to an already-existing user that was
     // created before the double-opt-in change. Flip the verified flag.
     const userId = await validateVerificationToken(token, 'EMAIL_VERIFICATION');
@@ -199,16 +232,22 @@ router.post(
       throw new HttpError(401, 'Not authenticated');
     }
 
-    if (req.currentUser.emailVerified) {
+    const pending = req.currentUser.pendingEmail;
+
+    if (!pending && req.currentUser.emailVerified) {
       throw new HttpError(400, 'Email уже подтверждён');
     }
 
-    if (!req.currentUser.email) {
+    const target = pending ?? req.currentUser.email;
+    if (!target) {
       throw new HttpError(400, 'К аккаунту не привязан email');
     }
 
-    const token = await createVerificationToken(req.currentUser.id, 'EMAIL_VERIFICATION');
-    sendVerificationEmail(req.currentUser.email, token).catch(() => {});
+    const token = await createVerificationToken(
+      req.currentUser.id,
+      pending ? 'EMAIL_CHANGE' : 'EMAIL_VERIFICATION',
+    );
+    sendVerificationEmail(target, token).catch(() => {});
 
     res.json({ message: 'Verification email sent' });
   }),

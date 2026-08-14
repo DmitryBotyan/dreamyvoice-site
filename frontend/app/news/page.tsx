@@ -31,9 +31,7 @@ export default async function NewsPage() {
       </header>
 
       {posts.length === 0 ? (
-        <p className={styles.empty}>
-          Новостей пока нет — заглядывайте позже.
-        </p>
+        <p className={styles.empty}>Новостей пока нет.</p>
       ) : (
         <ul className={styles.grid} role="list">
           {posts.map((post) => {

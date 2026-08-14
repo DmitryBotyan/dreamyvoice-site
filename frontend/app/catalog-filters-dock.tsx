@@ -25,6 +25,8 @@ type CatalogFiltersDockProps = {
 };
 
 const STICKY_TOP_OFFSET = 0;
+/** Зазор между шапкой и прилипшей панелью фильтров. */
+const HEADER_GAP = 12;
 const STACK_BREAKPOINT = 1110;
 
 export function CatalogFiltersDock({
@@ -112,7 +114,7 @@ export function CatalogFiltersDock({
         header && header.classList.contains("site-header--stuck")
           ? header.offsetHeight
           : 0;
-      return headerHeight + 0;
+      return headerHeight ? headerHeight + HEADER_GAP : HEADER_GAP;
     };
 
     const handleScroll = () => {
@@ -190,7 +192,8 @@ export function CatalogFiltersDock({
         top: `${dockedTop}px`,
         left: `${metrics.left}px`,
         width: metrics.width ? `${metrics.width}px` : undefined,
-        zIndex: 40,
+        // Ниже шапки (z-index 30), иначе панель перекрывает её границу.
+        zIndex: 20,
       }
     : undefined;
 

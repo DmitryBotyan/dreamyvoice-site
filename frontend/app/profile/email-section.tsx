@@ -20,6 +20,7 @@ export function EmailSection({ user }: Props) {
 
   const hasEmail = Boolean(user.email);
   const isVerified = user.emailVerified;
+  const pendingEmail = user.pendingEmail ?? null;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -73,11 +74,13 @@ export function EmailSection({ user }: Props) {
       <div className={styles.profilePanelHeader}>
         <h2>Email</h2>
         <p>
-          {hasEmail
-            ? isVerified
-              ? "Email подтверждён."
-              : "Email не подтверждён. Проверьте почту или запросите письмо повторно."
-            : "Добавьте email для восстановления доступа к аккаунту."}
+          {pendingEmail
+            ? `Ждём подтверждения на ${pendingEmail}. Пока адрес не сменится.`
+            : hasEmail
+              ? isVerified
+                ? "Подтверждён"
+                : "Не подтверждён. Проверьте почту или запросите письмо повторно."
+              : "Добавьте email, чтобы восстанавливать доступ к аккаунту."}
         </p>
       </div>
 
@@ -86,6 +89,11 @@ export function EmailSection({ user }: Props) {
           <span className={styles.emailValue}>{user.email}</span>
           {!isVerified && (
             <span className={styles.emailUnverified}>Не подтверждён</span>
+          )}
+          {pendingEmail && (
+            <span className={styles.emailUnverified}>
+              → {pendingEmail}: ждёт подтверждения
+            </span>
           )}
         </div>
       )}
@@ -133,8 +141,8 @@ export function EmailSection({ user }: Props) {
 
           {status === "sent" && (
             <p className={styles.feedbackSuccess}>
-              Письмо с подтверждением отправлено на {email || user.email}.
-              Проверьте почту.
+              Письмо отправлено на {email || user.email}. Адрес сменится после
+              перехода по ссылке.
             </p>
           )}
           {error && (
@@ -159,7 +167,7 @@ export function EmailSection({ user }: Props) {
               {resendStatus === "sending"
                 ? "Отправляем..."
                 : resendStatus === "sent"
-                  ? "Отправлено ✓"
+                  ? "Отправлено"
                   : "Отправить повторно"}
             </button>
           )}

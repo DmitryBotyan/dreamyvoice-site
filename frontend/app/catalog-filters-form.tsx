@@ -10,6 +10,7 @@ import {
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AGE_RATINGS } from "@/lib/catalog-keywords";
+import { Select } from "./ui/select";
 import { CatalogFilterState } from "./catalog-filter-config";
 
 type CatalogFiltersFormProps = {
@@ -215,21 +216,6 @@ export function CatalogFiltersForm({
     };
   }, []);
 
-  // Обработчик для других полей ввода (без debounce)
-  const handleInputChange = useCallback(
-    (key: string) => (event: ChangeEvent<HTMLInputElement>) => {
-      updateParams({ [key]: event.currentTarget.value });
-    },
-    [updateParams]
-  );
-
-  const handleSelectChange = useCallback(
-    (key: string) => (event: ChangeEvent<HTMLSelectElement>) => {
-      updateParams({ [key]: event.currentTarget.value });
-    },
-    [updateParams]
-  );
-
   const handleReset = () => {
     // Очищаем все debounce таймеры при сбросе
     Object.values(debounceTimersRef.current).forEach((timer) => {
@@ -298,65 +284,55 @@ export function CatalogFiltersForm({
           </div>
         </div>
         <div className="catalog-filter-group">
-          <select
-            id="catalog-filter-genres"
-            name="genre"
+          <Select
+            options={[
+              { value: "", label: "Все жанры" },
+              ...genreOptions.map((genre) => ({
+                value: genre,
+                label: formatLabel(genre),
+              })),
+            ]}
             value={filters.genre ?? ""}
-            className="catalog-filter-select"
-            onChange={handleSelectChange("genre")}
-          >
-            <option value="">Все жанры</option>
-            {genreOptions.map((genre) => (
-              <option key={genre} value={genre}>
-                {formatLabel(genre)}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => updateParams({ genre: value || undefined })}
+            ariaLabel="Жанр"
+          />
         </div>
         <div className="catalog-filter-group">
-          <select
-            id="catalog-filter-tags"
-            name="tag"
+          <Select
+            options={[
+              { value: "", label: "Все теги" },
+              ...tagOptions.map((tag) => ({
+                value: tag,
+                label: formatLabel(tag),
+              })),
+            ]}
             value={filters.tag ?? ""}
-            className="catalog-filter-select"
-            onChange={handleSelectChange("tag")}
-          >
-            <option value="">Все теги</option>
-            {tagOptions.map((tag) => (
-              <option key={tag} value={tag}>
-                {formatLabel(tag)}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => updateParams({ tag: value || undefined })}
+            ariaLabel="Тег"
+          />
         </div>
         <div className="catalog-filter-group">
-          <select
-            id="catalog-filter-status"
-            name="status"
+          <Select
+            options={[
+              { value: "all", label: "Все статусы" },
+              { value: "ongoing", label: "Онгоинг" },
+              { value: "released", label: "Выпущено" },
+            ]}
             value={filters.status}
-            className="catalog-filter-select"
-            onChange={handleSelectChange("status")}
-          >
-            <option value="all">Все статусы</option>
-            <option value="ongoing">Онгоинг</option>
-            <option value="released">Выпущено</option>
-          </select>
+            onChange={(value) => updateParams({ status: value })}
+            ariaLabel="Статус"
+          />
         </div>
         <div className="catalog-filter-group">
-          <select
-            id="catalog-filter-rating"
-            name="rating"
+          <Select
+            options={[
+              { value: "", label: "Любой рейтинг" },
+              ...AGE_RATINGS.map((rating) => ({ value: rating, label: rating })),
+            ]}
             value={filters.ageRating ?? ""}
-            className="catalog-filter-select"
-            onChange={handleSelectChange("rating")}
-          >
-            <option value="">Любой рейтинг</option>
-            {AGE_RATINGS.map((rating) => (
-              <option key={rating} value={rating}>
-                {rating}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => updateParams({ rating: value || undefined })}
+            ariaLabel="Возрастной рейтинг"
+          />
         </div>
         <div className="catalog-filter-actions">
           <button

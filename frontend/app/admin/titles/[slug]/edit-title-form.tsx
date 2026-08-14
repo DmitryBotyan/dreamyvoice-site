@@ -9,8 +9,8 @@ import { clientConfig } from "@/lib/client-config";
 import { buildMediaUrl } from "@/lib/media";
 import { AGE_RATINGS, TAG_KEYWORDS } from "@/lib/catalog-keywords";
 import styles from "../../styles.module.css";
-import { Select } from "../../ui/select";
-import { FileField } from "../../ui/file-field";
+import { Select } from "../../../ui/select";
+import { FileField } from "../../../ui/file-field";
 import { GENRE_KEYWORDS } from "@/lib/genres";
 import {
   DEFAULT_TITLE_STATUS,

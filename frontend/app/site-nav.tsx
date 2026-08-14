@@ -332,7 +332,9 @@ export function SiteNav({
                     <p className="site-nav-mobile-auth-greeting">
                       Привет,{" "}
                       <Link
-                        href="/profile"
+                        href={
+                          currentUser.role === "ADMIN" ? "/admin" : "/profile"
+                        }
                         onClick={() => {
                           closeMobileMenu();
                         }}
