@@ -108,6 +108,7 @@ export function EpisodeCreditsEditor({
                   options={memberOptions}
                   value={row.teamMemberId}
                   onChange={(value) => handleMemberChange(row.key, value)}
+                  name="creditTeamMemberId"
                   ariaLabel="Участник"
                 />
               </div>

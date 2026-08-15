@@ -1205,8 +1205,29 @@
     gap: 10px;
   }
 
+  .creditsRows {
+    gap: 14px;
+  }
+
   .creditsRow {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--admin-line);
+  }
+
+  .creditsRow:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  /* В колоночном flex базис задаёт высоту: без сброса поля растягивались на 160px. */
+  .creditsField {
+    flex: 0 0 auto;
+  }
+
+  .creditsRow .adminLinkButton {
+    align-self: flex-start;
   }
 }
