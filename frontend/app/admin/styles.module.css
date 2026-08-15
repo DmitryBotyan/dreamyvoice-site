@@ -1003,8 +1003,34 @@
   font-size: 0.9rem;
 }
 
-.editorLinkBar button {
+/* Кнопки строки со ссылкой — текстовые, а не иконки тулбара,
+   поэтому у них своя геометрия. */
+.editorLinkBar .editorButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
   border: 1px solid var(--admin-line-strong);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.editorLinkBar .editorButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--admin-hover);
+  color: var(--foreground);
+}
+
+.editorLinkBar .editorButton:focus-visible:not(:disabled) {
+  outline: none;
+  border-color: var(--accent);
 }
 
 /* Подсказка занимает всю ширину строки, чтобы не сжимать поле ввода. */

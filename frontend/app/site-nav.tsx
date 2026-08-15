@@ -150,12 +150,9 @@ export function SiteNav({
     }
   };
 
+  // Новости идут отдельной ссылкой перед каталогом, а не в общем списке:
+  // они должны стоять первыми и не уезжать в «Еще».
   const navItems: NavItem[] = [
-    {
-      key: "news",
-      href: "/news",
-      label: "Новости",
-    },
     {
       key: "random",
       href: "/titles/random",
@@ -195,6 +192,19 @@ export function SiteNav({
         {item.label}
       </Link>
     ));
+
+  const renderNewsLink = (options?: { closeMobile?: boolean }) => (
+    <Link
+      href="/news"
+      onClick={() => {
+        if (options?.closeMobile) {
+          closeMobileMenu();
+        }
+      }}
+    >
+      Новости
+    </Link>
+  );
 
   const renderCatalogLink = (options?: { closeMobile?: boolean }) => (
     <Link
@@ -239,6 +249,7 @@ export function SiteNav({
   return (
     <nav className={navClassName}>
       <div className="site-nav-links">
+        {renderNewsLink()}
         {renderCatalogLink()}
         {isHeaderNav ? (
           <>
@@ -323,6 +334,7 @@ export function SiteNav({
                 </div>
               ) : null}
               <div className="site-nav-mobile-links">
+                {renderNewsLink({ closeMobile: true })}
                 {renderCatalogLink({ closeMobile: true })}
                 {renderExtraNavLinks({ closeMobile: true })}
               </div>

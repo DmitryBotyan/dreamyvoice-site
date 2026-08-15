@@ -28,8 +28,8 @@ export function SiteFooter({ isAuthenticated }: SiteFooterProps) {
         </Link>
 
         <nav className="site-footer-links" aria-label="Разделы сайта">
-          <Link href="/#catalog">Каталог</Link>
           <Link href="/news">Новости</Link>
+          <Link href="/#catalog">Каталог</Link>
           <Link href="/team">Команда</Link>
           {isAuthenticated ? <Link href="/favorites">Избранное</Link> : null}
           <Link href="/team#support">Поддержать</Link>
