@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const STORAGE_KEY = "dv_cookie_notice";
+// Версия в ключе: текст изменился по существу (добавилась аналитика),
+// поэтому уведомление должно показаться заново даже тем, кто его закрывал.
+const STORAGE_KEY = "dv_cookie_notice_v2";
 
 /**
  * Уведомление о cookie: информирование, а не запрос согласия.
- * Если появятся cookie аналитики, которые можно отключить, здесь понадобится
- * настоящий выбор и загрузка счётчика только после согласия.
+ * Если понадобится давать выбор по аналитике, здесь появится второй вариант
+ * ответа, а счётчик Метрики должен будет грузиться только после согласия.
  */
 export function CookieNotice() {
   const [isVisible, setIsVisible] = useState(false);
@@ -39,8 +41,9 @@ export function CookieNotice() {
   return (
     <div className="cookie-notice" role="region" aria-label="Уведомление о cookie">
       <p className="cookie-notice-text">
-        Сайт использует cookie, чтобы вы оставались в аккаунте. Какие именно и
-        зачем — в <Link href="/privacy">политике конфиденциальности</Link>.
+        Сайт использует cookie: они держат вас в аккаунте и помогают Яндекс
+        Метрике считать посещения. Какие именно и зачем — в{" "}
+        <Link href="/privacy">политике конфиденциальности</Link>.
       </p>
       <button type="button" className="cookie-notice-button" onClick={dismiss}>
         Понятно

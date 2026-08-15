@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { clientConfig } from "@/lib/client-config";
+import { VIDEO_EMBED_HINT, toVideoEmbedUrl } from "@/lib/video-embed";
 import {
   BulletListIcon,
   ClearFormatIcon,
@@ -11,6 +12,7 @@ import {
   QuoteIcon,
   RuleIcon,
   UnlinkIcon,
+  VideoIcon,
 } from "./editor-icons";
 import styles from "../styles.module.css";
 
@@ -58,6 +60,21 @@ const TOOLBAR: ToolbarButton[][] = [
   ],
 ];
 
+const escapeAttribute = (value: string) =>
+  value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+
+/** Размеры нужны, чтобы место под картинку резервировалось до её загрузки. */
+async function readImageSize(file: File) {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const size = { width: bitmap.width, height: bitmap.height };
+    bitmap.close();
+    return size;
+  } catch {
+    return null;
+  }
+}
+
 export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Props) {
   const editorRef = useRef<HTMLDivElement>(null);
   const savedRangeRef = useRef<Range | null>(null);
@@ -65,6 +82,9 @@ export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Prop
   const [html, setHtml] = useState(initialHtml);
   const [isLinkBarOpen, setIsLinkBarOpen] = useState(false);
   const [linkValue, setLinkValue] = useState("https://");
+  const [isVideoBarOpen, setIsVideoBarOpen] = useState(false);
+  const [videoValue, setVideoValue] = useState("");
+  const [videoError, setVideoError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -80,6 +100,9 @@ export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Prop
     }
     setHtml("");
     setIsLinkBarOpen(false);
+    setIsVideoBarOpen(false);
+    setVideoValue("");
+    setVideoError(null);
   }, [resetSignal]);
 
   useEffect(() => {
@@ -142,6 +165,30 @@ export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Prop
     setLinkValue("https://");
   }, [linkValue, restoreSelection, syncHtml]);
 
+  const handleVideoApply = useCallback(() => {
+    const embedUrl = toVideoEmbedUrl(videoValue);
+
+    if (!embedUrl) {
+      setVideoError(`Не получилось разобрать ссылку. ${VIDEO_EMBED_HINT}.`);
+      return;
+    }
+
+    restoreSelection();
+    document.execCommand(
+      "insertHTML",
+      false,
+      `<iframe src="${escapeAttribute(embedUrl)}" title="Видео" loading="lazy" allowfullscreen ` +
+        // На сайте стоит Referrer-Policy: no-referrer, а площадки без реферера
+        // часто отказываются проигрывать видео на чужой странице.
+        `referrerpolicy="strict-origin-when-cross-origin" ` +
+        `allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe><p><br></p>`
+    );
+    syncHtml();
+    setIsVideoBarOpen(false);
+    setVideoValue("");
+    setVideoError(null);
+  }, [restoreSelection, syncHtml, videoValue]);
+
   const handleImageUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
@@ -158,6 +205,7 @@ export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Prop
       setIsUploading(true);
       setUploadError(null);
 
+      const size = await readImageSize(file);
       const formData = new FormData();
       formData.append("file", file);
 
@@ -174,12 +222,19 @@ export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Prop
         }
 
         const data = await response.json();
+        const attributes = [
+          `src="/media/covers/${encodeURIComponent(data.key)}"`,
+          'alt=""',
+          size ? `width="${size.width}" height="${size.height}"` : "",
+          // Тот же приём, что на карточках каталога: пока файл грузится,
+          // на его месте показывается размытая заглушка из хэша.
+          data.blurHash ? `data-blurhash="${escapeAttribute(data.blurHash)}"` : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+
         restoreSelection();
-        document.execCommand(
-          "insertHTML",
-          false,
-          `<img src="/media/covers/${encodeURIComponent(data.key)}" alt="" />`
-        );
+        document.execCommand("insertHTML", false, `<img ${attributes} />`);
         syncHtml();
       } catch {
         setUploadError("Не удалось загрузить изображение");
@@ -242,6 +297,7 @@ export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Prop
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => {
               saveSelection();
+              setIsVideoBarOpen(false);
               setIsLinkBarOpen((open) => !open);
             }}
           >
@@ -270,6 +326,26 @@ export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Prop
             disabled={isUploading}
           >
             <ImageIcon />
+          </button>
+          <button
+            type="button"
+            className={`${styles.editorButton}${
+              isVideoBarOpen ? ` ${styles.editorButtonActive}` : ""
+            }`}
+            title="Вставить видео"
+            aria-label="Вставить видео"
+            aria-pressed={isVideoBarOpen}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              saveSelection();
+            }}
+            onClick={() => {
+              setIsLinkBarOpen(false);
+              setVideoError(null);
+              setIsVideoBarOpen((open) => !open);
+            }}
+          >
+            <VideoIcon />
           </button>
           <button
             type="button"
@@ -313,6 +389,52 @@ export function RichTextEditor({ name, initialHtml = "", resetSignal = 0 }: Prop
           >
             Отмена
           </button>
+        </div>
+      ) : null}
+
+      {isVideoBarOpen ? (
+        <div className={styles.editorLinkBar}>
+          <input
+            type="url"
+            value={videoValue}
+            autoFocus
+            placeholder="https://youtu.be/…"
+            onChange={(event) => {
+              setVideoValue(event.target.value);
+              setVideoError(null);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                handleVideoApply();
+              }
+              if (event.key === "Escape") {
+                event.preventDefault();
+                setIsVideoBarOpen(false);
+              }
+            }}
+          />
+          <button type="button" className={styles.editorButton} onClick={handleVideoApply}>
+            Вставить
+          </button>
+          <button
+            type="button"
+            className={styles.editorButton}
+            onClick={() => {
+              setIsVideoBarOpen(false);
+              setVideoError(null);
+            }}
+          >
+            Отмена
+          </button>
+          <span
+            className={`${styles.editorLinkHint}${
+              videoError ? ` ${styles.editorLinkHintError}` : ""
+            }`}
+            role={videoError ? "alert" : undefined}
+          >
+            {videoError ?? `${VIDEO_EMBED_HINT}.`}
+          </span>
         </div>
       ) : null}
 

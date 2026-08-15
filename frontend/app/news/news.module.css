@@ -166,16 +166,21 @@
   font-size: 0.83rem;
 }
 
+/* position: relative держит blurhash-заглушку поверх обложки. */
 .articleCover {
+  position: relative;
   margin-bottom: 1.75rem;
   overflow: hidden;
   border-radius: 10px;
+  aspect-ratio: 16 / 9;
 }
 
 .articleCover img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
 }
 
 /* Тело новости приходит как очищенный на сервере HTML из редактора. */
@@ -234,6 +239,17 @@
   max-width: 100%;
   height: auto;
   border-radius: 10px;
+}
+
+/* Видео с внешней площадки: занимает ширину колонки, высота — по 16:9. */
+.content iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border: 0;
+  border-radius: 10px;
+  background: #000;
 }
 
 .content hr {

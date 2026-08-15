@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUser, getNewsPosts } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
+import { CoverImage } from "../cover-image";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 import { formatNewsDate } from "./format-date";
 import styles from "./news.module.css";
@@ -34,7 +34,7 @@ export default async function NewsPage() {
         <p className={styles.empty}>Новостей пока нет.</p>
       ) : (
         <ul className={styles.grid} role="list">
-          {posts.map((post) => {
+          {posts.map((post, index) => {
             const coverUrl = post.coverKey
               ? buildMediaUrl("covers", post.coverKey)
               : null;
@@ -48,7 +48,14 @@ export default async function NewsPage() {
                     }`}
                   >
                     {coverUrl ? (
-                      <img src={coverUrl} alt={`Обложка новости «${post.title}»`} />
+                      <CoverImage
+                        src={coverUrl}
+                        alt={`Обложка новости «${post.title}»`}
+                        width={640}
+                        height={360}
+                        blurHash={post.coverBlurHash}
+                        priority={index < 3}
+                      />
                     ) : (
                       <span>DreamyVoice</span>
                     )}

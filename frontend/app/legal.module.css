@@ -41,6 +41,15 @@
   margin: 8px 0;
 }
 
+/* Названия cookie идут кодом, чтобы не путались с обычным текстом. */
+.section code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+}
+
 .section a {
   color: var(--accent-strong);
   text-decoration: none;

@@ -12,7 +12,7 @@ export const SORT_OPTIONS: SortOption[] = [
 export const DEFAULT_SORT: SortOption = "created_desc";
 
 /** Сколько карточек показывается на одной странице каталога. */
-export const CATALOG_PAGE_SIZE = 9;
+export const CATALOG_PAGE_SIZE = 12;
 
 export type CatalogFilterState = {
   query: string;

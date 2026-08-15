@@ -1294,7 +1294,6 @@ button:disabled {
 
 .catalog-filter-label {
   font-size: 0.85rem;
-  letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -1334,12 +1333,14 @@ button:disabled {
   gap: 12px;
 }
 
+/* Внутри группы «Год выхода» подписи мельче общего лейбла — они уточняют,
+   а не заводят новый блок. */
 .catalog-filter-range label {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  gap: 5px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .catalog-filter-select {
@@ -1724,6 +1725,17 @@ button:disabled {
   display: block;
   border-radius: 10px;
   pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Обёртка вокруг картинки в теле новости: держит blurhash-заглушку
+   поверх изображения, пока файл не загрузился. */
+.news-body-media {
+  position: relative;
+  display: block;
+}
+
+.news-body-media img {
   transition: opacity 0.3s ease;
 }
 

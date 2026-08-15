@@ -79,6 +79,13 @@ export const ImageIcon = () => (
   </Icon>
 );
 
+export const VideoIcon = () => (
+  <Icon>
+    <rect x="3.5" y="5.5" width="12.5" height="13" rx="2.2" />
+    <path d="M16 10.4l4.5-2.6v8.4L16 13.6z" />
+  </Icon>
+);
+
 export const ClearFormatIcon = () => (
   <Icon>
     <path d="M8.5 5.5h11" />

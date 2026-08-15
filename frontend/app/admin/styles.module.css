@@ -1007,6 +1007,17 @@
   border: 1px solid var(--admin-line-strong);
 }
 
+/* Подсказка занимает всю ширину строки, чтобы не сжимать поле ввода. */
+.editorLinkHint {
+  flex: 1 1 100%;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.editorLinkHintError {
+  color: #ff8686;
+}
+
 .editorSurface {
   min-height: 280px;
   max-height: 62vh;
@@ -1064,6 +1075,16 @@
   max-width: 100%;
   height: auto;
   border-radius: 8px;
+}
+
+.editorSurface iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border: 0;
+  border-radius: 8px;
+  background: #000;
 }
 
 .editorSurface hr {

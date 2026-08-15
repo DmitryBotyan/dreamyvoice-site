@@ -241,6 +241,9 @@ export function CatalogFiltersForm({
     >
       <div className="catalog-filter-body">
         <div className="catalog-filter-group">
+          <label className="catalog-filter-label" htmlFor="catalog-filter-query">
+            Название
+          </label>
           <input
             id="catalog-filter-query"
             name="query"
@@ -254,8 +257,10 @@ export function CatalogFiltersForm({
           />
         </div>
         <div className="catalog-filter-group">
+          <span className="catalog-filter-label">Год выхода</span>
           <div className="catalog-filter-range">
             <label htmlFor="catalog-filter-year-from">
+              <span>От</span>
               <input
                 id="catalog-filter-year-from"
                 name="yearFrom"
@@ -269,6 +274,7 @@ export function CatalogFiltersForm({
               />
             </label>
             <label htmlFor="catalog-filter-year-to">
+              <span>До</span>
               <input
                 id="catalog-filter-year-to"
                 name="yearTo"
@@ -284,6 +290,7 @@ export function CatalogFiltersForm({
           </div>
         </div>
         <div className="catalog-filter-group">
+          <span className="catalog-filter-label">Жанр</span>
           <Select
             options={[
               { value: "", label: "Все жанры" },
@@ -298,6 +305,7 @@ export function CatalogFiltersForm({
           />
         </div>
         <div className="catalog-filter-group">
+          <span className="catalog-filter-label">Тег</span>
           <Select
             options={[
               { value: "", label: "Все теги" },
@@ -312,6 +320,7 @@ export function CatalogFiltersForm({
           />
         </div>
         <div className="catalog-filter-group">
+          <span className="catalog-filter-label">Статус</span>
           <Select
             options={[
               { value: "all", label: "Все статусы" },
@@ -324,6 +333,7 @@ export function CatalogFiltersForm({
           />
         </div>
         <div className="catalog-filter-group">
+          <span className="catalog-filter-label">Возрастной рейтинг</span>
           <Select
             options={[
               { value: "", label: "Любой рейтинг" },

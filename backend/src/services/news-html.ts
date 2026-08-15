@@ -5,6 +5,21 @@ import sanitizeHtml from 'sanitize-html';
  * Перед сохранением прогоняем его через строгий allow-list: наружу отдаётся
  * только разметка, которую умеет генерировать редактор.
  */
+/**
+ * Видео вставляется только с площадок, которые мы разрешили: iframe с чужого
+ * домена — это чужой код на нашей странице, поэтому список закрытый.
+ */
+const ALLOWED_IFRAME_HOSTNAMES = [
+  'www.youtube.com',
+  'youtube.com',
+  'www.youtube-nocookie.com',
+  'youtube-nocookie.com',
+  'player.vimeo.com',
+  'rutube.ru',
+  'vk.com',
+  'vkvideo.ru',
+];
+
 const OPTIONS: sanitizeHtml.IOptions = {
   allowedTags: [
     'p',
@@ -21,14 +36,20 @@ const OPTIONS: sanitizeHtml.IOptions = {
     'blockquote',
     'a',
     'img',
+    'iframe',
     'figure',
     'figcaption',
     'hr',
   ],
   allowedAttributes: {
     a: ['href', 'target', 'rel'],
-    img: ['src', 'alt'],
+    // width/height и data-blurhash нужны, чтобы место под картинку резервировалось
+    // заранее и до загрузки показывалась размытая заглушка.
+    img: ['src', 'alt', 'width', 'height', 'data-blurhash'],
+    iframe: ['src', 'title', 'allow', 'allowfullscreen', 'loading', 'referrerpolicy'],
   },
+  allowedIframeHostnames: ALLOWED_IFRAME_HOSTNAMES,
+  allowIframeRelativeUrls: false,
   // Относительные ссылки нужны для картинок, залитых в наш же /media.
   allowedSchemes: ['http', 'https', 'mailto'],
   allowedSchemesAppliedToAttributes: ['href', 'src'],
@@ -52,8 +73,10 @@ const OPTIONS: sanitizeHtml.IOptions = {
     div: 'p',
   },
   nonTextTags: ['style', 'script', 'textarea', 'option', 'noscript'],
-  // Картинка без src остаётся после вырезания запрещённой схемы — она бесполезна.
-  exclusiveFilter: (frame) => frame.tag === 'img' && !frame.attribs.src,
+  // Картинка или видео без src остаются после вырезания запрещённого адреса —
+  // они бесполезны, поэтому убираем их целиком.
+  exclusiveFilter: (frame) =>
+    (frame.tag === 'img' || frame.tag === 'iframe') && !frame.attribs.src,
 };
 
 export const sanitizeNewsBody = (html: string) => sanitizeHtml(html, OPTIONS).trim();
@@ -64,6 +87,6 @@ export const newsBodyToPlainText = (html: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-/** Есть ли в теле хоть какое-то содержимое (текст или картинка). */
+/** Есть ли в теле хоть какое-то содержимое (текст, картинка или видео). */
 export const isEmptyNewsBody = (html: string) =>
-  newsBodyToPlainText(html).length === 0 && !/<img\b/i.test(html);
+  newsBodyToPlainText(html).length === 0 && !/<(img|iframe)\b/i.test(html);

@@ -1,10 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getNewsPost } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
+import { CoverImage } from "../../cover-image";
+import { NewsBody } from "../news-body";
 import { formatNewsDate } from "../format-date";
 import styles from "../news.module.css";
 
@@ -54,7 +55,6 @@ export default async function NewsPostPage({ params }: Props) {
             <time dateTime={new Date(publishedDate).toISOString()}>
               {formatNewsDate(publishedDate)}
             </time>
-            {post.author ? <span>{post.author.username}</span> : null}
             {post.published ? null : (
               <span className={styles.cardDraft}>Черновик</span>
             )}
@@ -63,15 +63,19 @@ export default async function NewsPostPage({ params }: Props) {
 
         {coverUrl ? (
           <div className={styles.articleCover}>
-            <img src={coverUrl} alt={`Обложка новости «${post.title}»`} />
+            <CoverImage
+              src={coverUrl}
+              alt={`Обложка новости «${post.title}»`}
+              width={1280}
+              height={720}
+              blurHash={post.coverBlurHash}
+              priority
+            />
           </div>
         ) : null}
 
         {/* HTML уже очищен по allow-list на бэкенде при сохранении. */}
-        <div
-          className={styles.content}
-          dangerouslySetInnerHTML={{ __html: post.body }}
-        />
+        <NewsBody className={styles.content} html={post.body} />
       </article>
     </div>
   );
