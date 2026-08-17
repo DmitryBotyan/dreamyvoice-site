@@ -1,5 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
-import { buildMediaUrl } from "@/lib/media";
+import { Fragment } from "react";
 import { groupCreditsByRole } from "@/lib/episode-credits";
 import type { EpisodeCredit } from "@/lib/types";
 
@@ -8,14 +7,10 @@ type Props = {
   episodeNumber: number;
 };
 
-const createInitials = (name: string) =>
-  name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-
+/**
+ * Титры серии: список «роль — кто делал». Строками, без карточки и плашек —
+ * блок и так лежит внутри плеера, а имена читаются как обычный текст.
+ */
 export function EpisodeCredits({ credits, episodeNumber }: Props) {
   const groups = groupCreditsByRole(credits);
 
@@ -29,33 +24,16 @@ export function EpisodeCredits({ credits, episodeNumber }: Props) {
       aria-label={`Над серией ${episodeNumber} работали`}
     >
       <h3 className="episode-credits-title">Над серией работали</h3>
-      <ul className="episode-credits-groups" role="list">
+      <dl className="episode-credits-list">
         {groups.map((group) => (
-          <li key={group.role} className="episode-credits-group">
-            <span className="episode-credits-role">{group.role}</span>
-            <ul className="episode-credits-people" role="list">
-              {group.credits.map((credit) => {
-                const avatarUrl = credit.avatarKey
-                  ? buildMediaUrl("avatars", credit.avatarKey)
-                  : null;
-
-                return (
-                  <li key={credit.id} className="episode-credits-person">
-                    <span className="episode-credits-avatar" aria-hidden="true">
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt="" width={28} height={28} />
-                      ) : (
-                        createInitials(credit.name)
-                      )}
-                    </span>
-                    <span className="episode-credits-name">{credit.name}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          </li>
+          <Fragment key={group.role}>
+            <dt className="episode-credits-role">{group.role}</dt>
+            <dd className="episode-credits-people">
+              {group.credits.map((credit) => credit.name).join(", ")}
+            </dd>
+          </Fragment>
         ))}
-      </ul>
+      </dl>
     </section>
   );
 }
