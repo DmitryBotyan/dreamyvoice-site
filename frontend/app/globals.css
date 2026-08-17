@@ -1552,10 +1552,44 @@ button:disabled {
 
 .episode-credits-role {
   color: var(--muted);
+  padding-top: 2px;
 }
 
 .episode-credits-people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
   margin: 0;
+}
+
+.episode-credits-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Миниатюра участника. Заглушка — та же окружность с буквой, чтобы строка
+   не рвалась там, где аватарки нет. */
+.episode-credits-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--surface-secondary);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.episode-credits-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 @media (max-width: 640px) {
