@@ -534,12 +534,40 @@ a {
 }
 
 .header-search-result {
-  display: block;
-  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
   border-radius: 10px;
   font-size: 0.9rem;
   color: var(--foreground);
   transition: background 0.15s ease;
+}
+
+/* Миниатюра обложки в подсказках поиска: та же пропорция, что у карточек каталога. */
+.header-search-cover {
+  flex-shrink: 0;
+  width: 34px;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.header-search-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Длинные названия занимали по пять строк и разносили выпадающий список. */
+.header-search-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
 }
 
 .header-search-result:hover,

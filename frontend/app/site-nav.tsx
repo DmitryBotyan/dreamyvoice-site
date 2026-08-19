@@ -11,7 +11,7 @@ import {
 import { clientConfig } from "@/lib/client-config";
 import type { PublicUser } from "@/lib/types";
 import { useAuthModal } from "./auth-modal-context";
-import { HeaderSearch } from "./header-search";
+import { HeaderSearch, type HeaderSearchOption } from "./header-search";
 
 type NavItem = {
   key: string;
@@ -23,11 +23,7 @@ type NavItem = {
 type Props = {
   isAuthenticated?: boolean;
   variant?: "header" | "footer";
-  searchOptions?: Array<{
-    id: string;
-    name: string;
-    slug: string;
-  }>;
+  searchOptions?: HeaderSearchOption[];
   currentUser?: PublicUser | null;
 };
 

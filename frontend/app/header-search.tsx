@@ -1,14 +1,20 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { buildMediaUrl } from "@/lib/media";
+
+export type HeaderSearchOption = {
+  id: string;
+  name: string;
+  slug: string;
+  coverKey?: string | null;
+};
 
 type HeaderSearchProps = {
-  titles: Array<{
-    id: string;
-    name: string;
-    slug: string;
-  }>;
+  titles: HeaderSearchOption[];
 };
 
 export function HeaderSearch({ titles }: HeaderSearchProps) {
@@ -64,17 +70,28 @@ export function HeaderSearch({ titles }: HeaderSearchProps) {
           {suggestions.length === 0 ? (
             <li className="header-search-empty">Ничего не найдено</li>
           ) : (
-            suggestions.map((title) => (
-              <li key={title.id}>
-                <Link
-                  href={`/titles/${title.slug}`}
-                  className="header-search-result"
-                  onMouseDown={(event) => event.preventDefault()}
-                >
-                  {title.name}
-                </Link>
-              </li>
-            ))
+            suggestions.map((title) => {
+              const coverUrl = title.coverKey
+                ? buildMediaUrl("covers", title.coverKey)
+                : null;
+
+              return (
+                <li key={title.id}>
+                  <Link
+                    href={`/titles/${title.slug}`}
+                    className="header-search-result"
+                    onMouseDown={(event) => event.preventDefault()}
+                  >
+                    <span className="header-search-cover" aria-hidden="true">
+                      {coverUrl ? (
+                        <img src={coverUrl} alt="" width={34} height={48} loading="lazy" />
+                      ) : null}
+                    </span>
+                    <span className="header-search-name">{title.name}</span>
+                  </Link>
+                </li>
+              );
+            })
           )}
         </ul>
       )}
