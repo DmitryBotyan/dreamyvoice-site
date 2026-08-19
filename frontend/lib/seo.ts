@@ -2,6 +2,24 @@ import type { Metadata } from "next";
 
 type OpenGraphImages = NonNullable<Metadata["openGraph"]>["images"];
 
+/**
+ * Название и описание сайта, из которых собираются заголовки вкладок и
+ * превью ссылок в мессенджерах. Держим их в одном месте, чтобы описание
+ * не расходилось между страницами.
+ */
+export const SITE_NAME = "DreamyVoice";
+
+export const SITE_TITLE = "DreamyVoice: аниме в озвучке команды";
+
+export const SITE_DESCRIPTION =
+  "Каталог аниме в озвучке команды DreamyVoice. Смотрите онгоинги и завершённые тайтлы онлайн бесплатно: серии выходят по мере готовности, есть поиск, фильтры по жанрам, избранное и комментарии.";
+
+/** Ссылки на официальные площадки команды, для разметки организации. */
+const SOCIAL_PROFILES = [
+  "https://t.me/DreamyVoice_Official",
+  "https://vk.com/dreamyvoice",
+];
+
 function normalizeSiteUrl(url?: string | null): string {
   const fallback = "https://dreamyvoice.net";
   if (!url) {
@@ -71,13 +89,18 @@ export function createBaseMetadata(overrides?: {
   robots?: Metadata["robots"];
   imageWidth?: number;
   imageHeight?: number;
+  /** Для новостей: превью оформляется как статья, а не как раздел сайта. */
+  article?: {
+    publishedTime?: string;
+    modifiedTime?: string;
+  };
+  /** Заголовок уже содержит название сайта, приписывать его второй раз не нужно. */
+  titleAbsolute?: boolean;
 }): Metadata {
   const siteUrl = getSiteUrl();
-  const title = overrides?.title || "DreamyVoice — Каталог аниме в озвучке команды";
-  const fullDescription =
-    overrides?.description ||
-    "Смотрите аниме в профессиональной озвучке команды DreamyVoice. Каталог тайтлов с сериями, комментариями и удобным просмотром. Все релизы доступны онлайн бесплатно.";
-  
+  const title = overrides?.title || SITE_TITLE;
+  const fullDescription = overrides?.description || SITE_DESCRIPTION;
+
   // Оптимизируем описания для разных платформ
   const ogDescription = truncateDescription(fullDescription, 300); // OG поддерживает до 300 символов
   const twitterDescription = truncateDescription(fullDescription, 200); // Twitter рекомендует до 200 символов
@@ -90,12 +113,48 @@ export function createBaseMetadata(overrides?: {
   // Создаем абсолютный URL для изображения с поддержкой HTTPS
   const imageUrl = image.startsWith("http") ? image : getAbsoluteUrl(image);
 
+  // Размеры указываем только у своей заставки: у обложек новостей и тайтлов
+  // они разные, и заявленные наугад ломают превью.
+  const hasKnownSize =
+    !overrides?.image || overrides.imageWidth !== undefined;
+  const ogImages: OpenGraphImages = hasKnownSize
+    ? [
+        {
+          url: imageUrl,
+          width: imageWidth,
+          height: imageHeight,
+          alt: title,
+        },
+      ]
+    : [{ url: imageUrl, alt: title }];
+
+  const openGraph: Metadata["openGraph"] = overrides?.article
+    ? {
+        type: "article",
+        publishedTime: overrides.article.publishedTime,
+        modifiedTime: overrides.article.modifiedTime,
+        locale: "ru_RU",
+        url,
+        siteName: SITE_NAME,
+        title,
+        description: ogDescription,
+        images: ogImages,
+      }
+    : {
+        type: "website",
+        locale: "ru_RU",
+        url,
+        siteName: SITE_NAME,
+        title,
+        description: ogDescription,
+        images: ogImages,
+      };
+
   return {
     metadataBase: new URL(siteUrl),
-    title: {
-      default: title,
-      template: "%s | DreamyVoice",
-    },
+    // Шаблон «%s | DreamyVoice» живёт в корневом layout, поэтому здесь
+    // заголовок страницы отдаётся строкой и название сайта не дублируется.
+    title: overrides?.titleAbsolute ? { absolute: title } : title,
     description: fullDescription, // Полное описание для поисковых систем
     keywords: [
       "аниме",
@@ -116,23 +175,7 @@ export function createBaseMetadata(overrides?: {
       address: false,
       telephone: false,
     },
-    openGraph: {
-      type: "website",
-      locale: "ru_RU",
-      url,
-      siteName: "DreamyVoice",
-      title,
-      description: ogDescription, // Оптимизированное описание для OG
-      images: [
-        {
-          url: imageUrl,
-          width: imageWidth,
-          height: imageHeight,
-          alt: title,
-          type: "image/png",
-        },
-      ],
-    },
+    openGraph,
     twitter: {
       card: "summary_large_image",
       title,
@@ -180,42 +223,37 @@ export function createTitleMetadata(
     episodes: Array<{ number: number; published: boolean }>;
   }
 ): Metadata {
-  const siteUrl = getSiteUrl();
   const titleName = title.name;
-  const description =
-    title.description?.trim() ||
-    `Смотрите ${titleName} в озвучке команды DreamyVoice. Все серии доступны для просмотра онлайн.`;
   const url = getAbsoluteUrl(`/titles/${title.slug}`);
   const publishedEpisodes = title.episodes.filter((ep) => ep.published);
   const episodeCount = publishedEpisodes.length;
-  const totalEpisodes = title.episodes.length;
 
-  // Формируем подробное описание с информацией о сериях
-  let episodeInfo = "";
-  if (episodeCount > 0) {
-    const episodeWord =
-      episodeCount === 1
-        ? "серия"
-        : episodeCount < 5
-        ? "серии"
-        : "серий";
-    episodeInfo = `${episodeCount} ${episodeWord} доступно для просмотра онлайн.`;
-  } else {
-    episodeInfo = "Скоро будут доступны серии для просмотра.";
-  }
+  // Сколько серий уже выложено: это первое, что хотят знать по ссылке.
+  const episodeWord =
+    episodeCount % 10 === 1 && episodeCount % 100 !== 11
+      ? "серия"
+      : [2, 3, 4].includes(episodeCount % 10) &&
+        ![12, 13, 14].includes(episodeCount % 100)
+      ? "серии"
+      : "серий";
+  const episodeInfo =
+    episodeCount > 0
+      ? `На сайте ${episodeCount} ${episodeWord} для просмотра онлайн.`
+      : "Серии появятся здесь сразу после выхода озвучки.";
 
-  // Создаем подробное описание
-  const baseDescription = description.trim() || `Смотрите ${titleName} в профессиональной озвучке команды DreamyVoice.`;
-  const fullDescription = `${baseDescription} ${episodeInfo} Все серии с качественной русской озвучкой, удобный плеер и возможность оставлять комментарии.`;
+  const baseDescription =
+    title.description?.trim() ||
+    `${titleName} в озвучке команды DreamyVoice.`;
+  const fullDescription = `${baseDescription} ${episodeInfo}`;
 
   // Изображение обложки или дефолтное
   const image = title.coverKey
     ? getAbsoluteUrl(`/media/covers/${encodeURIComponent(title.coverKey)}`)
     : getAbsoluteUrl("/og-image.png");
-  
+
   const imageAlt = title.coverKey
     ? `Обложка аниме ${titleName}`
-    : `DreamyVoice — ${titleName}`;
+    : `${titleName} в озвучке DreamyVoice`;
 
   // Для обложек тайтлов не указываем фиксированные размеры,
   // так как они могут быть разными. Социальные сети сами определят размеры.
@@ -319,7 +357,7 @@ export function createTitleJsonLd(
       : {}),
     ...(publishedEpisodes.length > 0
       ? {
-          episode: publishedEpisodes.map((ep, idx) => ({
+          episode: publishedEpisodes.map((ep) => ({
             "@type": "TVEpisode",
             episodeNumber: ep.number,
             name: `Серия ${ep.number}`,
@@ -339,12 +377,12 @@ export function createOrganizationJsonLd(): object {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "DreamyVoice",
+    name: SITE_NAME,
     url: siteUrl,
     logo: getAbsoluteUrl("/og-image.png"),
     description:
-      "Команда озвучки аниме DreamyVoice. Профессиональная озвучка и каталог тайтлов.",
-    sameAs: [],
+      "Команда озвучки аниме DreamyVoice: озвучиваем сериалы и выкладываем серии в собственном каталоге.",
+    sameAs: SOCIAL_PROFILES,
   };
 }
 
@@ -357,21 +395,64 @@ export function createWebsiteJsonLd(): object {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "DreamyVoice",
+    name: SITE_NAME,
     url: siteUrl,
-    description:
-      "Каталог аниме в озвучке команды DreamyVoice. Смотрите тайтлы онлайн с удобным плеером.",
+    description: SITE_DESCRIPTION,
+    inLanguage: "ru-RU",
     publisher: {
       "@type": "Organization",
-      name: "DreamyVoice",
+      name: SITE_NAME,
     },
     potentialAction: {
       "@type": "SearchAction",
+      // Параметр совпадает с полем поиска в фильтрах каталога.
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `${siteUrl}/?search={search_term_string}`,
+        urlTemplate: `${siteUrl}/?query={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+/** Разметка новости, чтобы поиск показывал её как статью с датой. */
+export function createNewsJsonLd(post: {
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  coverKey?: string | null;
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}): object {
+  const url = getAbsoluteUrl(`/news/${post.slug}`);
+  const image = post.coverKey
+    ? getAbsoluteUrl(`/media/covers/${encodeURIComponent(post.coverKey)}`)
+    : getAbsoluteUrl("/og-image.png");
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: post.title,
+    description: post.excerpt?.trim() || undefined,
+    image,
+    url,
+    mainEntityOfPage: url,
+    inLanguage: "ru-RU",
+    datePublished: post.publishedAt ?? post.createdAt,
+    dateModified: post.updatedAt,
+    author: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: getSiteUrl(),
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: {
+        "@type": "ImageObject",
+        url: getAbsoluteUrl("/og-image.png"),
+      },
     },
   };
 }

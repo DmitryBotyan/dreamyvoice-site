@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getNewsPost } from "@/lib/server-api";
 import { buildMediaUrl } from "@/lib/media";
-import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
+import { createBaseMetadata, createNewsJsonLd, getAbsoluteUrl } from "@/lib/seo";
 import { CoverImage } from "../../cover-image";
 import { NewsBody } from "../news-body";
 import { formatNewsDate } from "../format-date";
@@ -26,6 +26,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: post.excerpt ?? undefined,
     url: getAbsoluteUrl(`/news/${post.slug}`),
     image: post.coverKey ? buildMediaUrl("covers", post.coverKey) ?? undefined : undefined,
+    article: {
+      publishedTime: post.publishedAt ?? post.createdAt,
+      modifiedTime: post.updatedAt,
+    },
     // Черновик доступен админу по прямой ссылке, но индексировать его не нужно.
     robots: post.published ? undefined : { index: false, follow: false },
   });
@@ -42,8 +46,17 @@ export default async function NewsPostPage({ params }: Props) {
   const coverUrl = post.coverKey ? buildMediaUrl("covers", post.coverKey) : null;
   const publishedDate = post.publishedAt ?? post.createdAt;
 
+  // Разметку черновика поисковикам отдавать незачем.
+  const newsJsonLd = post.published ? createNewsJsonLd(post) : null;
+
   return (
     <div className={styles.page}>
+      {newsJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(newsJsonLd) }}
+        />
+      ) : null}
       <article className={styles.article}>
         <Link href="/news" className={styles.back}>
           Назад к новостям

@@ -11,12 +11,20 @@ import { AuthModalProvider } from "./auth-modal-context";
 import { ScrollTopOnNavigation } from "./scroll-top";
 import { CookieNotice } from "./cookie-notice";
 import {
+  SITE_TITLE,
   createBaseMetadata,
   createOrganizationJsonLd,
   createWebsiteJsonLd,
 } from "@/lib/seo";
 
-export const metadata: Metadata = createBaseMetadata();
+export const metadata: Metadata = {
+  ...createBaseMetadata(),
+  // Заголовки вложенных страниц получают приписку с названием сайта.
+  title: {
+    default: SITE_TITLE,
+    template: "%s | DreamyVoice",
+  },
+};
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -35,6 +43,7 @@ export default async function RootLayout({
     id: title.id,
     name: title.name,
     slug: title.slug,
+    coverKey: title.coverKey,
   }));
 
   const organizationJsonLd = createOrganizationJsonLd();

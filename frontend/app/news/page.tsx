@@ -8,9 +8,9 @@ import { formatNewsDate } from "./format-date";
 import styles from "./news.module.css";
 
 export const metadata: Metadata = createBaseMetadata({
-  title: "Новости DreamyVoice",
+  title: "Новости",
   description:
-    "Новости команды DreamyVoice: анонсы релизов, обновления сайта и всё, что происходит вокруг наших озвучек.",
+    "Новости команды DreamyVoice: анонсы озвучек, выход новых серий и обновления сайта.",
   url: getAbsoluteUrl("/news"),
 });
 

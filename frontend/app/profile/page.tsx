@@ -14,9 +14,9 @@ import styles from "./profile.module.css";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = createBaseMetadata({
-  title: "Профиль пользователя",
+  title: "Профиль",
   description:
-    "Управление профилем на DreamyVoice. Измените аватар, никнейм и другие настройки аккаунта.",
+    "Настройки профиля на DreamyVoice: аватар, никнейм, почта и список аниме.",
   url: getAbsoluteUrl("/profile"),
   robots: {
     index: false,

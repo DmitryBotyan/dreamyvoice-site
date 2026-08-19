@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTitles, getGenres, getTags } from "@/lib/server-api";
@@ -10,14 +9,17 @@ import {
   parsePageParam,
   type HomePageSearchParams,
 } from "./catalog-filter-utils";
-import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
+import {
+  SITE_DESCRIPTION,
+  SITE_TITLE,
+  createBaseMetadata,
+  getAbsoluteUrl,
+} from "@/lib/seo";
 import { NewEpisodeBadge } from "./new-episode-badge";
 import { isOngoingTitle } from "@/lib/title-status";
 import { CoverImage } from "./cover-image";
 
-const BASE_TITLE = "DreamyVoice — Каталог аниме в озвучке команды";
-const BASE_DESCRIPTION =
-  "Смотрите аниме в профессиональной озвучке команды DreamyVoice. Каталог тайтлов с сериями, комментариями и удобным просмотром. Все релизы доступны онлайн бесплатно. Удобный поиск, фильтры по жанрам и возможность добавлять тайтлы в избранное.";
+const BASE_DESCRIPTION = SITE_DESCRIPTION;
 
 type Props = {
   searchParams?: Promise<HomePageSearchParams>;
@@ -31,9 +33,10 @@ export async function generateMetadata({
   const isFirstPage = page <= 1;
 
   return createBaseMetadata({
-    title: isFirstPage ? BASE_TITLE : `${BASE_TITLE} — страница ${page}`,
+    title: isFirstPage ? SITE_TITLE : `${SITE_TITLE}, страница ${page}`,
+    titleAbsolute: true,
     description: BASE_DESCRIPTION,
-    // Канонический URL страниц каталога — с номером страницы, чтобы не плодить дубли.
+    // Канонический URL страниц каталога с номером страницы, чтобы не плодить дубли.
     url: getAbsoluteUrl(isFirstPage ? "/" : `/?page=${page}`),
   });
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import styles from '../legal.module.css';
 
 export const metadata: Metadata = {
-  title: 'Условия использования — DreamyVoice',
+  title: 'Условия использования',
   robots: { index: false, follow: false },
 };
 
@@ -68,7 +68,7 @@ export default function TermsPage() {
         <h2>6. Данные, cookie и сторонние сервисы</h2>
         <p>
           Для работы аккаунта Сервис использует технические cookie, а для
-          статистики посещаемости — Яндекс Метрику, включая Вебвизор. Какие
+          статистики посещаемости Яндекс Метрику, включая Вебвизор. Какие
           данные при этом собираются и как отказаться от их сбора, описано в{' '}
           <a href="/privacy">политике конфиденциальности</a>.
         </p>

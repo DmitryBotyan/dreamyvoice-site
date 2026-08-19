@@ -8,10 +8,12 @@ import styles from "./page.module.css";
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = createBaseMetadata({
-  title: "Избранные тайтлы",
+  title: "Избранное",
   description:
-    "Ваша коллекция избранных аниме тайтлов. Быстрый доступ к любимым релизам команды DreamyVoice.",
+    "Тайтлы, которые вы отметили в каталоге DreamyVoice, чтобы не искать их заново.",
   url: getAbsoluteUrl("/favorites"),
+  // Личный раздел: в поиске ему делать нечего.
+  robots: { index: false, follow: true },
 });
 
 export default async function FavoritesPage() {

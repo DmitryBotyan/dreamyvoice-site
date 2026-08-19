@@ -4,9 +4,9 @@ import { TeamList } from './team-list';
 import { createBaseMetadata, getAbsoluteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = createBaseMetadata({
-  title: "Команда DreamyVoice",
+  title: "Команда",
   description:
-    "Знакомьтесь с командой озвучки DreamyVoice. Профессиональные актеры и режиссеры, которые создают качественную русскую озвучку аниме. Узнайте больше о людях, стоящих за вашими любимыми озвучками.",
+    "Кто делает озвучку DreamyVoice: актёры озвучки, переводчики, звукорежиссёры и все, кто работает над сериями. Здесь же можно поддержать команду.",
   url: getAbsoluteUrl("/team"),
 });
 
