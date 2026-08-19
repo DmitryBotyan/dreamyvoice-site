@@ -546,6 +546,7 @@ a {
 
 /* Миниатюра обложки в подсказках поиска: та же пропорция, что у карточек каталога. */
 .header-search-cover {
+  position: relative;
   flex-shrink: 0;
   width: 34px;
   height: 48px;

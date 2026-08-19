@@ -44,6 +44,7 @@ export default async function RootLayout({
     name: title.name,
     slug: title.slug,
     coverKey: title.coverKey,
+    coverBlurHash: title.coverBlurHash,
   }));
 
   const organizationJsonLd = createOrganizationJsonLd();

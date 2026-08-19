@@ -1,16 +1,16 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { buildMediaUrl } from "@/lib/media";
+import { CoverImage } from "./cover-image";
 
 export type HeaderSearchOption = {
   id: string;
   name: string;
   slug: string;
   coverKey?: string | null;
+  coverBlurHash?: string | null;
 };
 
 type HeaderSearchProps = {
@@ -84,7 +84,13 @@ export function HeaderSearch({ titles }: HeaderSearchProps) {
                   >
                     <span className="header-search-cover" aria-hidden="true">
                       {coverUrl ? (
-                        <img src={coverUrl} alt="" width={34} height={48} loading="lazy" />
+                        <CoverImage
+                          src={coverUrl}
+                          alt=""
+                          width={34}
+                          height={48}
+                          blurHash={title.coverBlurHash}
+                        />
                       ) : null}
                     </span>
                     <span className="header-search-name">{title.name}</span>
